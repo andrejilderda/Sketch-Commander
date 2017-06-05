@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="styles.css">
+	
+	<title>Sketch Commander</title>
+</head>
+
+<body>
+	<div class="c-flex">
+		<div class="c-flex__fixed">
+			<ul class="c-action-context">
+				<li class="c-action-context__item">
+					<a class="c-action-context__link" data-context="commands">Commands</a>
+				</li>
+				<li class="c-action-context__item">
+					<a class="c-action-context__link" data-context="select">Select</a>
+				</li>
+				<li class="c-action-context__item">
+					<a class="c-action-context__link" data-context="rename">Rename</a>
+				</li>
+			</ul>
+			
+		    <input type="text" class="c-commander" id="c-commander" placeholder="Enter a command...">
+		</div>
+		<div class="c-flex__scroll">
+			<div class="c-action-context-list">
+				<ul class="c-commands-list">
+					
+				</ul>
+				<ul class="c-command-options-list">
+					
+				</ul>
+			</div>
+			<ul class="c-selection-list  c-action-context-list">
+				
+			</ul>
+			<!-- <a href="#" id="btn">Button</a> -->
+		</div>
+	</div>
+    <script src="preferences.js"></script>
+	<script src="shared.js"></script>
+    <script>
+		// Unfortunately the Sketch plugin can not trigger functions in external
+		// javscript files. That's why a few js-things are set directly in this
+		// html-file, that get processed further in `preferences.js` & `shared.js`.
+		
+        var prevUserInput,
+		actionContext;
+		var DEBUG = true;
+		// DEVMODE sets a few variables that are normally received from Sketch
+		// Useful to debug the webview outside Sketch (using Gulp). 
+		// Do disable in production!
+		var DEVMODE = true;
+		if (DEVMODE) {
+			prevUserInput = "border";
+			actionContext = 2;
+			layerNameArray = 'testlayer 1,testlayer 2';
+		};
+
+		// small delay so that its loaded...
+        var prevUserInputTimer = window.setInterval(function() {
+			if (DEBUG) { console.log("prevUserInputTimer is running") };
+			
+            if (prevUserInput) {
+                document.querySelector('.c-commander').value = prevUserInput;
+                document.querySelector('.c-commander').select();
+				clearInterval(prevUserInputTimer);
+            };
+        }, 10);
+		
+		var actionContextTimer = window.setInterval(function() {
+			if (DEBUG) { console.log("actionContextTimer is running") };
+			
+			if (actionContext) {
+				actionContext = Number(actionContext);
+				var elements = document.querySelectorAll('.c-action-context__item');
+				for(var i = 0; i < elements.length; i++) {
+					if (actionContext === i) {
+						elements[i].classList.add('is-active');
+						index = i;
+					}
+				}
+				clearInterval(actionContextTimer);
+			}
+        }, 10);
+		
+		var layerNameArrayTimer = window.setInterval(function() {
+			if (DEBUG) { console.log("layerNameArrayTimer is running") };
+			
+			if (layerNameArray) {
+				clearInterval(layerNameArrayTimer);
+			}
+        }, 10);
+		
+        var inputFieldValue = document.querySelector('.c-commander').value;
+    </script>
+</body>
+</html>

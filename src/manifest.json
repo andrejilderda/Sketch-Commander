@@ -1,0 +1,26 @@
+{
+    "name": "Sketch Commander",
+    "identifier" : "com.sketchapp.sketchcommander",
+    "homepage": "https://github.com/ajilderda/Sketch-Commander#readme",
+    "version": "2.0",
+    "description" : "Resize and reposition objects by using simple arithmetic commands, like 'b+20,lr+20'. Multiple objects are supported.",
+    "author" : "Andre Jilderda",
+    "authorEmail" : "mail@andrejilderda.nl",
+    "compatibleVersion": 3,
+    "bundleVersion": 1,
+    "commands": [
+        {
+            "name": "Sketch Commander",
+            "identifier": "onCommander",
+            "script": "./commander.js",
+            "shortcut": "ctrl shift q"
+        }
+    ],
+    "menu": {
+        "title": "Sketch Commander",
+        "items": [
+            "onCommander"
+        ]
+    },
+    "disableCocoaScriptPreprocessor": true
+}

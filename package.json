@@ -1,0 +1,45 @@
+{
+  "name": "Sketch Commander",
+  "version": "2.0",
+  "identifier" : "com.sketchapp.commander",
+  "description": "Resize and reposition objects by using simple arithmetic commands, like 'b+20,lr+20'. Multiple objects are supported.",
+  "main": "Sketch Commander.sketchplugin",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "skpm build",
+    "publish": "skpm publish"
+  },
+  "resources": [
+    "Resources/preferences.js",
+    "Resources/shared.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajilderda/Sketch-Commander.git"
+  },
+  "author": "Andre Jilderda",
+  "authorEmail" : "mail@andrejilderda.nl",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ajilderda/Sketch-Commander/issues"
+  },
+  "homepage": "https://github.com/ajilderda/Sketch-Commander#readme",
+  "manifest": "src/manifest.json",
+  "devDependencies": {
+    "skpm": "^0.9.4",
+    "browser-sync": "*",
+    "del": "*",
+    "gulp": "*",
+    "gulp-autoprefixer": "*",
+    "gulp-clean-css": "*",
+    "gulp-notify": "*",
+    "gulp-plumber": "*",
+    "gulp-sass": "*",
+    "gulp-sourcemaps": "*",
+    "gulp-uglify": "*",
+    "streamqueue": "*"
+  },
+  "dependencies": {
+    "sketch-module-web-view": "^0.1.4"
+  }
+}

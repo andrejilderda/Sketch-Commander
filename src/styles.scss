@@ -1,0 +1,139 @@
+$backgroundColor: #222831;
+// $backgroundColor: #252525;
+$activeColor: #ff5200;
+$activeColor: #FCD86B;
+$activeBgColor: lighten($backgroundColor, 2%);
+* {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+body,
+html {
+    background: $backgroundColor;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+body {
+    font-family: -apple-system,"Helvetica Neue",sans-serif;
+}
+@mixin bare-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.c-commander, .commander:focus {
+    outline: 0;
+    background: #1A1A1A;
+    background: darken($backgroundColor, 5%);
+    border: none;
+    height: 60px;
+    margin: 0;
+    color: #fff;
+    padding: 0 12px;
+    font-size: 24px;
+    font-weight: 200;
+    width: 100%;
+    &::placeholder {
+        color: lighten($backgroundColor, 30%)
+    }
+}
+
+.c-flex {
+    align-items: stretch;
+    display: flex;
+    flex-direction: column;
+    flex: auto;
+    height: 100vh;
+    
+    &__fixed {
+        flex: 0;
+    }
+    &__scroll {
+        order: 0;
+        align-self: auto;
+        flex: 1;
+        overflow-y: auto;
+    }
+}
+
+.c-action-context {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    padding: 4px 12px;
+    
+    &__item {
+        display: inline-block;
+        margin-left: 0
+    }
+    &__link {
+        text-decoration: none;
+        // color: #94989A;
+        color: lighten($backgroundColor, 50%);
+        .is-active & {
+            color: $activeColor;
+        }
+    }
+}
+
+.c-commands-list {
+    @include bare-list;
+    color: #fff;
+    font-size: 24px;
+    font-weight: 200;
+    padding: 0 12px;
+}
+.c-action-context-list {
+    display: none;
+    &.is-active {
+        display: block;
+    }
+}
+
+.c-command-options-list,
+.c-selection-list {
+    @include bare-list;
+    font-weight: 200;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 200;
+    
+    &__item {
+        border-bottom: 1px solid darken($backgroundColor, 5%);
+        padding: 12px 0;
+        padding-left: 60px;
+        position: relative;
+        
+        &:hover, &.is-active {
+            color: $activeColor;
+            background-color: $activeBgColor;
+        }
+        &.is-hidden {
+            display: none;
+        }
+        &.is-active .c-selection-list__notation,
+        &.is-active .c-command-options-list__notation {
+            color: $activeColor;
+        }
+    }
+    &__notation {
+        background-color: darken($backgroundColor, 5%);
+        color: lighten($backgroundColor, 30%);
+        height: 24px;
+        font-size: 13px;
+        line-height: 24px;
+        width: 40px;
+        text-align: center;
+        border-radius: 12px;
+        margin-left: -52px;
+        position: absolute;
+        transform: translateY(-50%);
+        top: 50%;
+        &:hover{
+            color: $activeColor;
+        }
+    }
+}
