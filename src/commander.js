@@ -1,27 +1,13 @@
 import WebUI from 'sketch-module-web-view'
 import { getCommandsObj, splitCommands } from '../Resources/shared'
 
-/*
-l		+ - =
-r		+ - =
-t		+ - =
-b		+ - =
-x		+ - =
-y		+ - =
-w		+ - / * = %
-h		+ - / * = %
-a		+ - =
-bdrs	=
-
-*/
-
-var context,
+var sketch,
+context,
 doc,
 selection,
-userInput;
-var prevUserInput  = "",
-actionContext  = "";
-var sketch;
+userInput,
+prevUserInput  = "",
+contextTabs  = "";
 
 export default function (context) {
     context = context;
@@ -32,11 +18,11 @@ export default function (context) {
     // does a userInputSetting already exist?
 	try {
 		prevUserInput = sketch.settingForKey("userInputSetting");
-        actionContext = sketch.settingForKey("actionContext");
+        contextTabs = sketch.settingForKey("contextTabs");
 	}
 	catch (e) { // else reset history
 		sketch.setSettingForKey("userInputSetting", "");
-        sketch.setSettingForKey("actionContext", "");
+        sketch.setSettingForKey("contextTabs", "");
 	}
     
     // create webview
@@ -62,7 +48,7 @@ export default function (context) {
             saveContext: function (s) {
                 context = s;
                 // store previous value for later use
-                sketch.setSettingForKey("actionContext", context);
+                sketch.setSettingForKey("contextTabs", context);
             },
             nativeLog: function (s) {
                 webUI.panel.close();
@@ -79,7 +65,7 @@ export default function (context) {
             'webView:didFinishLoadForFrame:': function (webView, webFrame) {
                 // triggers when webview is loaded
                 webUI.eval('prevUserInput ="' + prevUserInput + '"')
-                webUI.eval('actionContext ="' + actionContext + '"')
+                webUI.eval('contextTabs ="' + contextTabs + '"')
                 
                 // create array with selected layers
                 var layerNameArray = [];
@@ -101,7 +87,20 @@ function executeCommand(commandObj) {
         commandType = commandObj[k].type;
         operator = commandObj[k].operator;
         amount = commandObj[k].amount;
-        // log('obj: ' + commandType + operator + amount);
+		
+		function loopThroughSelection(callback) {
+			if (callback && typeof callback === 'function') {
+				for (var i=0; i < selection.count(); i++) {
+					var layer = selection.objectAtIndex(i);
+					// make a copy of the passed in arguments
+					var args = Array.prototype.slice.call(arguments);
+					// overwrite the passed in function name with the layer
+					args[0] = layer;
+					// run the callback function with the function name and use the arguments
+					callback.apply(callback[0], args);
+				};
+			}
+		}
         
         switchStatement:
             switch (commandType) {
@@ -110,98 +109,51 @@ function executeCommand(commandObj) {
                 case "t":
                 case "b":
                 case "a":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        resizeObject(layer, commandType, operator, amount);
-                    };
+					loopThroughSelection( resizeObject, commandType, amount, operator );
                     break switchStatement;
                 case "w":
                 case "h":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        setWidthHeightObject(layer, commandType, amount, operator);
-                    }
+					loopThroughSelection( setWidthHeightObject, commandType, amount, operator );
                     break switchStatement;
                 case "x":
                 case "y":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        moveObject(layer, commandType, amount, operator);
-                    }
+					loopThroughSelection( moveObject, commandType, amount, operator );
                     break switchStatement;
                 case "fs":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        textActions.setSize(layer, amount, operator);
-                    }
+					loopThroughSelection( textActions.setSize, amount, operator );
                     break switchStatement;
                 case "ttl":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        textActions.convertLowerCase(layer);
-                    }
+                    loopThroughSelection( textActions.convertLowerCase );
                     break switchStatement;
                 case "ttu":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        textActions.convertUpperCase(layer);
-                    }
+                    loopThroughSelection( textActions.convertUpperCase );
                     break switchStatement;
                 case "lh":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        textActions.setLineheight(layer, amount, operator);
-                    }
+                    loopThroughSelection( textActions.setLineheight, amount, operator );
                     break switchStatement;
                 case "v":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        value = amount;
-                        textActions.setValue(layer, value, operator);
-                    }
+                    loopThroughSelection( textActions.setValue, amount, operator );
                     break switchStatement;
                 case "n":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        value = amount;
-                        layerActions.rename(layer, value, operator);
-                    }
+                    loopThroughSelection( layerActions.rename, amount, operator );
                     break switchStatement;
                 case "bdc":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        borderActions.setColor(layer, amount, operator);
-                    }
+                    loopThroughSelection( borderActions.setColor, amount, operator );
                     break switchStatement;
                 case "bdr":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        borderActions.radius(layer, amount, operator);
-                    }
+                    loopThroughSelection( borderActions.radius, amount, operator );
                     break switchStatement;
                 case "bdw":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        borderActions.thickness(layer, amount, operator);
-                    }
+                    loopThroughSelection( borderActions.thickness, amount, operator );
                     break switchStatement;
                 case "bd":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        borderActions.checkOperator(layer, amount, operator);
-                    }
+                    loopThroughSelection( borderActions.checkOperator, amount, operator );
                     break switchStatement;
                 case "f":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        fillActions.setColor(layer, amount, operator);
-                    }
+                    loopThroughSelection( fillActions.setColor, amount, operator );
                     break switchStatement;
                 case "o":
-                    for (var i=0; i < selection.count(); i++) {
-                        var layer = selection.objectAtIndex(i);
-                        fillActions.setOpacity(layer, amount, operator);
-                    }
+                    loopThroughSelection( fillActions.setOpacity, amount, operator );
                     break switchStatement;
             }
     }
@@ -211,7 +163,8 @@ function executeCommand(commandObj) {
 //  LAYER ACTIONS                                               //
 //////////////////////////////////////////////////////////////////
 
-function resizeObject(layer, command, operator, amount) {
+function resizeObject(layer, command, amount, operator) {
+	
 	var calcAmount = Math.round(amount);
 	if(operator == "-")
 		calcAmount *= -1;
@@ -394,7 +347,6 @@ var borderActions = {
         
 		// if no color is given (like bd+) set the color to black
 		color = (color !== "") ? color : "000000";
-		
 		// basic check to find out if the user tries to add a width in stead of a color
 		if (color.length > 2) {
             color = color.replace("#", "");
@@ -433,6 +385,10 @@ var borderActions = {
 	}
 }
 
+//////////////////////////////////////////////////////////////////
+//  TEXT ACTIONS                                                //
+//////////////////////////////////////////////////////////////////
+
 var textActions = {
     setSize : function(layer, value, operator) {
         value = Number(value);
@@ -450,13 +406,13 @@ var textActions = {
     },
     setValue : function(layer, value, operator) {
         if (layer.className() == "MSTextLayer") {
-            var textValue = layer.stringValue();
+            var prevTextValue = layer.stringValue();
             
             if (operator == "+") {
-                layer.stringValue = textValue + value;
+                layer.stringValue = prevTextValue + value;
             }
             else if (operator == "-") {
-                textValue = textValue.replace(value, "");
+                prevTextValue = prevTextValue.replace(value, "");
                 layer.stringValue = textValue;
             }
             else {
@@ -496,7 +452,11 @@ var layerActions = {
         }
     }
 }
-    
+
+//////////////////////////////////////////////////////////////////
+//  FILL ACTIONS                                               //
+//////////////////////////////////////////////////////////////////
+
 var fillActions = {
     setColor : function(layer, color) {
         
