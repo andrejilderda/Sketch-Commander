@@ -65,7 +65,7 @@
 		if (DEVMODE) {
 			prevUserInput = " ";
 			contextTabs = 0;
-			layerNameArray = 'testlayer 1,testlayer 2';
+			selectedLayerNameArray = 'testlayer 1,testlayer 2';
 		};
 
 		// small delay so that its loaded...
@@ -95,12 +95,21 @@
 			}
         }, 10);
 		
-		var layerNameArrayTimer = window.setInterval(function() {
-			if (DEBUG) { console.log("layerNameArrayTimer is running") };
+		var selectedLayerNameArrayTimer = window.setInterval(function() {
+			if (DEBUG) { console.log("selectedLayerNameArrayTimer is running") };
 			
-			if (layerNameArray) {
-				layerNameArray = layerNameArray
-				clearInterval(layerNameArrayTimer);
+			if (selectedLayerNameArray) {
+				selectedLayerNameArray = selectedLayerNameArray
+				clearInterval(selectedLayerNameArrayTimer);
+			}
+        }, 10);
+		
+		var artboardLayerNameArrayTimer = window.setInterval(function() {
+			if (DEBUG) { console.log("artboardLayerNameArrayTimer is running") };
+			
+			if (artboardLayerNameArray) {
+				artboardLayerNameArray = artboardLayerNameArray
+				clearInterval(artboardLayerNameArrayTimer);
 			}
         }, 10);
 		

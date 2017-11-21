@@ -341,14 +341,16 @@ var listSelectedLayers = function () {
     // wait until there's input received from Sketch in index.html. This can probably done with promises, but this ugly hack works...
     var waitTillSketchInputIsReceived = window.setInterval(function () {
         // received array from Sketch is actually a string, lets convert it into a real array again
-        if (layerNameArray) {
-            layerNameArray = layerNameArray.split(',');
+        if (artboardLayerNameArray) {
+            // if (artboardLayerNameArray && selectedLayerNameArray) {
+            artboardLayerNameArray = artboardLayerNameArray.split(',');
+            selectedLayerNameArray = selectedLayerNameArray.split(',');
 
-            for (var i = 0; i < layerNameArray.length; i++) {
+            for (var i = 0; i < artboardLayerNameArray.length; i++) {
                 // create the list
                 var li = document.createElement('li');
                 li.classList.add('c-options-list__item');
-                li.innerHTML = layerNameArray[i];
+                li.innerHTML = artboardLayerNameArray[i];
                 selectedLayerList.append(li);
             }
             clearInterval(waitTillSketchInputIsReceived);

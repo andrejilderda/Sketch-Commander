@@ -68,12 +68,25 @@ export default function (context) {
                 webUI.eval('contextTabs ="' + contextTabs + '"')
                 
                 // create array with selected layers
-                var layerNameArray = [];
+                var selectedLayerNameArray = [];
                 for (var i=0; i < selection.count(); i++) {
                     var layer = selection.objectAtIndex(i);
-                    layerNameArray.push(layer.name());
+                    // selectedLayerNameArray.push(layer.name());
+					selectedLayerNameArray.push(layer.objectID());
                 }
-                webUI.eval('layerNameArray ="' + layerNameArray + '"')
+                webUI.eval('selectedLayerNameArray ="' + selectedLayerNameArray + '"')
+				
+				// create array with artboard layers
+                var artboardLayerNameArray = [];
+				var selectedArtboard = doc.currentPage().currentArtboard()
+				var artboardLayers = selectedArtboard.layers();
+				 
+                for (var i=0; i < artboardLayers.count(); i++) {
+                    var layer = artboardLayers.objectAtIndex(i);
+                    // artboardLayerNameArray.push(layer.name());
+					artboardLayerNameArray.push(layer.objectID());
+                }
+                webUI.eval('artboardLayerNameArray ="' + artboardLayerNameArray + '"')
                 // webUI.eval('someJSFunction(' + prevCommand + ')');
             }
         }
