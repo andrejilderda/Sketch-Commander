@@ -33,9 +33,6 @@
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -73,11 +70,6 @@
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-// TODO:
-// [ ] if input is empty, list all options
-// [ ] being able to navigate through options with ↑ ↓ arrows
-// [ ] tab adds value to input-field
-
 exports.getCommandsObj = getCommandsObj;
 
 
@@ -133,17 +125,17 @@ var commandList = exports.commandList = [{
     "defaultOperator": "=",
     "expectedDataType": "integer"
 }, {
-    "notation": "fs",
-    "name": "Font-size",
-    "tags": "",
-    "defaultOperator": "=",
-    "expectedDataType": "integer"
-}, {
     "notation": "f",
     "name": "Fill color",
     "tags": "",
     "defaultOperator": "#",
     "expectedDataType": "color"
+}, {
+    "notation": "fs",
+    "name": "Font-size",
+    "tags": "",
+    "defaultOperator": "=",
+    "expectedDataType": "integer"
 }, {
     "notation": "lh",
     "name": "Line-height",

@@ -33,9 +33,6 @@
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -63,11 +60,311 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _client = __webpack_require__(1);
+
+var _client2 = _interopRequireDefault(_client);
+
+var _shared = __webpack_require__(2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var btn = document.querySelector('#btn');
+var inputField = document.querySelector('.c-commander');
+var replace = document.querySelector('#replace');
+
+var contextTabs = document.querySelectorAll(".c-context-tab__item");
+var contextList = document.querySelectorAll(".c-context-list");
+var currentContext = 0;
+var commandsUl = document.querySelector(".c-commands-list");
+var optionsUl = document.querySelector(".c-options-list");
+
+var inputFieldValue = document.querySelector('.c-commander').value;
+var commands;
+var cyclingThroughOptions = false;
+
+var DEBUG = false;
+
+function setInputValue(value) {
+    inputField.value = value;
+}
+inputField.focus();
+
+// Key event listeners
+var keys = {
+    shift: false,
+    tab: false
+};
+
+inputField.addEventListener('keydown', function (e) {
+    // close on keydown enter or escape key
+    if (e.keyCode === 27) {
+        (0, _client2['default'])('closeModal');
+    }
+    if (e.keyCode === 13) {
+        if (cyclingThroughOptions) {
+            selectOption();
+        } else {
+            (0, _client2['default'])('returnUserInput', inputField.value);
+            (0, _client2['default'])('nativeLog', (0, _shared.getCommandsObj)());
+        }
+    }
+    if (e.keyCode == 9) {
+        e.preventDefault();
+        if (!cyclingThroughOptions) {
+            keys["tab"] = true;
+            if (!keys["shift"]) {
+                switchContextAction('next');
+            }
+        } else {
+            selectOption();
+        }
+    }
+    if (e.keyCode == 40) {
+        //down arrow
+        e.preventDefault();
+        navigateThroughList(+1);
+    }
+    if (e.keyCode == 38) {
+        //up arrow
+        e.preventDefault();
+        navigateThroughList(-1);
+    }
+    if (e.keyCode == 16) {
+        //shift
+        keys["shift"] = true;
+    }
+    if (keys["shift"] && keys["tab"]) {
+        e.preventDefault();
+        switchContextAction('prev');
+    }
+}, false);
+
+inputField.addEventListener('keyup', function (e) {
+    if (e.keyCode != 40 && e.keyCode != 38) {
+        //don't parse input on pressing ↑ or ↓ arrow
+        parseInput();
+    }
+
+    // reset status of the keypress
+    if (e.keyCode == 9) {
+        keys["tab"] = false;
+    }
+    if (e.keyCode == 16) {
+        //shift
+        keys["shift"] = false;
+    }
+});
+
+// function to replace current input value with the notation of selected option
+function selectOption() {
+    var optionsUlNodes = optionsUl.childNodes;
+    for (var i = 0; i < optionsUlNodes.length; i++) {
+        if ((" " + optionsUlNodes[i].className + " ").replace(/[\n\t]/g, " ").indexOf(" is-active ") > -1) {
+            var el = optionsUlNodes[i];
+            setInputValue(el.dataset.notation + el.dataset.defaultOperator);
+        }
+    }
+};
+
+function parseInput() {
+    if (DEBUG) console.log((0, _shared.getCommandsObj)());
+
+    inputFieldValue = document.querySelector('.c-commander').value;
+    commands = (0, _shared.getCommandsObj)();
+    commandsUl.innerHTML = ''; // remove existing elements
+
+    for (var i = 0; i < commands.length; i++) {
+        var commandType = commands[i].type;
+        var commandTypeName = _shared.commandList.filter(function (commandTypeName) {
+            return commandTypeName.notation === commandType;
+        })[0];
+        commandTypeName = commandTypeName.name;
+
+        // create the list
+        var li = document.createElement('li');
+        li.classList.add('c-commands-list__item');
+        li.innerHTML = commandTypeName + " " + commands[i].operator + " " + commands[i].amount;
+        commandsUl.append(li);
+    }
+    // one or more valid commands have been entered
+    if ((0, _shared.getCommandsObj)().length > 0) {
+        optionsUl.style.display = "none";
+        navigateThroughList('reset');
+    } else {
+        // no valid commands entered (yet)
+        optionsUl.style.display = "block";
+        filterActionlist();
+    }
+
+    // inputfield is empty
+    if (inputFieldValue == "") {
+        navigateThroughList('reset');
+    }
+}
+
+function listCommands() {
+    for (var key in _shared.commandList) {
+        var commandTypeName = _shared.commandList[key].name;
+        var commandNotation = _shared.commandList[key].notation;
+        var commandTags = _shared.commandList[key].tags;
+        var commandDefaultOperator = _shared.commandList[key].defaultOperator;
+        var li = document.createElement('li');
+
+        li.addEventListener("click", function (e) {
+            setInputValue(e.target.dataset.notation);
+            inputField.focus();
+            parseInput();
+        });
+        li.classList.add('c-options-list__item');
+        li.dataset.notation = commandNotation;
+        li.dataset.name = commandTypeName;
+        li.dataset.tags = commandTags;
+        li.dataset.defaultOperator = commandDefaultOperator;
+        li.innerHTML = commandTypeName;
+        optionsUl.append(li);
+
+        var span = document.createElement('span');
+        span.classList.add('c-options-list__notation');
+        span.innerHTML = commandNotation;
+        li.prepend(span);
+    }
+};
+listCommands();
+
+// for filtering the action list as long as there are no matching commands found
+function filterActionlist() {
+    var optionsItems = document.querySelectorAll(".c-options-list__item");
+    var optionsArray = Array.from(optionsItems);
+    optionsArray.filter(function (el) {
+        var filter = inputFieldValue.toLowerCase();
+        var filteredItems = el.dataset.notation + " " + el.dataset.name + " " + el.dataset.tags;
+        // console.log(el.dataset.name + ":   " + filteredItems.toLowerCase().indexOf(filter));
+        if (filteredItems.toLowerCase().indexOf(filter) == -1) {
+            el.classList.add("is-hidden");
+        } else {
+            el.classList.remove("is-hidden");
+        }
+
+        var result = optionsArray.sort(function (a, b) {
+            if (inputFieldValue === a.dataset.notation) {
+                return a.dataset.notation - b.dataset.notation;
+            }
+            return a.dataset.notation - b.dataset.notation;
+        });
+        console.log(result[0]);
+        navigateThroughList('selectFirst');
+    });
+}
+
+// for switching task contexts
+function switchContextAction(value) {
+    if (value == 'next') currentContext = currentContext + 1;else if (value == 'prev') currentContext = currentContext - 1;else currentContext = value;
+
+    var length = contextTabs.length;
+    var index = mod(currentContext, length);
+
+    contextTabs.forEach(function (el) {
+        el.classList.remove('is-active');
+    });
+    contextList.forEach(function (el) {
+        el.classList.remove('is-active');
+    });
+    // triggers visibility of both active tab as the list below
+    contextTabs[index].classList.toggle('is-active');
+    contextList[index].classList.toggle('is-active');
+
+    (0, _client2['default'])('saveContext', index);
+}
+
+// for navigating through the actionlist
+var selectedAction = -1;
+
+function navigateThroughList(value) {
+    var listItems = document.querySelectorAll(".c-context-list.is-active .c-options-list__item:not(.is-hidden)");
+
+    if (value == 'reset') {
+        selectedAction = -1;
+    } else if (value == 'selectFirst') {
+        // used when filtering items
+        selectedAction = 0;
+    } else if (!value) {
+        selectedAction++;
+    } else {
+        if (Number.isInteger(value)) selectedAction = selectedAction += value;
+    }
+
+    var length = listItems.length + 1; // so that it's possible to have nothing selected
+    var index = mod(selectedAction, length);
+    cyclingThroughOptions = true;
+
+    listItems.forEach(function (el) {
+        el.classList.remove('is-active');
+    });
+
+    if (listItems[index] != undefined) {
+        listItems[index].classList.toggle('is-active');
+        // this useful sucker surprisingly works in safari/webview, but lets keep it disabled when debugging in FF
+        if (DEBUG) listItems[index].scrollIntoViewIfNeeded(false);
+    } else {
+        cyclingThroughOptions = false;
+    }
+}
+
+// sets the active context when opening the webview (only runs once)
+var setActiveContextOnInit = function () {
+    // wait until there's an active context__item which is set in index.html. This can probably done with promises, but this ugly hack works...
+    var waitTillActiveClassIsApplied = window.setInterval(function () {
+        var elements = document.querySelectorAll('.c-context-tab__item');
+        var isActive = document.querySelector('.c-context-tab__item.is-active');
+
+        for (var i = 0; i < elements.length; i++) {
+            if (elements[i].classList.contains("is-active")) {
+                switchContextAction(i);
+                if (DEBUG) console.log("currentContext = " + currentContext);
+                clearInterval(waitTillActiveClassIsApplied);
+            }
+        }
+    }, 1);
+    setActiveContextOnInit = function setActiveContextOnInit() {}; // overwrite self-invoked function so that it can only run once
+}();
+
+// lists the selected layers
+var listSelectedLayers = function () {
+    var selectedLayerList = document.querySelector('.c-selection-list');
+    // wait until there's input received from Sketch in index.html. This can probably done with promises, but this ugly hack works...
+    var waitTillSketchInputIsReceived = window.setInterval(function () {
+        // received array from Sketch is actually a string, lets convert it into a real array again
+        if (layerNameArray) {
+            layerNameArray = layerNameArray.split(',');
+
+            for (var i = 0; i < layerNameArray.length; i++) {
+                // create the list
+                var li = document.createElement('li');
+                li.classList.add('c-options-list__item');
+                li.innerHTML = layerNameArray[i];
+                selectedLayerList.append(li);
+            }
+            clearInterval(waitTillSketchInputIsReceived);
+        }
+    }, 1);
+    listSelectedLayers = function listSelectedLayers() {}; // overwrite self-invoked function so that it can only run once
+}();
+
+// http://stackoverflow.com/questions/4467539/javascript-modulo-not-behaving/13163436#13163436
+var mod = function mod(n, m) {
+    var remain = n % m;
+    return Math.floor(remain >= 0 ? remain : remain + m);
+};
+
+/***/ }),
+/* 1 */
 /***/ (function(module, exports) {
 
 module.exports = function (actionName) {
@@ -85,17 +382,12 @@ module.exports = function (actionName) {
 
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports) {
 
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
-// TODO:
-// [ ] if input is empty, list all options
-// [ ] being able to navigate through options with ↑ ↓ arrows
-// [ ] tab adds value to input-field
-
 exports.getCommandsObj = getCommandsObj;
 
 
@@ -151,17 +443,17 @@ var commandList = exports.commandList = [{
     "defaultOperator": "=",
     "expectedDataType": "integer"
 }, {
-    "notation": "fs",
-    "name": "Font-size",
-    "tags": "",
-    "defaultOperator": "=",
-    "expectedDataType": "integer"
-}, {
     "notation": "f",
     "name": "Fill color",
     "tags": "",
     "defaultOperator": "#",
     "expectedDataType": "color"
+}, {
+    "notation": "fs",
+    "name": "Font-size",
+    "tags": "",
+    "defaultOperator": "=",
+    "expectedDataType": "integer"
 }, {
     "notation": "lh",
     "name": "Line-height",
@@ -385,293 +677,6 @@ function searchPropInArray(nameKey, prop, myArray) {
         }
     }
 }
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _client = __webpack_require__(0);
-
-var _client2 = _interopRequireDefault(_client);
-
-var _shared = __webpack_require__(1);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var btn = document.querySelector('#btn');
-var inputField = document.querySelector('.c-commander');
-var replace = document.querySelector('#replace');
-
-var actionContext = document.querySelectorAll(".c-action-context__item");
-var actionContextLists = document.querySelectorAll(".c-action-context-list");
-var currentAction = 0;
-var commandsUl = document.querySelector(".c-commands-list");
-var optionsUl = document.querySelector(".c-command-options-list");
-
-var inputFieldValue = document.querySelector('.c-commander').value;
-var commands;
-var cyclingThroughOptions = false;
-
-var DEBUG = false;
-
-function setInputValue(value) {
-    inputField.value = value;
-}
-inputField.focus();
-
-// Key event listeners
-var keys = {
-    shift: false,
-    tab: false
-};
-
-inputField.addEventListener('keydown', function (e) {
-    // close on keydown enter or escape key
-    if (e.keyCode === 27) {
-        (0, _client2['default'])('closeModal');
-    }
-    if (e.keyCode === 13) {
-        if (cyclingThroughOptions) {
-            selectOption();
-        } else {
-            (0, _client2['default'])('returnUserInput', inputField.value);
-            (0, _client2['default'])('nativeLog', (0, _shared.getCommandsObj)());
-        }
-    }
-    if (e.keyCode == 9) {
-        e.preventDefault();
-        if (!cyclingThroughOptions) {
-            keys["tab"] = true;
-            if (!keys["shift"]) {
-                switchContextAction(+1);
-            }
-        } else {
-            selectOption();
-        }
-    }
-    if (e.keyCode == 40) {
-        //down arrow
-        e.preventDefault();
-        navigateThroughActionlist(+1);
-    }
-    if (e.keyCode == 38) {
-        //up arrow
-        e.preventDefault();
-        navigateThroughActionlist(-1);
-    }
-    if (e.keyCode == 16) {
-        //shift
-        keys["shift"] = true;
-    }
-    if (keys["shift"] && keys["tab"]) {
-        e.preventDefault();
-        switchContextAction(-1);
-    }
-}, false);
-
-inputField.addEventListener('keyup', function (e) {
-    if (e.keyCode != 40 && e.keyCode != 38) {
-        //don't parse input on pressing ↑ or ↓ arrow
-        parseInput();
-    }
-
-    // reset status of the keypress
-    if (e.keyCode == 9) {
-        keys["tab"] = false;
-    }
-    if (e.keyCode == 16) {
-        //shift
-        keys["shift"] = false;
-    }
-});
-
-// function to replace current input value with the notation of selected option
-function selectOption() {
-    var optionsUlNodes = optionsUl.childNodes;
-    for (var i = 0; i < optionsUlNodes.length; i++) {
-        if ((" " + optionsUlNodes[i].className + " ").replace(/[\n\t]/g, " ").indexOf(" is-active ") > -1) {
-            var el = optionsUlNodes[i];
-            setInputValue(el.dataset.notation + el.dataset.defaultOperator);
-        }
-    }
-};
-
-function parseInput() {
-    if (DEBUG) console.log((0, _shared.getCommandsObj)());
-
-    inputFieldValue = document.querySelector('.c-commander').value;
-    commands = (0, _shared.getCommandsObj)();
-    commandsUl.innerHTML = ''; // remove existing elements
-
-    for (var i = 0; i < commands.length; i++) {
-        var commandType = commands[i].type;
-        var commandTypeName = _shared.commandList.filter(function (commandTypeName) {
-            return commandTypeName.notation === commandType;
-        })[0];
-        commandTypeName = commandTypeName.name;
-
-        // create the list
-        var li = document.createElement('li');
-        li.classList.add('c-commands-list__item');
-        li.innerHTML = commandTypeName + " " + commands[i].operator + " " + commands[i].amount;
-        commandsUl.append(li);
-    }
-    // one or more valid commands have been entered
-    if ((0, _shared.getCommandsObj)().length > 0) {
-        optionsUl.style.display = "none";
-        navigateThroughActionlist('reset');
-    } else {
-        // no valid commands entered (yet)
-        optionsUl.style.display = "block";
-        filterActionlist();
-    }
-
-    // inputfield is empty
-    if (inputFieldValue == "") {
-        navigateThroughActionlist('reset');
-    }
-}
-
-function listCommands() {
-    for (var key in _shared.commandList) {
-        var commandTypeName = _shared.commandList[key].name;
-        var commandNotation = _shared.commandList[key].notation;
-        var commandTags = _shared.commandList[key].tags;
-        var commandDefaultOperator = _shared.commandList[key].defaultOperator;
-        var li = document.createElement('li');
-
-        li.addEventListener("click", function (e) {
-            setInputValue(e.target.dataset.notation);
-            inputField.focus();
-            parseInput();
-        });
-        li.classList.add('c-command-options-list__item');
-        li.dataset.notation = commandNotation;
-        li.dataset.name = commandTypeName;
-        li.dataset.tags = commandTags;
-        li.dataset.defaultOperator = commandDefaultOperator;
-        li.innerHTML = commandTypeName;
-        optionsUl.append(li);
-
-        var span = document.createElement('span');
-        span.classList.add('c-command-options-list__notation');
-        span.innerHTML = commandNotation;
-        li.prepend(span);
-    }
-};
-listCommands();
-
-// sets the active context when opening the webview (only runs once)
-var setActionContext = function () {
-    var elements = document.querySelectorAll('.c-action-context__item');
-    var isActive = document.querySelector('.c-action-context__item.is-active');
-    // wait until there's an active context__item which is set in index.html. Consider this an ugly hack...
-    var waitTillActiveClassIsApplied = window.setInterval(function () {
-        for (var i = 0; i < elements.length; i++) {
-            if (elements[i].classList.contains("is-active")) {
-                currentAction = i;
-                if (DEBUG) console.log("currentAction = " + currentAction);
-                clearInterval(waitTillActiveClassIsApplied);
-            }
-        }
-    }, 1);
-    setActionContext = function setActionContext() {}; // only run once
-}();
-
-// for filtering the action list as long as there are no matching commands found
-function filterActionlist() {
-    var optionsItems = document.querySelectorAll(".c-command-options-list__item");
-    var optionsArray = Array.from(optionsItems);
-
-    optionsArray.filter(function (el) {
-        var filter = inputFieldValue.toLowerCase();
-        var filteredItems = el.dataset.notation + " " + el.dataset.name + " " + el.dataset.tags;
-        // console.log(el.dataset.name + ":   " + filteredItems.toLowerCase().indexOf(filter));
-        if (filteredItems.toLowerCase().indexOf(filter) == -1) {
-            el.classList.add("is-hidden");
-        } else {
-            el.classList.remove("is-hidden");
-        }
-        navigateThroughActionlist('selectFirst');
-    });
-}
-
-// for switching task contexts
-function switchContextAction(value) {
-    var newAction = currentAction += value;
-    var length = actionContext.length;
-    var index = mod(newAction, length);
-
-    actionContext.forEach(function (el) {
-        el.classList.remove('is-active');
-    });
-    actionContextLists.forEach(function (el) {
-        el.classList.remove('is-active');
-    });
-    actionContext[index].classList.toggle('is-active');
-    actionContextLists[index].classList.toggle('is-active');
-    (0, _client2['default'])('saveContext', index);
-}
-
-// for navigating through the actionlist
-var selectedAction = -1;
-function navigateThroughActionlist(value) {
-    if (value == 'reset') {
-        selectedAction = -1;
-    } else if (value == 'selectFirst') {
-        selectedAction = 0;
-        var newAction = 0;
-    } else {
-        var newAction = selectedAction += value;
-    }
-
-    var actionList = document.querySelectorAll(".c-command-options-list__item:not(.is-hidden)");
-
-    var length = actionList.length + 1;
-    var index = mod(newAction, length);
-    cyclingThroughOptions = true;
-    if (!value) {
-        selectedAction++;
-    }
-
-    actionList.forEach(function (el) {
-        el.classList.remove('is-active');
-    });
-
-    if (actionList[index] != undefined) {
-        actionList[index].classList.toggle('is-active');
-        // this useful sucker surprisingly works in safari/webview
-        if (DEBUG) actionList[index].scrollIntoViewIfNeeded(false);
-    } else {
-        cyclingThroughOptions = false;
-    }
-}
-
-// lists the selected layers
-var listSelectedLayers = function () {
-    var selectedLayerList = document.querySelector('.c-selection-list');
-    // wait until there's input received from Sketch in index.html. Consider this an ugly hack...
-    var waitTillSketchInputIsReceived = window.setInterval(function () {
-        // received array from Sketch is actually a string, lets convert it into a real array again
-        layerNameArray = layerNameArray.split(',');
-
-        for (var i = 0; i < layerNameArray.length; i++) {
-            // create the list
-            var li = document.createElement('li');
-            li.classList.add('c-selection-list__item');
-            li.innerHTML = layerNameArray[i];
-            selectedLayerList.append(li);
-        }
-        clearInterval(waitTillSketchInputIsReceived);
-    }, 1);
-    listSelectedLayers = function listSelectedLayers() {}; // only run once
-}();
-
-// http://stackoverflow.com/questions/4467539/javascript-modulo-not-behaving/13163436#13163436
-var mod = function mod(n, m) {
-    var remain = n % m;
-    return Math.floor(remain >= 0 ? remain : remain + m);
-};
 
 /***/ })
 /******/ ]);
