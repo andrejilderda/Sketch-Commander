@@ -312,18 +312,22 @@ function resize(layer,t,r,b,l) {
 	}
 }
 
+//////////////////////////////////////////////////////////////////
+//  BORDER ACTIONS                                              //
+//////////////////////////////////////////////////////////////////
+
 var borderActions = {
 	checkOperator : function(layer, color, operator) {
 		switch(operator) {
 			case '-':
-				this.remove(layer);
+				borderActions.remove(layer);
 				break;
 			case '+':
-				this.add(layer, color);
+				borderActions.add(layer, color);
 				break;
 			case '#':
 			case '=':
-				this.setColor(layer, color);
+				borderActions.setColor(layer, color);
 				break;
 		}
 	},
@@ -400,8 +404,8 @@ var textActions = {
     setLineheight : function(layer, value, operator) {
         value = Number(value);
         if (layer.className() == "MSTextLayer") {
-            var lineHeight = layer.lineHeight();
-            lineHeight = mathOps(lineHeight, value, operator);
+            var prevLineHeight = layer.lineHeight();
+            layer.lineHeight = mathOps(prevLineHeight, value, operator);
         }
     },
     setValue : function(layer, value, operator) {
