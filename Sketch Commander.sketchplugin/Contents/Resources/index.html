@@ -12,32 +12,39 @@
 <body>
 	<div class="c-flex">
 		<div class="c-flex__fixed">
-			<ul class="c-action-context">
-				<li class="c-action-context__item">
-					<a class="c-action-context__link" data-context="commands">Commands</a>
+			<ul class="c-context-tab">
+				<li class="c-context-tab__item">
+					<a class="c-context-tab__link" data-context="0">Commands</a>
 				</li>
-				<li class="c-action-context__item">
-					<a class="c-action-context__link" data-context="select">Select</a>
+				<li class="c-context-tab__item">
+					<a class="c-context-tab__link" data-context="1">Select</a>
 				</li>
-				<li class="c-action-context__item">
-					<a class="c-action-context__link" data-context="rename">Rename</a>
+				<li class="c-context-tab__item">
+					<a class="c-context-tab__link" data-context="2">Rename</a>
 				</li>
 			</ul>
 			
 		    <input type="text" class="c-commander" id="c-commander" placeholder="Enter a command...">
 		</div>
 		<div class="c-flex__scroll">
-			<div class="c-action-context-list">
+			<div class="c-context-list">
 				<ul class="c-commands-list">
 					
 				</ul>
-				<ul class="c-command-options-list">
+				<ul class="c-options-list">
 					
 				</ul>
 			</div>
-			<ul class="c-selection-list  c-action-context-list">
-				
-			</ul>
+			<div class="c-context-list">
+				<ul class="c-options-list  c-selection-list">
+					
+				</ul>
+			</div>
+			<div class="c-context-list">
+				<ul class="c-options-list">
+					
+				</ul>
+			</div>
 			<!-- <a href="#" id="btn">Button</a> -->
 		</div>
 	</div>
@@ -49,15 +56,15 @@
 		// html-file, that get processed further in `preferences.js` & `shared.js`.
 		
         var prevUserInput,
-		actionContext;
+		contextTabs;
 		var DEBUG = true;
 		// DEVMODE sets a few variables that are normally received from Sketch
 		// Useful to debug the webview outside Sketch (using Gulp). 
 		// Do disable in production!
 		var DEVMODE = true;
 		if (DEVMODE) {
-			prevUserInput = "border";
-			actionContext = 2;
+			prevUserInput = " ";
+			contextTabs = 0;
 			layerNameArray = 'testlayer 1,testlayer 2';
 		};
 
@@ -65,26 +72,26 @@
         var prevUserInputTimer = window.setInterval(function() {
 			if (DEBUG) { console.log("prevUserInputTimer is running") };
 			
-            if (prevUserInput) {
+            if ( prevUserInput ) {
                 document.querySelector('.c-commander').value = prevUserInput;
                 document.querySelector('.c-commander').select();
 				clearInterval(prevUserInputTimer);
             };
         }, 10);
 		
-		var actionContextTimer = window.setInterval(function() {
-			if (DEBUG) { console.log("actionContextTimer is running") };
+		var contextTabsTimer = window.setInterval(function() {
+			if (DEBUG) { console.log("contextTabsTimer is running") };
 			
-			if (actionContext) {
-				actionContext = Number(actionContext);
-				var elements = document.querySelectorAll('.c-action-context__item');
+			if ( contextTabs != undefined ) {
+				contextTabs = Number(contextTabs);
+				var elements = document.querySelectorAll('.c-context-tab__item');
 				for(var i = 0; i < elements.length; i++) {
-					if (actionContext === i) {
+					if (contextTabs === i) {
 						elements[i].classList.add('is-active');
 						index = i;
 					}
 				}
-				clearInterval(actionContextTimer);
+				clearInterval(contextTabsTimer);
 			}
         }, 10);
 		
@@ -92,6 +99,7 @@
 			if (DEBUG) { console.log("layerNameArrayTimer is running") };
 			
 			if (layerNameArray) {
+				layerNameArray = layerNameArray
 				clearInterval(layerNameArrayTimer);
 			}
         }, 10);

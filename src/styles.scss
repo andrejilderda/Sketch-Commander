@@ -59,7 +59,7 @@ body {
     }
 }
 
-.c-action-context {
+.c-context-tab {
     margin: 0;
     padding: 0;
     font-size: 14px;
@@ -86,14 +86,14 @@ body {
     font-weight: 200;
     padding: 0 12px;
 }
-.c-action-context-list {
+.c-context-list {
     display: none;
     &.is-active {
         display: block;
     }
 }
 
-.c-command-options-list,
+.c-options-list,
 .c-selection-list {
     @include bare-list;
     font-weight: 200;
@@ -115,7 +115,7 @@ body {
             display: none;
         }
         &.is-active .c-selection-list__notation,
-        &.is-active .c-command-options-list__notation {
+        &.is-active .c-options-list__notation {
             color: $activeColor;
         }
     }

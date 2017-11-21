@@ -6,11 +6,11 @@ var btn = document.querySelector('#btn');
 var inputField = document.querySelector('.c-commander');
 var replace = document.querySelector('#replace');
 
-var actionContext = document.querySelectorAll(".c-action-context__item");
-var actionContextLists = document.querySelectorAll(".c-action-context-list");
-var currentAction = 0;
+var contextTabs = document.querySelectorAll(".c-context-tab__item");
+var contextList = document.querySelectorAll(".c-context-list");
+var currentContext = 0;
 var commandsUl = document.querySelector(".c-commands-list");
-var optionsUl = document.querySelector(".c-command-options-list");
+var optionsUl = document.querySelector(".c-options-list");
 
 var inputFieldValue = document.querySelector('.c-commander').value;
 var commands;
@@ -48,7 +48,7 @@ inputField.addEventListener('keydown', function(e){
         if(!cyclingThroughOptions) {
             keys["tab"] = true;
             if(!keys["shift"]) {        
-                switchContextAction(+1);
+                switchContextAction('next');
             }
         } else {
             selectOption();
@@ -56,18 +56,18 @@ inputField.addEventListener('keydown', function(e){
     }
     if (e.keyCode == 40) { //down arrow
         e.preventDefault();
-        navigateThroughActionlist(+1);
+        navigateThroughList(+1);
     }
     if (e.keyCode == 38) { //up arrow
         e.preventDefault();
-        navigateThroughActionlist(-1);
+        navigateThroughList(-1);
     }
     if (e.keyCode == 16) { //shift
         keys["shift"] = true;
     }
     if (keys["shift"] && keys["tab"]) {
         e.preventDefault();
-        switchContextAction(-1);
+        switchContextAction('prev');
     }
 },false);
 
@@ -120,7 +120,7 @@ function parseInput() {
     // one or more valid commands have been entered
     if( getCommandsObj().length > 0 ) { 
         optionsUl.style.display = "none";
-        navigateThroughActionlist('reset');
+        navigateThroughList('reset');
     } else { // no valid commands entered (yet)
         optionsUl.style.display = "block";
         filterActionlist();
@@ -128,7 +128,7 @@ function parseInput() {
     
     // inputfield is empty
     if( inputFieldValue == "") {
-        navigateThroughActionlist('reset');
+        navigateThroughList('reset');
     }
 }
 
@@ -147,7 +147,7 @@ function listCommands() {
             inputField.focus();
             parseInput();
         });
-        li.classList.add('c-command-options-list__item');
+        li.classList.add('c-options-list__item');
         li.dataset.notation = commandNotation;
         li.dataset.name = commandTypeName;
         li.dataset.tags = commandTags;
@@ -156,35 +156,17 @@ function listCommands() {
         optionsUl.append(li);
         
         var span = document.createElement('span');
-        span.classList.add('c-command-options-list__notation');
+        span.classList.add('c-options-list__notation');
         span.innerHTML = commandNotation;
         li.prepend(span);
     }
 };
 listCommands();
 
-// sets the active context when opening the webview (only runs once)
-var setActionContext = (function() {    
-    var elements = document.querySelectorAll('.c-action-context__item');
-    var isActive = document.querySelector('.c-action-context__item.is-active');
-    // wait until there's an active context__item which is set in index.html. Consider this an ugly hack...
-    var waitTillActiveClassIsApplied = window.setInterval(function() {    
-        for(var i = 0; i < elements.length; i++) {
-            if (elements[i].classList.contains("is-active")) {
-                currentAction = i;
-                if (DEBUG) console.log("currentAction = " + currentAction);
-                clearInterval(waitTillActiveClassIsApplied);
-            }
-        }
-    }, 1);
-    setActionContext = function(){}; // only run once
-})();
-
 // for filtering the action list as long as there are no matching commands found
 function filterActionlist() {
-    var optionsItems = document.querySelectorAll(".c-command-options-list__item");
+    var optionsItems = document.querySelectorAll(".c-options-list__item");
     var optionsArray = Array.from(optionsItems);
-
     optionsArray.filter( function( el ) {
         var filter = inputFieldValue.toLowerCase();
         var filteredItems = el.dataset.notation + " " + el.dataset.name + " " + el.dataset.tags;
@@ -194,81 +176,121 @@ function filterActionlist() {
         } else {
             el.classList.remove("is-hidden");
         }
-        navigateThroughActionlist('selectFirst');
+        
+        var result = optionsArray.sort(function(a,b){
+            if ( inputFieldValue === a.dataset.notation ) {
+                return a.dataset.notation - b.dataset.notation;
+            }
+            return a.dataset.notation - b.dataset.notation;
+        });
+        console.log(result[0]);
+        navigateThroughList('selectFirst');
     });
 }
 
 // for switching task contexts
 function switchContextAction(value) {
-    var newAction = currentAction += value;
-    var length = actionContext.length;
-    var index = mod(newAction, length);
+    if ( value == 'next' )
+        currentContext = currentContext + 1;
+    else if ( value == 'prev' )
+        currentContext = currentContext - 1;
+    else
+        currentContext = value;
     
-    actionContext.forEach(function(el){
+    var length = contextTabs.length;
+    var index = mod(currentContext, length);
+    
+    contextTabs.forEach( function(el) {
         el.classList.remove('is-active');
     })
-    actionContextLists.forEach(function(el){
+    contextList.forEach( function(el) {
         el.classList.remove('is-active');
     })
-    actionContext[index].classList.toggle('is-active');
-    actionContextLists[index].classList.toggle('is-active');
+    // triggers visibility of both active tab as the list below
+    contextTabs[index].classList.toggle('is-active');
+    contextList[index].classList.toggle('is-active');
+    
     pluginCall('saveContext', index);
 }
 
 // for navigating through the actionlist
 var selectedAction = -1;
-function navigateThroughActionlist(value) {
+
+function navigateThroughList(value) {
+    var listItems = document.querySelectorAll(".c-context-list.is-active .c-options-list__item:not(.is-hidden)");
+    
     if ( value == 'reset' ) {
         selectedAction = -1;
     }
-    else if ( value == 'selectFirst' ) {
+    else if ( value == 'selectFirst' ) { // used when filtering items
         selectedAction = 0;
-        var newAction = 0;
+    }
+    else if ( !value ) { 
+        selectedAction++;
     }
     else {
-        var newAction = selectedAction += value;
+        if ( Number.isInteger(value) )
+            selectedAction = selectedAction += value;
     }
 
-    var actionList = document.querySelectorAll(".c-command-options-list__item:not(.is-hidden)");
-
-    var length = actionList.length + 1;
-    var index = mod(newAction, length);
+    var length = listItems.length + 1; // so that it's possible to have nothing selected
+    var index = mod(selectedAction, length);
     cyclingThroughOptions = true;
-    if (!value) { selectedAction++ }
-    
-    actionList.forEach(function(el){
+
+    listItems.forEach( function(el){
         el.classList.remove('is-active');
     })
 
-    if (actionList[index] != undefined) {
-        actionList[index].classList.toggle('is-active');
-        // this useful sucker surprisingly works in safari/webview
-        if (DEBUG) actionList[index].scrollIntoViewIfNeeded(false);
+    if ( listItems[index] != undefined ) {
+        listItems[index].classList.toggle('is-active');
+        // this useful sucker surprisingly works in safari/webview, but lets keep it disabled when debugging in FF
+        if (DEBUG) listItems[index].scrollIntoViewIfNeeded(false);
     }
     else {
         cyclingThroughOptions = false;
     }
 }
 
+// sets the active context when opening the webview (only runs once)
+var setActiveContextOnInit = (function() {
+    // wait until there's an active context__item which is set in index.html. This can probably done with promises, but this ugly hack works...
+    var waitTillActiveClassIsApplied = window.setInterval(function() {    
+        var elements = document.querySelectorAll('.c-context-tab__item');
+        var isActive = document.querySelector('.c-context-tab__item.is-active');
+        
+        for(var i = 0; i < elements.length; i++) {
+            if (elements[i].classList.contains("is-active")) {
+                switchContextAction(i);
+                if (DEBUG) console.log("currentContext = " + currentContext);
+                clearInterval(waitTillActiveClassIsApplied);
+            }
+        }
+    }, 1);
+    setActiveContextOnInit = function(){}; // overwrite self-invoked function so that it can only run once
+})();
+
 // lists the selected layers
 var listSelectedLayers = (function() {    
     var selectedLayerList = document.querySelector('.c-selection-list');
-    // wait until there's input received from Sketch in index.html. Consider this an ugly hack...
+    // wait until there's input received from Sketch in index.html. This can probably done with promises, but this ugly hack works...
     var waitTillSketchInputIsReceived = window.setInterval(function() {    
         // received array from Sketch is actually a string, lets convert it into a real array again
-        layerNameArray = layerNameArray.split(',');
-        
-        for(var i = 0; i < layerNameArray.length; i++) {
-            // create the list
-            var li = document.createElement('li');
-            li.classList.add('c-selection-list__item');
-            li.innerHTML = layerNameArray[i];
-            selectedLayerList.append(li);
+        if (layerNameArray) {
+            layerNameArray = layerNameArray.split(',');
+            
+            for(var i = 0; i < layerNameArray.length; i++) {
+                // create the list
+                var li = document.createElement('li');
+                li.classList.add('c-options-list__item');
+                li.innerHTML = layerNameArray[i];
+                selectedLayerList.append(li);
+            }
+            clearInterval(waitTillSketchInputIsReceived);
         }
-        clearInterval(waitTillSketchInputIsReceived);
     }, 1);
-    listSelectedLayers = function(){}; // only run once
+    listSelectedLayers = function(){}; // overwrite self-invoked function so that it can only run once
 })();
+
 
 // http://stackoverflow.com/questions/4467539/javascript-modulo-not-behaving/13163436#13163436
 var mod = function (n, m) {

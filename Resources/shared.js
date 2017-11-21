@@ -57,18 +57,18 @@ export var commandList = [
         "expectedDataType" : "integer"
     },
     {
-        "notation" : "fs",
-        "name" : "Font-size",
-        "tags" : "",
-        "defaultOperator" : "=",
-        "expectedDataType" : "integer"
-    },
-    {
         "notation" : "f",
         "name" : "Fill color",
         "tags" : "",
         "defaultOperator" : "#",
         "expectedDataType" : "color"
+    },
+    {
+        "notation" : "fs",
+        "name" : "Font-size",
+        "tags" : "",
+        "defaultOperator" : "=",
+        "expectedDataType" : "integer"
     },
     {
         "notation" : "lh",
