@@ -1,32 +1,41 @@
 {
-  "name": "Sketch Commander",
-  "version": "2.0",
+  "name": "sketch-commander",
+  "version": "2.0.0",
   "identifier": "com.sketchapp.commander",
+  "author": "Andre Jilderda",
+  "authorEmail": "mail@andrejilderda.nl",
   "description": "Resize and reposition objects by using simple arithmetic commands, like 'b+20,lr+20'. Multiple objects are supported.",
-  "main": "Sketch Commander.sketchplugin",
+  "engines": {
+    "sketch": ">=3.0"
+  },
+  "skpm": {
+    "name": "Sketch Commander",
+    "manifest": "src/manifest.json",
+    "main": "Sketch Commander.sketchplugin",
+    "assets": [
+      "assets/**/*"
+    ]
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "skpm build",
-    "publish": "skpm publish"
+    "build": "skpm-build",
+    "watch": "skpm-build --watch",
+    "start": "skpm-build --watch --run",
+    "postinstall": "npm run build && skpm-link"
   },
   "resources": [
     "Resources/preferences.js",
     "Resources/shared.js"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ajilderda/Sketch-Commander.git"
-  },
-  "author": "Andre Jilderda",
-  "authorEmail": "mail@andrejilderda.nl",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/ajilderda/Sketch-Commander/issues"
   },
   "homepage": "https://github.com/ajilderda/Sketch-Commander#readme",
-  "manifest": "src/manifest.json",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ajilderda/Sketch-Commander.git"
+  },
   "devDependencies": {
-    "skpm": "^0.9.4",
+    "@skpm/builder": "^0.5.2",
     "browser-sync": "*",
     "del": "*",
     "gulp": "*",

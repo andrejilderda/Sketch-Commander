@@ -1,6 +1,6 @@
 export { getCommandsObj };
 
-var DEBUG = false,
+var DEBUG = true,
 commandRegex = /(bdc)|(bdr)|(bdw)|(bd)|(fs)|(f)|(lh)|(ttu)|(ttl)|(o)|[lrtbwhaxynv]/g,
 operatorRegex = /[\/+\-*%\=]/g;
 // export var commandList = {
@@ -204,7 +204,7 @@ function getCommandsObj(userInput) {
 	// commandArray = array with all the commands that were put in, for example [0]=lr+20,[1]=h/2)
 	// command = one single command, for example b-30 or lr+20
     for (var i=0; i < commandArray.length; i++) {
-        command = commandArray[i];
+        const command = commandArray[i];
         
         // first check if command contains a hex color value. This check is necessary so that characters in colors are not seen as commands (like 'f' in #ff0000)
         if (command.match(colorRegex)) {
@@ -240,17 +240,17 @@ function getCommandsObj(userInput) {
             
             // commandMinOperator = command.replace(operator, "");
             // amount = commandMinOperator.replace(commandRegex, "");
-            commandMinOperator = command.split(operator)[0];
+            const commandMinOperator = command.split(operator)[0];
             amount = command.split(operator)[1];
-            commandTypeArray = commandMinOperator.match(commandRegex);
+            const commandTypeArray = commandMinOperator.match(commandRegex);
             
 
             // loop through all the commands, like 'lr' in 'lr+20')
             if( commandTypeArray ) {
                 for ( var j = 0; j < commandTypeArray.length; j++ ) {
-                    commandType = commandTypeArray[j].toString();
+                    const commandType = commandTypeArray[j].toString();
                     // get the expectedDataType to validate if the operation is allowed
-                    var expectedDataType = searchPropInArray(commandType,"notation", commandList).expectedDataType;
+                    const expectedDataType = searchPropInArray(commandType,"notation", commandList).expectedDataType;
             
                     // if another notation is used like 'w20%' or w20
                     if( amount == "" || amount == undefined ) {

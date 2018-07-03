@@ -16,7 +16,7 @@ var inputFieldValue = document.querySelector('.c-commander').value;
 var commands;
 var cyclingThroughOptions = false;
 
-var DEBUG = false;
+var DEBUG = true;
 
 function setInputValue(value) {
     inputField.value = value;
@@ -289,7 +289,7 @@ var listSelectedLayers = (function() {
             }
             clearInterval(waitTillSketchInputIsReceived);
         }
-    }, 1);
+    }, 10);
     listSelectedLayers = function(){}; // overwrite self-invoked function so that it can only run once
 })();
 
