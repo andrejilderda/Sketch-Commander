@@ -49,6 +49,6 @@
     "streamqueue": "*"
   },
   "dependencies": {
-    "sketch-module-web-view": "^0.1.4"
+    "sketch-module-web-view": "^1.1.8"
   }
 }

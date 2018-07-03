@@ -1,5 +1,7 @@
-import WebUI from 'sketch-module-web-view'
+import BrowserWindow from 'sketch-module-web-view'
 import { getCommandsObj, splitCommands } from '../Resources/shared'
+
+
 
 var sketch,
 context,
@@ -22,20 +24,23 @@ export default function (context) {
 	}
 	catch (e) { // else reset history
 		sketch.setSettingForKey("userInputSetting", "");
-        sketch.setSettingForKey("contextTabs", "");
+    sketch.setSettingForKey("contextTabs", "");
 	}
     
-    // create webview
+  // create BrowserWindow
     const options = {
-        identifier: 'unique.id', // to reuse the UI
+        title: 'Sketch Commander',
+        identifier: 'com.sketchapp.commander', // to reuse the UI
         x: 0,
         y: 0,
         width: 520,
         height: 280,
+        frame: false,
+        useContentSize: true,
+        center: true,
         background: NSColor.blackColor(),
         titlebarAppearsTransparent: true,
         onlyShowCloseButton: true,
-        title: 'Sketch Commander',
         hideTitleBar: false,
         setTitlebarAppearsTransparent : true,
         shouldKeepAround: true,
@@ -51,48 +56,49 @@ export default function (context) {
                 sketch.setSettingForKey("contextTabs", context);
             },
             nativeLog: function (s) {
-                webUI.panel.close();
-                WebUI.clean()
+                browserWindow.panel.close();
+                browserWindow.clean()
                 executeCommand(s);
                 doc.reloadInspector();
             },
             closeModal: function () {
-                webUI.panel.close();
-                WebUI.clean()
+                browserWindow.panel.close();
+                browserWindow.clean()
             }
         },
         frameLoadDelegate: { // https://developer.apple.com/reference/webkit/webframeloaddelegate?language=objc
             'webView:didFinishLoadForFrame:': function (webView, webFrame) {
                 // triggers when webview is loaded
-                webUI.eval('prevUserInput ="' + prevUserInput + '"')
-                webUI.eval('contextTabs ="' + contextTabs + '"')
+                browserWindow.eval('prevUserInput ="' + prevUserInput + '"')
+                browserWindow.eval('contextTabs ="' + contextTabs + '"')
                 
                 // create array with selected layers
                 var selectedLayerNameArray = [];
                 for (var i=0; i < selection.count(); i++) {
                     var layer = selection.objectAtIndex(i);
                     // selectedLayerNameArray.push(layer.name());
-					selectedLayerNameArray.push(layer.objectID());
+  				selectedLayerNameArray.push(layer.objectID());
                 }
-                webUI.eval('selectedLayerNameArray ="' + selectedLayerNameArray + '"')
-				
-				// create array with artboard layers
+                browserWindow.eval('selectedLayerNameArray ="' + selectedLayerNameArray + '"')
+  			
+  			// create array with artboard layers
                 var artboardLayerNameArray = [];
-				var selectedArtboard = doc.currentPage().currentArtboard()
-				var artboardLayers = selectedArtboard.layers();
-				 
+  			var selectedArtboard = doc.currentPage().currentArtboard()
+  			var artboardLayers = selectedArtboard.layers();
+  			 
                 for (var i=0; i < artboardLayers.count(); i++) {
                     var layer = artboardLayers.objectAtIndex(i);
                     // artboardLayerNameArray.push(layer.name());
-					artboardLayerNameArray.push(layer.objectID());
+  				artboardLayerNameArray.push(layer.objectID());
                 }
-                webUI.eval('artboardLayerNameArray ="' + artboardLayerNameArray + '"')
-                // webUI.eval('someJSFunction(' + prevCommand + ')');
+                browserWindow.eval('artboardLayerNameArray ="' + artboardLayerNameArray + '"')
+                // browserWindow.eval('someJSFunction(' + prevCommand + ')');
             }
         }
     }
-    const webUI = new WebUI(context, 'index.html', options);
-}
+    const browserWindow = new BrowserWindow(options);
+    browserWindow.loadURL('index.html')
+  }
 
 
 function executeCommand(commandObj) {
