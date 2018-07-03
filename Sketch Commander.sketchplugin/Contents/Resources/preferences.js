@@ -657,7 +657,8 @@ function getCommandsObj(userInput) {
             }
           }
 
-          if (DEBUG) {// console.log("commandType: " + commandType + "    amount: " + amount + "    operator: " + operator)
+          if (DEBUG) {
+            console.log("commandType: " + _commandType + "    amount: " + amount + "    operator: " + operator);
           }
         }
       }
