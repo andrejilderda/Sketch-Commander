@@ -47,11 +47,11 @@ gulp.task('browser-sync', function() {
 gulp.task('site:css', function(){
   return gulp.src(input.styles)
     .pipe(plumber({ errorHandler: onError }))
-    .pipe(sourcemaps.init())
+    // .pipe(sourcemaps.init())
     .pipe(sass())
     .pipe(autoprefixer(['last 2 versions'], { cascade: true }))
     .pipe(cleancss())
-    .pipe(sourcemaps.write())
+    // .pipe(sourcemaps.write())
     .pipe(gulp.dest(output.styles))
     .pipe(browserSync.reload({ stream: true }))
 });
