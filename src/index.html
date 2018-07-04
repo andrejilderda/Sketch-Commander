@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="styles.css">
+	
+	<title>Sketch Commander</title>
+</head>
+
+<body>
+	<div class="c-flex">
+		<div class="c-flex__fixed">
+			<ul class="c-context-tab">
+				<li class="c-context-tab__item">
+					<a class="c-context-tab__link" data-context="0">Commands</a>
+				</li>
+				<li class="c-context-tab__item">
+					<a class="c-context-tab__link" data-context="1">Select</a>
+				</li>
+				<li class="c-context-tab__item">
+					<a class="c-context-tab__link" data-context="2">Rename</a>
+				</li>
+			</ul>
+			
+		    <input type="text" class="c-commander" id="c-commander" placeholder="Enter a command...">
+		</div>
+		<div class="c-flex__scroll">
+			<div class="c-context-list">
+				<ul class="c-commands-list">
+					
+				</ul>
+				<ul class="c-options-list">
+					
+				</ul>
+			</div>
+			<div class="c-context-list">
+				<ul class="c-options-list  c-selection-list">
+					
+				</ul>
+			</div>
+			<div class="c-context-list">
+				<ul class="c-options-list">
+					
+				</ul>
+			</div>
+			<!-- <a href="#" id="btn">Button</a> -->
+		</div>
+	</div>
+    <script src="preferences.js"></script>
+	<script src="shared.js"></script>
+    <script>
+		// Unfortunately the Sketch plugin can not trigger functions in external
+		// javscript files. That's why a few js-things are set directly in this
+		// html-file, that get processed further in `preferences.js` & `shared.js`.
+		
+        var prevUserInput,
+		contextTabs;
+		var DEBUG = true;
+		// DEVMODE sets a few variables that are normally received from Sketch
+		// Useful to debug the webview outside Sketch (using Gulp). 
+		// Do disable in production!
+		var DEVMODE = true;
+		if (DEVMODE) {
+			prevUserInput = " ";
+			contextTabs = 0;
+			selectedLayerNameArray = 'testlayer 1,testlayer 2';
+			artboardLayerNameArray = 'testlayer 1,testlayer 2';
+		};
+
+		// small delay so that its loaded...
+        var prevUserInputTimer = window.setInterval(function() {
+			if (DEBUG) { console.log("prevUserInputTimer is running") };
+			
+            if ( prevUserInput ) {
+                document.querySelector('.c-commander').value = prevUserInput;
+                document.querySelector('.c-commander').select();
+				clearInterval(prevUserInputTimer);
+            };
+        }, 10);
+		
+		var contextTabsTimer = window.setInterval(function() {
+			if (DEBUG) { console.log("contextTabsTimer is running") };
+			
+			if ( contextTabs != undefined ) {
+				contextTabs = Number(contextTabs);
+				var elements = document.querySelectorAll('.c-context-tab__item');
+				for(var i = 0; i < elements.length; i++) {
+					if (contextTabs === i) {
+						elements[i].classList.add('is-active');
+						index = i;
+					}
+				}
+				clearInterval(contextTabsTimer);
+			}
+		}, 10);
+		
+		var selectedLayerNameArrayTimer = window.setInterval(function() {
+			if (DEBUG) { console.log("selectedLayerNameArrayTimer is running") };
+			
+			if (selectedLayerNameArray) {
+				selectedLayerNameArray = selectedLayerNameArray
+				clearInterval(selectedLayerNameArrayTimer);
+			}
+		}, 10);
+		
+		var artboardLayerNameArrayTimer = window.setInterval(function() {
+			if (DEBUG) { console.log("artboardLayerNameArrayTimer is running") };
+			
+			if (artboardLayerNameArray) {
+				artboardLayerNameArray = artboardLayerNameArray
+				clearInterval(artboardLayerNameArrayTimer);
+			}
+		}, 10);
+		
+        var inputFieldValue = document.querySelector('.c-commander').value;
+    </script>
+</body>
+</html>

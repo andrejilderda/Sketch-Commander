@@ -67,6 +67,7 @@ gulp.task('reload', ['sync:html'], browserSync.reload);
 
 // Server + watching files
 gulp.task('watch', function() {
+    gulp.watch(input.html, ['sync:html']);
     gulp.watch(input.html, ['reload']).on('change', function(event) {
         if(event.type === 'deleted') {
             del.sync(path.resolve(output.html, path.relative(path.resolve('source'), event.path)));
