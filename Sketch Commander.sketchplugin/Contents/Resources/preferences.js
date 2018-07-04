@@ -134,7 +134,7 @@ inputField.addEventListener('keydown', function (e) {
       selectOption();
     } else {
       sketch_module_web_view_client__WEBPACK_IMPORTED_MODULE_0___default()('returnUserInput', inputField.value);
-      sketch_module_web_view_client__WEBPACK_IMPORTED_MODULE_0___default()('nativeLog', Object(_shared__WEBPACK_IMPORTED_MODULE_1__["getCommandsObj"])());
+      sketch_module_web_view_client__WEBPACK_IMPORTED_MODULE_0___default()('closeExecute', Object(_shared__WEBPACK_IMPORTED_MODULE_1__["getCommandsObj"])());
     }
   }
 

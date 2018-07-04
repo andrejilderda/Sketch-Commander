@@ -1,4 +1,6 @@
-import BrowserWindow from 'sketch-module-web-view'
+import BrowserWindow from 'sketch-module-web-view';
+var sketch = require('sketch');
+
 import {
   getCommandsObj,
   splitCommands
@@ -37,70 +39,89 @@ export default function(context) {
     y: 0,
     width: 520,
     height: 280,
-    frame: false,
+    frame: true,
     useContentSize: true,
     center: true,
-    background: NSColor.blackColor(),
+    resizable: false,
+    backgroundColor: '#222831',
     titlebarAppearsTransparent: true,
     onlyShowCloseButton: true,
     hideTitleBar: false,
-    setTitlebarAppearsTransparent: true,
-    shouldKeepAround: true,
-    handlers: {
-      returnUserInput: function(s) {
-        userInput = s;
-        // store previous value for later use
-        sketch.setSettingForKey("userInputSetting", userInput);
-      },
-      saveContext: function(s) {
-        context = s;
-        // store previous value for later use
-        sketch.setSettingForKey("contextTabs", context);
-      },
-      nativeLog: function(s) {
-        browserWindow.panel.close();
-        browserWindow.clean()
-        executeCommand(s);
-        doc.reloadInspector();
-      },
-      closeModal: function() {
-        browserWindow.panel.close();
-        browserWindow.clean()
-      }
-    },
-    frameLoadDelegate: { // https://developer.apple.com/reference/webkit/webframeloaddelegate?language=objc
-      'webView:didFinishLoadForFrame:': function(webView, webFrame) {
-        // triggers when webview is loaded
-        browserWindow.eval('prevUserInput ="' + prevUserInput + '"')
-        browserWindow.eval('contextTabs ="' + contextTabs + '"')
-
-        // create array with selected layers
-        var selectedLayerNameArray = [];
-        for (var i = 0; i < selection.count(); i++) {
-          var layer = selection.objectAtIndex(i);
-          // selectedLayerNameArray.push(layer.name());
-          selectedLayerNameArray.push(layer.objectID());
-        }
-        browserWindow.eval('selectedLayerNameArray ="' + selectedLayerNameArray + '"')
-
-        // create array with artboard layers
-        var artboardLayerNameArray = [];
-        var selectedArtboard = doc.currentPage().currentArtboard()
-        var artboardLayers = selectedArtboard.layers();
-
-        for (var i = 0; i < artboardLayers.count(); i++) {
-          var layer = artboardLayers.objectAtIndex(i);
-          // artboardLayerNameArray.push(layer.name());
-          artboardLayerNameArray.push(layer.objectID());
-        }
-        browserWindow.eval('artboardLayerNameArray ="' + artboardLayerNameArray + '"')
-        // browserWindow.eval('someJSFunction(' + prevCommand + ')');
-      }
-    }
-  }
-  const browserWindow = new BrowserWindow(options);
-  browserWindow.loadURL('index.html')
+    setTitlebarAppearsTransparent: true
+  };
+  const webUI = new BrowserWindow(options);
+  webUI.loadURL('index.html');
+  
+  
+  // 💫 Listeners: receive messages from the webview (listener)
+  webUI.webContents.on('returnUserInput', (s) => {
+    sketch.setSettingForKey('userInputSetting', s);
+  });
+  webUI.webContents.on('saveContext', (s) => {
+    sketch.setSettingForKey('contextTabs', s);
+  });
+  webUI.webContents.on('nativeLog', (s) => {
+    // will log it to Sketch in a toast message
+    // sketch.UI.message(s)
+    
+    // will log it to 'Plugin Output' in the Console
+    console.log(s);
+  });
+  webUI.webContents.on('closeExecute', (s) => {
+    webUI.close();
+    executeCommand(s);
+    doc.reloadInspector();
+  });
+  webUI.webContents.on('closeModal', () => {
+    webUI.close();
+  });
+  
+  // close webview when loosing focus
+  webUI.on('blur', () => {
+    webUI.close();
+  })
+  
+  // wait for the webview to be 'ready-to-show' to prevent flickering
+  webUI.once('ready-to-show', () => {
+    console.log('ready-to-show');
+    webUI.show();
+    
+    // 💫 emitter: call a function in the webview
+    // webUI.webContents.executeJavaScript('someGlobalFunctionDefinedInTheWebview("This text was sent by the Sketch plugin")');
+    webUI.webContents.executeJavaScript('prevUserInput ="' + prevUserInput + '"');
+    webUI.webContents.executeJavaScript('contextTabs ="' + contextTabs + '"');
+    webUI.webContents.executeJavaScript('selectedLayerNameArray ="' + getSelectedLayerNames() + '"');
+    webUI.webContents.executeJavaScript('artboardLayerNameArray ="' + getArtboardLayers() + '"');
+  })
+  
+  
+  return webUI;
 }
+
+const getArtboardLayers = function() {
+  // create array with artboard layers
+  var artboardNames = [];
+  var selectedArtboard = doc.currentPage().currentArtboard()
+  var artboardLayers = selectedArtboard.layers();
+  
+  for (var i = 0; i < artboardLayers.count(); i++) {
+    var layer = artboardLayers.objectAtIndex(i);
+    // artboardLayerNameArray.push(layer.name());
+    artboardLayerNameArray.push(layer.objectID());
+  }
+  return artboardNames;
+};
+
+// create array with selected layers
+const getSelectedLayerNames = function() {
+  const layerNames = [];
+  for (var i = 0; i < selection.count(); i++) {
+    var layer = selection.objectAtIndex(i);
+    // selectedLayerNameArray.push(layer.name());
+    layerNames.push(layer.objectID());
+  }
+  return layerNames;
+};
 
 
 function executeCommand(commandObj) {

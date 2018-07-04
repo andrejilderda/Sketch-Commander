@@ -43,7 +43,7 @@ inputField.addEventListener('keydown', function(e) {
       selectOption();
     } else {
       pluginCall('returnUserInput', inputField.value);
-      pluginCall('nativeLog', getCommandsObj());
+      pluginCall('closeExecute', getCommandsObj());
     }
   }
   if (e.keyCode == 9) {
