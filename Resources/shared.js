@@ -2,8 +2,13 @@ export {
   getCommandsObj
 };
 
-var DEBUG = true,
-  commandRegex = /(bdc)|(bdr)|(bdw)|(bd)|(fs)|(f)|(lh)|(ttu)|(ttl)|(o)|[lrtbwhaxynv]/g,
+// DEVMODE sets a few variables that are normally received from Sketch
+// Useful to debug the webview outside Sketch (using Gulp). 
+// Do disable in production!
+window.DEBUG = true;
+window.DEVMODE = true;
+
+var commandRegex = /(bdc)|(bdr)|(bdw)|(bd)|(fs)|(f)|(lh)|(ttu)|(ttl)|(o)|[lrtbwhaxynv]/g,
   operatorRegex = /[\/+\-*%\=]/g;
 // export var commandList = {
 //     "bdc" : { "name" : "Border-color" },

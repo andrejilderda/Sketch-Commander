@@ -410,9 +410,13 @@ var mod = function mod(n, m) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getCommandsObj", function() { return getCommandsObj; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "commandList", function() { return commandList; });
+ // DEVMODE sets a few variables that are normally received from Sketch
+// Useful to debug the webview outside Sketch (using Gulp). 
+// Do disable in production!
 
-var DEBUG = true,
-    commandRegex = /(bdc)|(bdr)|(bdw)|(bd)|(fs)|(f)|(lh)|(ttu)|(ttl)|(o)|[lrtbwhaxynv]/g,
+window.DEBUG = true;
+window.DEVMODE = true;
+var commandRegex = /(bdc)|(bdr)|(bdw)|(bd)|(fs)|(f)|(lh)|(ttu)|(ttl)|(o)|[lrtbwhaxynv]/g,
     operatorRegex = /[\/+\-*%\=]/g; // export var commandList = {
 //     "bdc" : { "name" : "Border-color" },
 //     "bdr" : { "name" : "Border-radius" },

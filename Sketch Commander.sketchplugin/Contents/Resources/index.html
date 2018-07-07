@@ -49,19 +49,17 @@
 		</div>
 	</div>
     <script src="preferences.js"></script>
-	<script src="shared.js"></script>
+    <script src="shared.js"></script>
     <script>
 		// Unfortunately the Sketch plugin can not trigger functions in external
 		// javscript files. That's why a few js-things are set directly in this
 		// html-file, that get processed further in `preferences.js` & `shared.js`.
 		
-        var prevUserInput,
-		contextTabs;
-		var DEBUG = true;
-		// DEVMODE sets a few variables that are normally received from Sketch
-		// Useful to debug the webview outside Sketch (using Gulp). 
-		// Do disable in production!
-		var DEVMODE = true;
+    var prevUserInput,
+    contextTabs;
+    
+    console.log(window);
+    console.log(window);
 		if (DEVMODE) {
 			prevUserInput = " ";
 			contextTabs = 0;
