@@ -8,8 +8,14 @@ import {
 } from './shared'
 
 function returnToSketch(name, args) {
-  console.log(args);
-  console.log('triggered returnToSketch()');
+  // pluginCall('nativeLog', name)
+  // pluginCall('nativeLog', args)
+  // console.log(name);
+  // console.log(args);
+  // console.log('triggered returnToSketch()');
+  // log(name);
+  // log(args);
+  // log('triggered returnToSketch()');
   if (BROWSERDEBUG) return;
   pluginCall(name, args);
 }
@@ -59,7 +65,6 @@ inputField.addEventListener('keydown', function(e) {
     if (cyclingThroughOptions) {
       selectOption();
     } else {
-      returnToSketch('returnUserInput', inputField.value);
       returnToSketch('closeExecute', commands.get());
     }
   }
@@ -120,7 +125,7 @@ function selectOption() {
 function parseInput() {
   inputFieldValue = document.querySelector('.c-commander').value;
   const items = commands.get();
-  // if (DEBUG) console.log(commands.get());
+  if (DEBUG) console.log(commands.get());
   commandsUl.innerHTML = ''; // remove existing elements
 
 
