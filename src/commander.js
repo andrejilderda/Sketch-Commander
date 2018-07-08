@@ -34,7 +34,7 @@ export default function(context) {
     y: 0,
     width: 520,
     height: 280,
-    frame: true,
+    frame: false,
     useContentSize: true,
     center: true,
     resizable: false,
@@ -78,11 +78,10 @@ export default function(context) {
 
   // wait for the webview to be 'ready-to-show' to prevent flickering
   webUI.once('ready-to-show', () => {
-    console.log('ready-to-show');
+    if (DEBUG) console.log('ready-to-show');
     webUI.show();
 
     // 💫 emitter: call a function in the webview
-    // webUI.webContents.executeJavaScript('someGlobalFunctionDefinedInTheWebview("This text was sent by the Sketch plugin")');
     webUI.webContents.executeJavaScript('prevUserInput ="' + prevUserInput + '"');
     webUI.webContents.executeJavaScript('contextTabs ="' + contextTabs + '"');
     webUI.webContents.executeJavaScript('selectedLayerNameArray ="' + getSelectedLayerNames() + '"');
@@ -121,9 +120,11 @@ const getSelectedLayerNames = function() {
 
 function executeCommand(commandObj) {
   for (var k = 0; k < commandObj.length; k++) {
-    commandType = commandObj[k].type;
-    operator = commandObj[k].operator;
-    amount = commandObj[k].amount;
+    const commandType = commandObj[k].type;
+    const operator = commandObj[k].operator;
+    const value = commandObj[k].value;
+    
+    console.log(commandType + "   " + operator + "   " + value )
 
     function loopThroughSelection(callback) {
       if (callback && typeof callback === 'function') {
@@ -146,18 +147,18 @@ function executeCommand(commandObj) {
         case "t":
         case "b":
         case "a":
-          loopThroughSelection(resizeObject, commandType, amount, operator);
+          loopThroughSelection(resizeObject, commandType, value, operator);
           break switchStatement;
         case "w":
         case "h":
-          loopThroughSelection(setWidthHeightObject, commandType, amount, operator);
+          loopThroughSelection(setWidthHeightObject, commandType, value, operator);
           break switchStatement;
         case "x":
         case "y":
-          loopThroughSelection(moveObject, commandType, amount, operator);
+          loopThroughSelection(moveObject, commandType, value, operator);
           break switchStatement;
         case "fs":
-          loopThroughSelection(textActions.setSize, amount, operator);
+          loopThroughSelection(textActions.setSize, value, operator);
           break switchStatement;
         case "ttl":
           loopThroughSelection(textActions.convertLowerCase);
@@ -166,31 +167,31 @@ function executeCommand(commandObj) {
           loopThroughSelection(textActions.convertUpperCase);
           break switchStatement;
         case "lh":
-          loopThroughSelection(textActions.setLineheight, amount, operator);
+          loopThroughSelection(textActions.setLineheight, value, operator);
           break switchStatement;
         case "v":
-          loopThroughSelection(textActions.setValue, amount, operator);
+          loopThroughSelection(textActions.setValue, value, operator);
           break switchStatement;
         case "n":
-          loopThroughSelection(layerActions.rename, amount, operator);
+          loopThroughSelection(layerActions.rename, value, operator);
           break switchStatement;
         case "bdc":
-          loopThroughSelection(borderActions.setColor, amount, operator);
+          loopThroughSelection(borderActions.setColor, value, operator);
           break switchStatement;
         case "bdr":
-          loopThroughSelection(borderActions.radius, amount, operator);
+          loopThroughSelection(borderActions.radius, value, operator);
           break switchStatement;
         case "bdw":
-          loopThroughSelection(borderActions.thickness, amount, operator);
+          loopThroughSelection(borderActions.thickness, value, operator);
           break switchStatement;
         case "bd":
-          loopThroughSelection(borderActions.checkOperator, amount, operator);
+          loopThroughSelection(borderActions.checkOperator, value, operator);
           break switchStatement;
         case "f":
-          loopThroughSelection(fillActions.setColor, amount, operator);
+          loopThroughSelection(fillActions.setColor, value, operator);
           break switchStatement;
         case "o":
-          loopThroughSelection(fillActions.setOpacity, amount, operator);
+          loopThroughSelection(fillActions.setOpacity, value, operator);
           break switchStatement;
       }
   }
@@ -200,9 +201,9 @@ function executeCommand(commandObj) {
 //  LAYER ACTIONS                                               //
 //////////////////////////////////////////////////////////////////
 
-function resizeObject(layer, command, amount, operator) {
+function resizeObject(layer, command, value, operator) {
 
-  var calcAmount = Math.round(amount);
+  var calcAmount = Math.round(value);
   if (operator == "-")
     calcAmount *= -1;
 
@@ -225,9 +226,9 @@ function resizeObject(layer, command, amount, operator) {
   }
 }
 
-function moveObject(layer, command, amount, operator) {
-  var xAmount = Number(amount);
-  var yAmount = Number(amount);
+function moveObject(layer, command, value, operator) {
+  var xAmount = Number(value);
+  var yAmount = Number(value);
   var frame = layer.frame();
   var xCurrent = layer.absoluteRect().rulerX();
   var yCurrent = layer.absoluteRect().rulerY();
@@ -253,8 +254,8 @@ function moveObject(layer, command, amount, operator) {
 }
 
 // function is triggered when using operators = / * %
-function setWidthHeightObject(layer, command, amount, operator) {
-  var calcAmount = Math.round(amount);
+function setWidthHeightObject(layer, command, value, operator) {
+  var calcAmount = Math.round(value);
   var frame = layer.frame();
 
   calcAmountPercentage = calcAmount / 100;
@@ -265,9 +266,9 @@ function setWidthHeightObject(layer, command, amount, operator) {
   // Set width or height =
   if (operator == "=") {
     if (command === "w")
-      frame.setWidth(amount);
+      frame.setWidth(value);
     else if (command === "h")
-      frame.setHeight(amount);
+      frame.setHeight(value);
   }
   // add or subtract width/height
   if (operator == "+" || operator == "-") {
@@ -289,16 +290,16 @@ function setWidthHeightObject(layer, command, amount, operator) {
   // Divide /
   else if (operator == "/") {
     if (command == 'h')
-      frame.setHeight(Math.round(frameHeight / amount));
+      frame.setHeight(Math.round(frameHeight / value));
     else
-      frame.setWidth(Math.round(frameWidth / amount));
+      frame.setWidth(Math.round(frameWidth / value));
   }
   // Multiply *
   else if (operator == "*") {
     if (command == 'h')
-      frame.setHeight(Math.round(frameHeight * amount));
+      frame.setHeight(Math.round(frameHeight * value));
     else {
-      frame.setWidth(Math.round(frameWidth * amount));
+      frame.setWidth(Math.round(frameWidth * value));
     }
   }
 }
