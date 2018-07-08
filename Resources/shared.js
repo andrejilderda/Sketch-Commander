@@ -222,8 +222,8 @@ const commands = function() {
       // 2. filter out the undefined and empty ones
       const splitByCommandType = item.split(commandRegex).filter((val) => val);
       const commandType = splitByCommandType[0];
-      const commandWithoutType = '';
-      if (!commandType) return;
+      // check if the command exists and it starts with a valid command. Else bail
+      if (!commandType || !commandType.match(commandRegex)) return; 
       
       // check if there's a value given or it's just a command while the user's typing
       if ( splitByCommandType[1] ) {
