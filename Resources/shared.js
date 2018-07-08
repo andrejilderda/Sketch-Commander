@@ -225,10 +225,9 @@ const commands = function() {
       // check if the command exists and it starts with a valid command. Else bail
       if (!commandType || !commandType.match(commandRegex)) return; 
       
-      // check if there's a value given or it's just a command while the user's typing
-      if ( splitByCommandType[1] ) {
-          commandWithoutType = splitByCommandType[1];
-      }
+      // check if there's a value given already. Else leave it '' while the user is typing
+      const commandWithoutType = '';
+      if ( splitByCommandType[1] ) commandWithoutType = splitByCommandType[1];
 
       // strip the operator including all leftovers before that (f.e. the invalid 'q' in 'lrq')
       let value = commandWithoutType.split(operatorRegex).pop();
@@ -237,11 +236,9 @@ const commands = function() {
       commandType.match(groupedCommandsRegex).forEach(function(command) { // array, e.g. ['l','r']
 
         let operator = commandWithoutType.match(operatorRegex);
-        // check if operator is given -> if not, set default operator
+        // check if operator is given. If not, set it to the default operator
         if (operator) operator = operator[0];
-        else {
-          operator = searchPropInArray(command, "notation", commandList).defaultOperator
-        };
+        else operator = searchPropInArray(command, "notation", commandList).defaultOperator;
 
         publicSetObj([command, operator, value]);
       });
@@ -257,8 +254,8 @@ const commands = function() {
   // }
 
   return {
+    add: publicSetObj,
     get: publicGetObj,
-    set: publicSetObj,
     clear: publicClearObj,
     parse: publicParse
   }
