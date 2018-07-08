@@ -32,7 +32,7 @@ var onError = function (err) {
 };
 
 // BrowserSync proxy
-gulp.task('browser-sync', function() {
+gulp.task('browser-sync', function(done) {
   browserSync.init({
       server: {
         baseDir: output.html
@@ -40,6 +40,7 @@ gulp.task('browser-sync', function() {
       online: false,
       open: false //true: opens in browser each time you run gulp
   });
+  done()
 });
 
 
@@ -55,30 +56,34 @@ gulp.task('site:css', function(){
     .pipe(gulp.dest(output.styles))
     .pipe(browserSync.reload({ stream: true }))
 });
+
 // sync html 
-gulp.task('sync:html', function() {
+gulp.task('sync:html', function(done) {
   return gulp.src(input.base_html)
     .pipe(gulp.dest(output.html))
+    done()
 });
 
 
 //reload html task
-gulp.task('reload', gulp.parallel('sync:html'), browserSync.reload);
+gulp.task('reload', function(done){
+    browserSync.reload()
+    done()
+})
 
 // Server + watching files
 gulp.task('watch', function() {
-    gulp.watch(input.html, ['sync:html']);
-    gulp.watch(input.html, ['reload']).on('change', function(event) {
+    gulp.watch(input.html, gulp.parallel( 'sync:html' ));
+    gulp.watch(input.html, gulp.parallel( 'reload' )).on('change', function(event) {
         if(event.type === 'deleted') {
             del.sync(path.resolve(output.html, path.relative(path.resolve('source'), event.path)));
         }
     });
-    
-    gulp.watch(input.styles, ['site:css']);
+    gulp.watch(input.styles, gulp.parallel('site:css' ));
 });
 
 //build all task
 gulp.task('build:all', gulp.parallel( 'site:css', 'sync:html' ));
 
 //this task will run on default 'gulp' without arguments
-gulp.task('default', gulp.series('build:all', 'browser-sync', 'watch'));
+gulp.task('default', gulp.series( 'build:all', 'browser-sync', 'watch' ));
