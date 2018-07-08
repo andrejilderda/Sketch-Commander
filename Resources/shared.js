@@ -2,7 +2,6 @@
 
 export {
   commands,
-  commandList,
   DEBUG,
   DEVMODE,
   BROWSERDEBUG
