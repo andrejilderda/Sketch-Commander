@@ -222,11 +222,15 @@ const commands = function() {
       // 2. filter out the undefined and empty ones
       const splitByCommandType = item.split(commandRegex).filter((val) => val);
       const commandType = splitByCommandType[0];
-      const commandWithoutType = splitByCommandType[1];
+      const commandWithoutType = '';
+      if (!commandType) return;
+      
+      // check if there's a value given or it's just a command while the user's typing
+      if ( splitByCommandType[1] ) {
+          commandWithoutType = splitByCommandType[1];
+      }
 
-      if (!commandType || !commandWithoutType) return;
-
-      // strip the operator including all leftovers before that (f.e. the invalid 'v' in 'lrv')
+      // strip the operator including all leftovers before that (f.e. the invalid 'q' in 'lrq')
       let value = commandWithoutType.split(operatorRegex).pop();
 
       // check if there are multiple commands (e.g. lr) and loop through all of them
