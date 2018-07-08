@@ -2,8 +2,8 @@ import BrowserWindow from 'sketch-module-web-view';
 var sketch = require('sketch');
 
 import {
-  getCommandsObj,
-  splitCommands
+  commands,
+  commandList
 } from '../Resources/shared'
 
 
@@ -51,8 +51,8 @@ export default function(context) {
   };
   const webUI = new BrowserWindow(options);
   webUI.loadURL('index.html');
-  
-  
+
+
   // 💫 Listeners: receive messages from the webview (listener)
   webUI.webContents.on('returnUserInput', (s) => {
     sketch.setSettingForKey('userInputSetting', s);
@@ -63,7 +63,7 @@ export default function(context) {
   webUI.webContents.on('nativeLog', (s) => {
     // will log it to Sketch in a toast message
     // sketch.UI.message(s)
-    
+
     // will log it to 'Plugin Output' in the Console
     console.log(s);
   });
@@ -75,17 +75,17 @@ export default function(context) {
   webUI.webContents.on('closeModal', () => {
     webUI.close();
   });
-  
+
   // close webview when loosing focus
   webUI.on('blur', () => {
     webUI.close();
-  })
-  
+  });
+
   // wait for the webview to be 'ready-to-show' to prevent flickering
   webUI.once('ready-to-show', () => {
     console.log('ready-to-show');
     webUI.show();
-    
+
     // 💫 emitter: call a function in the webview
     // webUI.webContents.executeJavaScript('someGlobalFunctionDefinedInTheWebview("This text was sent by the Sketch plugin")');
     webUI.webContents.executeJavaScript('prevUserInput ="' + prevUserInput + '"');
@@ -93,8 +93,8 @@ export default function(context) {
     webUI.webContents.executeJavaScript('selectedLayerNameArray ="' + getSelectedLayerNames() + '"');
     webUI.webContents.executeJavaScript('artboardLayerNameArray ="' + getArtboardLayers() + '"');
   })
-  
-  
+
+
   return webUI;
 }
 
@@ -103,7 +103,7 @@ const getArtboardLayers = function() {
   var artboardNames = [];
   var selectedArtboard = doc.currentPage().currentArtboard()
   var artboardLayers = selectedArtboard.layers();
-  
+
   for (var i = 0; i < artboardLayers.count(); i++) {
     var layer = artboardLayers.objectAtIndex(i);
     // artboardLayerNameArray.push(layer.name());
