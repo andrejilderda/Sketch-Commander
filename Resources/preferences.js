@@ -1,9 +1,19 @@
 import pluginCall from 'sketch-module-web-view/client'
 import {
-  getCommandsObj,
-  obj,
-  commandList
+  commands,
+  commandList,
+  DEBUG,
+  DEVMODE,
+  BROWSERDEBUG
 } from './shared'
+
+
+function returnToSketch(name, args) {
+  console.log(args);
+  console.log('triggered returnToSketch()');
+  if (BROWSERDEBUG) return;
+  pluginCall(name, args);
+}
 
 
 var btn = document.querySelector('#btn');
@@ -17,10 +27,8 @@ var commandsUl = document.querySelector(".c-commands-list");
 var optionsUl = document.querySelector(".c-options-list");
 
 var inputFieldValue = document.querySelector('.c-commander').value;
-var commands;
 var cyclingThroughOptions = false;
 
-var DEBUG = true;
 
 function setInputValue(value) {
   inputField.value = value;
@@ -34,16 +42,18 @@ var keys = {
 };
 
 inputField.addEventListener('keydown', function(e) {
+  commands.clear();
+  commands.parse();
   // close on keydown enter or escape key
   if (e.keyCode === 27) {
-    pluginCall('closeModal');
+    returnToSketch('closeModal');
   }
   if (e.keyCode === 13) {
     if (cyclingThroughOptions) {
       selectOption();
     } else {
-      pluginCall('returnUserInput', inputField.value);
-      pluginCall('closeExecute', getCommandsObj());
+      returnToSketch('returnUserInput', inputField.value);
+      returnToSketch('closeExecute', commands.get());
     }
   }
   if (e.keyCode == 9) {
@@ -101,27 +111,27 @@ function selectOption() {
 
 
 function parseInput() {
-  if (DEBUG) console.log(getCommandsObj());
-
   inputFieldValue = document.querySelector('.c-commander').value;
-  commands = getCommandsObj();
+  const items = commands.get();
+  // if (DEBUG) console.log(commands.get());
   commandsUl.innerHTML = ''; // remove existing elements
 
-  for (var i = 0; i < commands.length; i++) {
-    var commandType = commands[i].type;
-    var commandTypeName = commandList.filter(function(commandTypeName) {
-      return commandTypeName.notation === commandType;
-    })[0];
-    commandTypeName = commandTypeName.name;
 
-    // create the list
-    var li = document.createElement('li');
-    li.classList.add('c-commands-list__item');
-    li.innerHTML = commandTypeName + " " + commands[i].operator + " " + commands[i].amount;
-    commandsUl.append(li);
+  for (var i = 0; i < items.length; i++) {
+    // var commandType = items[i].type;
+    // var commandTypeName = commandList.filter(function(commandTypeName) {
+    //   return commandTypeName.notation === commandType;
+    // })[0];
+    // commandTypeName = commandTypeName.name;
+    // 
+    // // create the list
+    // var li = document.createElement('li');
+    // li.classList.add('c-commands-list__item');
+    // li.innerHTML = commandTypeName + " " + items[i].operator + " " + items[i].amount;
+    // commandsUl.append(li);
   }
   // one or more valid commands have been entered
-  if (getCommandsObj().length > 0) {
+  if (items.length > 0) {
     optionsUl.style.display = "none";
     navigateThroughList('reset');
   } else { // no valid commands entered (yet)
@@ -186,7 +196,6 @@ function filterActionlist() {
       }
       return a.dataset.notation - b.dataset.notation;
     });
-    console.log(result[0]);
     navigateThroughList('selectFirst');
   });
 }
@@ -213,7 +222,7 @@ function switchContextAction(value) {
   contextTabs[index].classList.toggle('is-active');
   contextList[index].classList.toggle('is-active');
 
-  pluginCall('saveContext', index);
+  returnToSketch('saveContext', index);
 }
 
 // for navigating through the actionlist
@@ -244,7 +253,7 @@ function navigateThroughList(value) {
   if (listItems[index] != undefined) {
     listItems[index].classList.toggle('is-active');
     // this useful sucker surprisingly works in safari/webview, but lets keep it disabled when debugging in FF
-    if (DEBUG) listItems[index].scrollIntoViewIfNeeded(false);
+    if (!BROWSERDEBUG) listItems[index].scrollIntoViewIfNeeded(false);
   } else {
     cyclingThroughOptions = false;
   }
