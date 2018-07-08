@@ -41,9 +41,13 @@ var keys = {
   tab: false
 };
 
-inputField.addEventListener('keydown', function(e) {
+inputField.addEventListener('input', function(e) {
   commands.clear();
   commands.parse();
+  console.log(commands.get());
+})
+
+inputField.addEventListener('keydown', function(e) {
   // close on keydown enter or escape key
   if (e.keyCode === 27) {
     returnToSketch('closeModal');

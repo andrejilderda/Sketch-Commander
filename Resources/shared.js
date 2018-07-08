@@ -195,7 +195,6 @@ const commands = function() {
       command[props[key]] = newObj[key];
     };
     obj.push(command);
-    console.log(obj);
   }
 
   function publicParse() {
