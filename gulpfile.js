@@ -63,7 +63,7 @@ gulp.task('sync:html', function() {
 
 
 //reload html task
-gulp.task('reload', ['sync:html'], browserSync.reload);
+gulp.task('reload', gulp.parallel('sync:html'), browserSync.reload);
 
 // Server + watching files
 gulp.task('watch', function() {
@@ -78,10 +78,7 @@ gulp.task('watch', function() {
 });
 
 //build all task
-gulp.task('build:all', [ 
-  'site:css', 
-  'sync:html'
-]);
+gulp.task('build:all', gulp.parallel( 'site:css', 'sync:html' ));
 
 //this task will run on default 'gulp' without arguments
-gulp.task('default', ['build:all', 'browser-sync', 'watch']);
+gulp.task('default', gulp.series('build:all', 'browser-sync', 'watch'));

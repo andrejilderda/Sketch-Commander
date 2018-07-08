@@ -38,7 +38,7 @@
     "@skpm/builder": "^0.5.2",
     "browser-sync": "*",
     "del": "*",
-    "gulp": "*",
+    "gulp": "^4.0.0",
     "gulp-autoprefixer": "*",
     "gulp-clean-css": "*",
     "gulp-notify": "*",
