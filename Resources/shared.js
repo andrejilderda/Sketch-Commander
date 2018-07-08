@@ -180,10 +180,6 @@ export const commandList = [{
 const commands = function() {
   let obj = [];
 
-  const init = (function() {
-    publicParse();
-  })();
-
   function publicGetObj() {
     return obj;
   };
@@ -197,8 +193,8 @@ const commands = function() {
     obj.push(command);
   }
 
-  function publicParse() {
-    splitCommands();
+  function publicParse(input) {
+    splitCommands(input);
   }
 
   function publicClearObj() {
@@ -211,11 +207,11 @@ const commands = function() {
     return str.replace(/^\s+/g, ''); // remove just the space at the beginning of a line
   }
 
-  function splitCommands() {
+  function splitCommands(input) {
     // an array containing the command(s), e.g. ['lr100', 'x*2']
-    const commands = document.querySelector(".c-commander").value.split(",");
+    input = input.split(",");
 
-    for (let item of commands) {
+    for (let item of input) {
       item = String(stripSpace(item));
 
       // 1. splits the commands from the rest of the item, e.g. [ 'x', '*200' ], [ 'lr', '+10']

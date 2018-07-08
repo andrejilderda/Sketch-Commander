@@ -1,12 +1,7 @@
 import BrowserWindow from 'sketch-module-web-view';
 var sketch = require('sketch');
 
-import {
-  commands,
-  commandList
-} from '../Resources/shared'
-
-
+import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from '../Resources/shared'
 
 var sketch,
   context,

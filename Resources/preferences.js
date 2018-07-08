@@ -7,7 +7,6 @@ import {
   BROWSERDEBUG
 } from './shared'
 
-
 function returnToSketch(name, args) {
   console.log(args);
   console.log('triggered returnToSketch()');
@@ -41,9 +40,13 @@ var keys = {
   tab: false
 };
 
+function getInputValue() {
+  return document.querySelector(".c-commander").value;
+}
+
 inputField.addEventListener('input', function(e) {
   commands.clear();
-  commands.parse();
+  commands.parse(getInputValue());
   console.log(commands.get());
 })
 
