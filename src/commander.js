@@ -82,7 +82,7 @@ export default function(context) {
     webUI.show();
 
     // 💫 emitter: call a function in the webview
-    webUI.webContents.executeJavaScript('prevUserInput ="' + prevUserInput + '"');
+    webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
     webUI.webContents.executeJavaScript('contextTabs ="' + contextTabs + '"');
     webUI.webContents.executeJavaScript('selectedLayerNameArray ="' + getSelectedLayerNames() + '"');
     webUI.webContents.executeJavaScript('artboardLayerNameArray ="' + getArtboardLayers() + '"');
@@ -119,13 +119,16 @@ const getSelectedLayerNames = function() {
 
 
 function executeCommand(commandObj) {
+  commandObj = JSON.parse(commandObj);
+
   for (var k = 0; k < commandObj.length; k++) {
     const commandType = commandObj[k].type;
     const operator = commandObj[k].operator;
     const value = commandObj[k].value;
     
-    console.log(commandType + "   " + operator + "   " + value )
+    if (DEBUG) console.log('executeCommand:' + commandType + "   " + operator + "   " + value )
 
+    // loop through layer selection
     function loopThroughSelection(callback) {
       if (callback && typeof callback === 'function') {
         for (var i = 0; i < selection.count(); i++) {

@@ -59,7 +59,8 @@
     var prevUserInput,
       contextTabs;
     var DEBUG = false;
-    // DEVMODE sets a few variables that are normally received from Sketch
+
+     // DEVMODE sets a few variables that are normally received from Sketch
     // Useful to debug the webview outside Sketch (using Gulp). 
     // Do disable in production!
     var DEVMODE = false;
@@ -71,18 +72,16 @@
     selectedLayerNameArray = 'testlayer 1,testlayer 2';
     artboardLayerNameArray = 'testlayer 1,testlayer 2';
 
-    // small delay so that its loaded...
-    var prevUserInputTimer = window.setInterval(function() {
-      if (DEBUG) {
-        console.log("prevUserInputTimer is running")
-      };
-
-      if (prevUserInput) {
-        document.querySelector('.c-commander').value = prevUserInput;
+    
+    // Receive previousUserInput from Sketch
+    function prevUserInput(input) {
+      if (input) {
+        // if (DEBUG) console.log('Received prevUserInput:');
+        // if (DEBUG) console.log(input);
+        document.querySelector('.c-commander').value = input;
         document.querySelector('.c-commander').select();
-        clearInterval(prevUserInputTimer);
-      };
-    }, 10);
+      }
+    }
 
     var contextTabsTimer = window.setInterval(function() {
       if (DEBUG) {

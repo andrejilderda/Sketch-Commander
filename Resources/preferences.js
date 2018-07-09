@@ -65,7 +65,8 @@ inputField.addEventListener('keydown', function(e) {
     if (cyclingThroughOptions) {
       selectOption();
     } else {
-      returnToSketch('closeExecute', commands.get());
+      returnToSketch('returnUserInput', getInputValue());
+      returnToSketch('closeExecute', JSON.stringify(commands.get()));
     }
   }
   if (e.keyCode == 9) {
