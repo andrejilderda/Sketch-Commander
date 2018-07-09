@@ -1,4 +1,5 @@
 import pluginCall from 'sketch-module-web-view/client'
+import { initReceivers } from './receivers'
 import {
   commands,
   commandList,
@@ -6,20 +7,24 @@ import {
   DEVMODE,
   BROWSERDEBUG
 } from './shared'
+export { switchContextAction };
+
+// DEVMODE sets a few variables that are normally received from Sketch
+// Useful to debug the webview outside Sketch (using Gulp). 
+// Do disable in production!
+if (BROWSERDEBUG) {
+  // prevUserInput = " ";
+  prevUserInput = "lr100, lr-100, tv=bla, x*200";
+  contextTabs = 0;
+  selectedLayerNameArray = 'testlayer 1,testlayer 2';
+  artboardLayerNameArray = 'testlayer 1,testlayer 2';
+};
 
 function returnToSketch(name, args) {
-  // pluginCall('nativeLog', name)
-  // pluginCall('nativeLog', args)
-  // console.log(name);
-  // console.log(args);
-  // console.log('triggered returnToSketch()');
-  // log(name);
-  // log(args);
-  // log('triggered returnToSketch()');
+  if (DEBUG) console.log('triggered returnToSketch():' + name + '       Arguments: ' + args);
   if (BROWSERDEBUG) return;
   pluginCall(name, args);
 }
-
 
 var btn = document.querySelector('#btn');
 var inputField = document.querySelector('.c-commander');
@@ -272,47 +277,24 @@ function navigateThroughList(value) {
   }
 }
 
-// sets the active context when opening the webview (only runs once)
-var setActiveContextOnInit = (function() {
-  // wait until there's an active context__item which is set in index.html. This can probably done with promises, but this ugly hack works...
-  var waitTillActiveClassIsApplied = window.setInterval(function() {
-    var elements = document.querySelectorAll('.c-context-tab__item');
-    var isActive = document.querySelector('.c-context-tab__item.is-active');
-
-    for (var i = 0; i < elements.length; i++) {
-      if (elements[i].classList.contains("is-active")) {
-        switchContextAction(i);
-        if (DEBUG) console.log("currentContext = " + currentContext);
-        clearInterval(waitTillActiveClassIsApplied);
-      }
-    }
-  }, 1);
-  setActiveContextOnInit = function() {}; // overwrite self-invoked function so that it can only run once
-})();
-
 // lists the selected layers
-var listSelectedLayers = (function() {
+const listSelectedLayers = function() {
   var selectedLayerList = document.querySelector('.c-selection-list');
-  // wait until there's input received from Sketch in index.html. This can probably done with promises, but this ugly hack works...
-  var waitTillSketchInputIsReceived = window.setInterval(function() {
-    // received array from Sketch is actually a string, lets convert it into a real array again
-    if (artboardLayerNameArray) {
-      // if (artboardLayerNameArray && selectedLayerNameArray) {
-      artboardLayerNameArray = artboardLayerNameArray.split(',');
-      selectedLayerNameArray = selectedLayerNameArray.split(',');
+  // received array from Sketch is actually a string, lets convert it into a real array again
+  if (artboardLayerNameArray) {
+    // if (artboardLayerNameArray && selectedLayerNameArray) {
+    artboardLayerNameArray = artboardLayerNameArray.split(',');
+    selectedLayerNameArray = selectedLayerNameArray.split(',');
 
-      for (var i = 0; i < artboardLayerNameArray.length; i++) {
-        // create the list
-        var li = document.createElement('li');
-        li.classList.add('c-options-list__item');
-        li.innerHTML = artboardLayerNameArray[i];
-        selectedLayerList.append(li);
-      }
-      clearInterval(waitTillSketchInputIsReceived);
+    for (var i = 0; i < artboardLayerNameArray.length; i++) {
+      // create the list
+      var li = document.createElement('li');
+      li.classList.add('c-options-list__item');
+      li.innerHTML = artboardLayerNameArray[i];
+      selectedLayerList.append(li);
     }
-  }, 10);
-  listSelectedLayers = function() {}; // overwrite self-invoked function so that it can only run once
-})();
+  }
+};
 
 
 // http://stackoverflow.com/questions/4467539/javascript-modulo-not-behaving/13163436#13163436
