@@ -50,6 +50,8 @@ export default function(context) {
 
   // 💫 Listeners: receive messages from the webview (listener)
   webUI.webContents.on('returnUserInput', (s) => {
+    // if (DEBUG) console.log('USER INPUT:');
+    // if (DEBUG) console.log(s);
     sketch.setSettingForKey('userInputSetting', s);
   });
   webUI.webContents.on('saveContext', (s) => {
@@ -60,13 +62,15 @@ export default function(context) {
     // sketch.UI.message(s)
 
     // will log it to 'Plugin Output' in the Console
-    console.log(s);
+    // console.log(s);
   });
+    
   webUI.webContents.on('closeExecute', (s) => {
     webUI.close();
     executeCommand(s);
     doc.reloadInspector();
   });
+  
   webUI.webContents.on('closeModal', () => {
     webUI.close();
   });
@@ -83,7 +87,7 @@ export default function(context) {
 
     // 💫 emitter: call a function in the webview
     webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
-    webUI.webContents.executeJavaScript('contextTabs ="' + contextTabs + '"');
+    webUI.webContents.executeJavaScript('contextTabsInit("' + contextTabs + '")');
     webUI.webContents.executeJavaScript('selectedLayerNameArray ="' + getSelectedLayerNames() + '"');
     webUI.webContents.executeJavaScript('artboardLayerNameArray ="' + getArtboardLayers() + '"');
   })
@@ -230,6 +234,7 @@ function resizeObject(layer, command, value, operator) {
 }
 
 function moveObject(layer, command, value, operator) {
+  // console.log(command);
   var xAmount = Number(value);
   var yAmount = Number(value);
   var frame = layer.frame();
