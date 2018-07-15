@@ -1,10 +1,5 @@
 import BrowserWindow from 'sketch-module-web-view';
-import { 
-  commandList, 
-  DEBUG, 
-  DEVMODE, 
-  BROWSERDEBUG 
-} from '../Resources/shared';
+import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from '../Resources/shared';
 import { resizeObject, moveObject, setWidthHeightObject, resize, mathOps, makeColor } from './layer-actions'
 
 var sketch = require('sketch');

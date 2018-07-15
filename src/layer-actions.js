@@ -2,8 +2,7 @@
 //  LAYER ACTIONS                                               //
 //////////////////////////////////////////////////////////////////
 
-function resizeObject(layer, command, value, operator) {
-
+export function resizeObject(layer, command, value, operator) {
   var calcAmount = Math.round(value);
   if (operator == "-")
     calcAmount *= -1;
@@ -27,13 +26,13 @@ function resizeObject(layer, command, value, operator) {
   }
 }
 
-function moveObject(layer, command, value, operator) {
+export function moveObject(layer, command, value, operator) {
   // console.log(command);
-  var xAmount = Number(value);
-  var yAmount = Number(value);
-  var frame = layer.frame();
-  var xCurrent = layer.absoluteRect().rulerX();
-  var yCurrent = layer.absoluteRect().rulerY();
+  let xAmount = Number(value);
+  let yAmount = Number(value);
+  let frame = layer.frame();
+  let xCurrent = layer.absoluteRect().rulerX();
+  let yCurrent = layer.absoluteRect().rulerY();
 
   if (operator == "-" || operator == "+") {
     if (operator == "-") {
@@ -56,21 +55,22 @@ function moveObject(layer, command, value, operator) {
 }
 
 // function is triggered when using operators = / * %
-function setWidthHeightObject(layer, command, value, operator) {
-  var calcAmount = Math.round(value);
-  var frame = layer.frame();
-
-  calcAmountPercentage = calcAmount / 100;
-
-  frameHeight = frame.height();
-  frameWidth = frame.width();
+export function setWidthHeightObject(layer, command, value, operator) {
+  let frame = layer.frame();
+  let frameHeight = frame.height();
+  let frameWidth = frame.width();
+  
+  let calcAmount = Math.round(value);
+  let calcAmountPercentage = calcAmount / 100;
 
   // Set width or height =
   if (operator == "=") {
-    if (command === "w")
+    if (command === "w") {
       frame.setWidth(value);
-    else if (command === "h")
+    }
+    else if (command === "h") {
       frame.setHeight(value);
+    }
   }
   // add or subtract width/height
   if (operator == "+" || operator == "-") {
@@ -100,15 +100,14 @@ function setWidthHeightObject(layer, command, value, operator) {
   else if (operator == "*") {
     if (command == 'h')
       frame.setHeight(Math.round(frameHeight * value));
-    else {
+    else
       frame.setWidth(Math.round(frameWidth * value));
-    }
   }
 }
 
 // Function below is exactly the same as in Keyboard Resize
-function resize(layer, t, r, b, l) {
-  var frame = layer.frame();
+export function resize(layer, t, r, b, l) {
+  let frame = layer.frame();
 
   //if layer is a textlayer, set width to fixed
   if (layer.className() == "MSTextLayer") {
@@ -116,9 +115,9 @@ function resize(layer, t, r, b, l) {
   }
 
   // Top
-  if (t != 0) {
+  if (t) {
     if (frame.height() + t < 0) {
-      var oldHeight = frame.height();
+      let oldHeight = frame.height();
       frame.setHeight(1); // When contracting size prevent object to get a negative height (e.g. -45px).
       frame.setY(frame.y() + oldHeight - 1); // reposition the object
     } else {
@@ -128,25 +127,21 @@ function resize(layer, t, r, b, l) {
   }
 
   // Right
-  if (r != 0) {
+  if (r) {
     frame.setWidth(frame.width() + r);
-    if (frame.width() <= 1) {
-      frame.setWidth(1);
-    }
+    if (frame.width() <= 1) frame.setWidth(1);
   }
 
   // Bottom
-  if (b != 0) {
+  if (b) {
     frame.setHeight(frame.height() + b);
-    if (frame.height() <= 1) {
-      frame.setHeight(1);
-    }
+    if (frame.height() <= 1) frame.setHeight(1);
   }
 
   // Left
-  if (l != 0) {
-    if (frame.width() + l < 0) {
-      var oldWidth = frame.width();
+  if (l) {
+    if (frame.width() + l <= 0) {
+      let oldWidth = frame.width();
       frame.setWidth(1);
       frame.setX(frame.x() + oldWidth - 1);
     } else {
@@ -180,9 +175,7 @@ var borderActions = {
     var borders = layer.style().borders();
 
     // check if there's a border, if not add a new one
-    if (borders.count() <= 0) {
-      layer.style().addStylePartOfType(1);
-    }
+    if (borders.count() <= 0) layer.style().addStylePartOfType(1);
 
     var border = borders.lastObject();
     color = color.replace("#", "");
@@ -210,19 +203,19 @@ var borderActions = {
     var border = layer.style().removeStyleBorderAtIndex(borderCount);
   },
   radius: function(layer, value, operator) {
-    if (layer && layer.isKindOfClass(MSShapeGroup)) {
-      var shape = layer.layers().firstObject();
-      if (shape && shape.isKindOfClass(MSRectangleShape)) {
-        var radius = shape.cornerRadiusFloat();
-        shape.cornerRadiusFloat = mathOps(radius, value, operator);
-      }
+    if (!layer && !layer.isKindOfClass(MSShapeGroup)) return;
+    
+    var shape = layer.layers().firstObject();
+    if (shape && shape.isKindOfClass(MSRectangleShape)) {
+      var radius = shape.cornerRadiusFloat();
+      shape.cornerRadiusFloat = mathOps(radius, value, operator);
     }
   },
   thickness: function(layer, thickness, operator) {
     thickness = Number(thickness);
     // are there any borders?
     var border = layer.style().borders().lastObject();
-    if (border != null) {
+    if (border !== null) {
       var borderThickness = layer.style().borders().lastObject().thickness();
       border.thickness = mathOps(borderThickness, thickness, operator);
     } else {
@@ -279,6 +272,11 @@ var textActions = {
     }
   }
 }
+
+//////////////////////////////////////////////////////////////////
+//  LAYER ACTIONS                                               //
+//////////////////////////////////////////////////////////////////
+
 var layerActions = {
   rename: function(layer, value, operator) {
     layerName = layer.name();
@@ -306,6 +304,7 @@ var fillActions = {
       color = makeColor(color);
       layer.setTextColor(color);
     }
+    
     if (layer instanceof MSShapeGroup) {
       var style = new sketch.Style();
       var fills = layer.style().fills();
@@ -336,7 +335,7 @@ var fillActions = {
 //////////////////////////////////////////////////////////////////
 
 // simple math operations for - + * / %
-function mathOps(input, value, operator) {
+export function mathOps(input, value, operator) {
   input = Number(input);
   value = Number(value);
 
@@ -355,6 +354,6 @@ function mathOps(input, value, operator) {
 }
 
 // makeColor function to convert hex values to MSColor (from http://sketchplugins.com/d/8-global-colors-gradients/2)
-function makeColor(SVGString) {
+export function makeColor(SVGString) {
   return MSImmutableColor.colorWithSVGString(SVGString).newMutableCounterpart();
 }
