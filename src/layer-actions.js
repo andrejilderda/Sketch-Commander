@@ -289,7 +289,7 @@ export var textActions = {
 
 export var layerActions = {
   rename: function(layer, value, operator) {
-    layerName = layer.name();
+    let layerName = layer.name();
     layer.nameIsFixed = 1;
 
     if (operator == "+") {
