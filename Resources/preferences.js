@@ -46,10 +46,7 @@ function setInputValue(value) {
 inputField.focus();
 
 // Key event listeners
-var keys = {
-  shift: false,
-  tab: false
-};
+tabKeyPressed = false;
 
 function getInputValue() {
   return document.querySelector(".c-commander").value;
@@ -77,8 +74,8 @@ inputField.addEventListener('keydown', function(e) {
   if (e.keyCode == 9) {
     e.preventDefault();
     if (!cyclingThroughOptions) {
-      keys["tab"] = true;
-      if (!keys["shift"]) {
+      tabKeyPressed = true;
+      if (!e.shiftKey) {
         switchContextAction('next');
       }
     } else {
@@ -93,10 +90,7 @@ inputField.addEventListener('keydown', function(e) {
     e.preventDefault();
     navigateThroughList(-1);
   }
-  if (e.keyCode == 16) { //shift
-    keys["shift"] = true;
-  }
-  if (keys["shift"] && keys["tab"]) {
+  if (e.shiftKey && tabKeyPressed) {
     e.preventDefault();
     switchContextAction('prev');
   }
@@ -109,10 +103,7 @@ inputField.addEventListener('keyup', function(e) {
 
   // reset status of the keypress
   if (e.keyCode == 9) {
-    keys["tab"] = false;
-  }
-  if (e.keyCode == 16) { //shift
-    keys["shift"] = false;
+    tabKeyPressed = false;
   }
 });
 
