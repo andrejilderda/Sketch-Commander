@@ -172,21 +172,21 @@ export var borderActions = {
   },
   
   setColor: function(layer, color) {
-    var style = new sketch.Style(); // requires access to the Sketch js API
-    var borders = layer.style().borders();
+    let style = new sketch.Style(); // requires access to the Sketch js API
+    let borders = layer.style().borders();
 
     // check if there's a border, if not add a new one
     if (borders.count() <= 0) layer.style().addStylePartOfType(1);
 
-    var border = borders.lastObject();
+    let border = borders.lastObject();
     color = color.replace("#", "");
 
     border.color = style.colorFromString("#" + color);
   },
   
   add: function(layer, color) {
-    var style = new sketch.Style();
-    var border = layer.style().addStylePartOfType(1);
+    let style = new sketch.Style();
+    let border = layer.style().addStylePartOfType(1);
 
     // if no color is given (like bd+) set the color to black
     color = (color !== "") ? color : "000000";
@@ -195,21 +195,21 @@ export var borderActions = {
       color = color.replace("#", "");
       border.color = style.colorFromString("#" + color);
     } else {
-      var thickness = color;
+      let thickness = color;
       border.thickness = thickness;
     }
   },
   
   remove: function(layer) {
-    var style = new sketch.Style();
-    var borderCount = layer.style().borders().length - 1;
-    var border = layer.style().removeStyleBorderAtIndex(borderCount);
+    let style = new sketch.Style();
+    let borderCount = layer.style().borders().length - 1;
+    let border = layer.style().removeStyleBorderAtIndex(borderCount);
   },
   
   radius: function(layer, value, operator) {
     if (!layer && !layer.isKindOfClass(MSShapeGroup)) return;
     
-    var shape = layer.layers().firstObject();
+    let shape = layer.layers().firstObject();
     if (shape && shape.isKindOfClass(MSRectangleShape)) {
       var radius = shape.cornerRadiusFloat();
       shape.cornerRadiusFloat = mathOps(radius, value, operator);
@@ -219,7 +219,7 @@ export var borderActions = {
   thickness: function(layer, thickness, operator) {
     thickness = Number(thickness);
     // are there any borders?
-    var border = layer.style().borders().lastObject();
+    let border = layer.style().borders().lastObject();
     if (border !== null) {
       var borderThickness = layer.style().borders().lastObject().thickness();
       border.thickness = mathOps(borderThickness, thickness, operator);
@@ -235,10 +235,9 @@ export var borderActions = {
 
 export var textActions = {
   setSize: function(layer, value, operator) {
-    console.log('ready?');
     value = Number(value);
     if (layer.className() == "MSTextLayer") {
-      var fontSize = layer.fontSize();
+      let fontSize = layer.fontSize();
       layer.fontSize = mathOps(fontSize, value, operator);
     }
   },
@@ -246,14 +245,14 @@ export var textActions = {
   setLineheight: function(layer, value, operator) {
     value = Number(value);
     if (layer.className() == "MSTextLayer") {
-      var prevLineHeight = layer.lineHeight();
+      let prevLineHeight = layer.lineHeight();
       layer.lineHeight = mathOps(prevLineHeight, value, operator);
     }
   },
   
   setValue: function(layer, value, operator) {
     if (layer.className() == "MSTextLayer") {
-      var prevTextValue = layer.stringValue();
+      let prevTextValue = layer.stringValue();
 
       if (operator == "+") {
         layer.stringValue = prevTextValue + value;
@@ -268,16 +267,16 @@ export var textActions = {
   
   convertLowerCase: function(layer) {
     if (layer.className() == "MSTextLayer") {
-      var textValue = layer.stringValue();
-      var newValue = textValue.toLowerCase();
+      let textValue = layer.stringValue();
+      let newValue = textValue.toLowerCase();
       layer.stringValue = newValue;
     }
   },
   
   convertUpperCase: function(layer) {
     if (layer.className() == "MSTextLayer") {
-      var textValue = layer.stringValue();
-      var newValue = textValue.toUpperCase();
+      let textValue = layer.stringValue();
+      let newValue = textValue.toUpperCase();
       layer.stringValue = newValue;
     }
   }
@@ -315,14 +314,14 @@ export var fillActions = {
     }
     
     if (layer instanceof MSShapeGroup) {
-      var style = new sketch.Style();
-      var fills = layer.style().fills();
+      let style = new sketch.Style();
+      let fills = layer.style().fills();
 
       // create fill if there are none
       if (fills.count() <= 0) {
         fills.addStylePartOfType(0);
       }
-      var fill = fills.firstObject();
+      let fill = fills.firstObject();
       color = color.replace("#", "");
 
       //set color to first fill layer style
