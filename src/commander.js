@@ -1,10 +1,13 @@
 import BrowserWindow from 'sketch-module-web-view';
+import { 
+  commandList, 
+  DEBUG, 
+  DEVMODE, 
+  BROWSERDEBUG 
+} from '../Resources/shared';
+
 var sketch = require('sketch');
-
-import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from '../Resources/shared'
-
-var sketch,
-  context,
+var context,
   doc,
   selection,
   userInput,
@@ -30,19 +33,13 @@ export default function(context) {
   const options = {
     title: 'Sketch Commander',
     identifier: 'com.sketchapp.commander', // to reuse the UI
-    x: 0,
-    y: 0,
     width: 520,
     height: 280,
     frame: false,
     useContentSize: true,
     center: true,
     resizable: false,
-    backgroundColor: '#222831',
-    titlebarAppearsTransparent: true,
-    onlyShowCloseButton: true,
-    hideTitleBar: false,
-    setTitlebarAppearsTransparent: true
+    backgroundColor: '#222831'
   };
   const webUI = new BrowserWindow(options);
   webUI.loadURL('index.html');
@@ -62,9 +59,9 @@ export default function(context) {
     // sketch.UI.message(s)
 
     // will log it to 'Plugin Output' in the Console
-    // console.log(s);
+    console.log(s);
   });
-    
+
   webUI.webContents.on('closeExecute', (s) => {
     webUI.close();
     executeCommand(s);

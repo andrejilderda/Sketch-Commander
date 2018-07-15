@@ -14,10 +14,10 @@ export { switchContextAction };
 // Do disable in production!
 if (BROWSERDEBUG) {
   // prevUserInput = " ";
-  prevUserInput = "lr100, lr-100, tv=bla, x*200";
-  contextTabs = 0;
-  selectedLayerNameArray = 'testlayer 1,testlayer 2';
-  artboardLayerNameArray = 'testlayer 1,testlayer 2';
+  let prevUserInput = "lr100, lr-100, tv=bla, x*200";
+  let contextTabs = 0;
+  let selectedLayerNameArray = 'testlayer 1,testlayer 2';
+  let artboardLayerNameArray = 'testlayer 1,testlayer 2';
 };
 
 function returnToSketch(name, args) {
@@ -46,7 +46,7 @@ function setInputValue(value) {
 inputField.focus();
 
 // Key event listeners
-tabKeyPressed = false;
+let tabKeyPressed = false;
 
 function getInputValue() {
   return document.querySelector(".c-commander").value;
@@ -155,8 +155,8 @@ function parseInput() {
 }
 
 
-
-function listCommands() {
+// List all commands by default
+(function listCommands() {
   for (var key in commandList) {
     var commandTypeName = commandList[key].name;
     var commandNotation = commandList[key].notation;
@@ -182,8 +182,7 @@ function listCommands() {
     span.innerHTML = commandNotation;
     li.prepend(span);
   }
-};
-listCommands();
+})();
 
 // for filtering the action list as long as there are no matching commands found
 function filterActionlist() {
