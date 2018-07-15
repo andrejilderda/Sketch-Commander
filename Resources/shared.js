@@ -22,6 +22,7 @@ const BROWSERDEBUG = false; // sets a few variables that are normally received f
   Testing: https://regex101.com/r/TXQbhz/7
 */
 const commandRegex = /^(bdc|bdr|bdw|bd|fs|f|lh|ttu|ttl|o|n|v)|(^[lrtbwhaxy]+(?!([lrtbwhaxy]))\2)/g,
+  individualCommandsRegex = /(bdc|bdr|bdw|bd|fs|f|lh|ttu|ttl|o|n|v)/g,
   groupedCommandsRegex = /[lrtbwhaxy]/g,
   operatorRegex = /([\/+\-*%\=])/g,
   colorRegex = /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/g;
@@ -206,6 +207,11 @@ const commands = function() {
     return str.replace(/^\s+/g, ''); // remove just the space at the beginning of a line
   }
 
+  function getDefaultOperator(commandType) {
+    let operator = searchPropInArray(commandType, "notation", commandList).defaultOperator;
+    return operator;
+  }
+
   function splitCommands(input) {
     // an array containing the command(s), e.g. ['lr100', 'x*2']
     input = input.split(",");
@@ -224,19 +230,24 @@ const commands = function() {
       const commandWithoutType = '';
       if ( splitByCommandType[1] ) commandWithoutType = splitByCommandType[1];
 
-      // strip the operator including all leftovers before that (f.e. the invalid 'q' in 'lrq')
+      // strip the operator including all leftovers before that (f.e. the invalid 'q' in 'lrq+100')
       let value = commandWithoutType.split(operatorRegex).pop();
-
-      // check if there are multiple commands (e.g. lr) and loop through all of them
-      commandType.match(groupedCommandsRegex).forEach(function(command) { // array, e.g. ['l','r']
-
-        let operator = commandWithoutType.match(operatorRegex);
-        // check if operator is given. If not, set it to the default operator
-        if (operator) operator = operator[0];
-        else operator = searchPropInArray(command, "notation", commandList).defaultOperator;
-
-        publicSetObj([command, operator, value]);
-      });
+      
+      let operator = commandWithoutType.match(operatorRegex);
+      if (operator) operator = operator[0]; // check if operator is given. If not, set it to the first match
+      
+      // check if there are individual commands (e.g. ttu, bdc)
+      if ( commandType.match(individualCommandsRegex) ) {
+        if ( !operator ) operator = getDefaultOperator(commandType); // if no operator, get the default operator
+        publicSetObj([commandType, operator, value]);
+      }
+      // if there are multiple commands from the groupedCommandsRegex (e.g. lr), loop through all of them
+      else {
+        commandType.match(groupedCommandsRegex).forEach(function(command) { // array, e.g. ['l','r']
+          if ( !operator ) operator = getDefaultOperator(command); // if no operator, get the default operator
+          publicSetObj([command, operator, value]);
+        });
+      }
     }
   }
 
