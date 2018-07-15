@@ -155,7 +155,7 @@ export function resize(layer, t, r, b, l) {
 //  BORDER ACTIONS                                              //
 //////////////////////////////////////////////////////////////////
 
-var borderActions = {
+export var borderActions = {
   checkOperator: function(layer, color, operator) {
     switch (operator) {
       case '-':
@@ -170,6 +170,7 @@ var borderActions = {
         break;
     }
   },
+  
   setColor: function(layer, color) {
     var style = new sketch.Style(); // requires access to the Sketch js API
     var borders = layer.style().borders();
@@ -182,6 +183,7 @@ var borderActions = {
 
     border.color = style.colorFromString("#" + color);
   },
+  
   add: function(layer, color) {
     var style = new sketch.Style();
     var border = layer.style().addStylePartOfType(1);
@@ -197,11 +199,13 @@ var borderActions = {
       border.thickness = thickness;
     }
   },
+  
   remove: function(layer) {
     var style = new sketch.Style();
     var borderCount = layer.style().borders().length - 1;
     var border = layer.style().removeStyleBorderAtIndex(borderCount);
   },
+  
   radius: function(layer, value, operator) {
     if (!layer && !layer.isKindOfClass(MSShapeGroup)) return;
     
@@ -211,6 +215,7 @@ var borderActions = {
       shape.cornerRadiusFloat = mathOps(radius, value, operator);
     }
   },
+  
   thickness: function(layer, thickness, operator) {
     thickness = Number(thickness);
     // are there any borders?
@@ -228,14 +233,16 @@ var borderActions = {
 //  TEXT ACTIONS                                                //
 //////////////////////////////////////////////////////////////////
 
-var textActions = {
+export var textActions = {
   setSize: function(layer, value, operator) {
+    console.log('ready?');
     value = Number(value);
     if (layer.className() == "MSTextLayer") {
       var fontSize = layer.fontSize();
       layer.fontSize = mathOps(fontSize, value, operator);
     }
   },
+  
   setLineheight: function(layer, value, operator) {
     value = Number(value);
     if (layer.className() == "MSTextLayer") {
@@ -243,6 +250,7 @@ var textActions = {
       layer.lineHeight = mathOps(prevLineHeight, value, operator);
     }
   },
+  
   setValue: function(layer, value, operator) {
     if (layer.className() == "MSTextLayer") {
       var prevTextValue = layer.stringValue();
@@ -257,6 +265,7 @@ var textActions = {
       }
     }
   },
+  
   convertLowerCase: function(layer) {
     if (layer.className() == "MSTextLayer") {
       var textValue = layer.stringValue();
@@ -264,6 +273,7 @@ var textActions = {
       layer.stringValue = newValue;
     }
   },
+  
   convertUpperCase: function(layer) {
     if (layer.className() == "MSTextLayer") {
       var textValue = layer.stringValue();
@@ -277,7 +287,7 @@ var textActions = {
 //  LAYER ACTIONS                                               //
 //////////////////////////////////////////////////////////////////
 
-var layerActions = {
+export var layerActions = {
   rename: function(layer, value, operator) {
     layerName = layer.name();
     layer.nameIsFixed = 1;
@@ -297,9 +307,8 @@ var layerActions = {
 //  FILL ACTIONS                                               //
 //////////////////////////////////////////////////////////////////
 
-var fillActions = {
+export var fillActions = {
   setColor: function(layer, color) {
-
     if (layer.className() == "MSTextLayer") {
       color = makeColor(color);
       layer.setTextColor(color);

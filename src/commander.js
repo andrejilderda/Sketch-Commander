@@ -1,6 +1,6 @@
 import BrowserWindow from 'sketch-module-web-view';
 import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from '../Resources/shared';
-import { resizeObject, moveObject, setWidthHeightObject, resize, mathOps, makeColor } from './layer-actions'
+import { resizeObject, moveObject, setWidthHeightObject, resize, textActions, layerActions, fillActions, mathOps, makeColor } from './layer-actions'
 
 var sketch = require('sketch');
 var context,
@@ -124,7 +124,9 @@ function executeCommand(commandObj) {
     const value = commandObj[k].value;
     
     if (DEBUG) console.log('executeCommand:' + commandType + "   " + operator + "   " + value )
-
+    
+    // console.log(textActions.setSize());
+    
     // loop through layer selection
     function loopThroughSelection(callback) {
       if (callback && typeof callback === 'function') {
