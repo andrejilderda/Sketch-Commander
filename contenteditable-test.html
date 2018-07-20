@@ -7,72 +7,43 @@
   <title>Document</title>
 </head>
 <body>
-  <div class="inputfield" contenteditable="true">
-    <span>lr100</span>,
-    <span>lr-100</span>,
-    <span>tv=bla</span>,
-    <span>x*200</span>
-  </div>
+  <!-- 
+    BEWARE! Don't try to format the code below nicely, because the added spaces
+    will be added to the calculation that determines the caret position.
+  -->
+  <div class="inputfield" contenteditable="true"><span>lr100</span>,<span>lr-100</span>,<span>tv=bla</span>,<span>x*200</span></div>
   
   <script type="text/javascript">
   
-  const commandRegex = /(bdc)|(bdr)|(bdw)|(bd)|(fs)|(f)|(lh)|(ttu)|(ttl)|(o)|[lrtbwhaxynv]/g,
-    operatorRegex = /[\/+\-*%\=]/g,
-    inputField = document.querySelector('.inputfield');
+    const commandRegex = /(bdc)|(bdr)|(bdw)|(bd)|(fs)|(f)|(lh)|(ttu)|(ttl)|(o)|[lrtbwhaxynv]/g,
+      operatorRegex = /[\/+\-*%\=]/g,
+      inputField = document.querySelector('.inputfield');
     
-  let inputValue = [];
+    let inputValue = [];
   
-  // --------------------------------------
+    // --------------------------------------
 
-  // Stripped/modified version of cpatik's Caret Position Fiddle:
-  // Demo: https://jsfiddle.net/cpatik/3QAeC/
+    // Stripped/modified version of cpatik's Caret Position Fiddle:
+    // Demo: https://jsfiddle.net/cpatik/3QAeC/
 
-  function getCaretPosition(element) {
-    var caretOffset = 0;
-    var range = window.getSelection().getRangeAt(0);
-    var preCaretRange = range.cloneRange();
-    preCaretRange.selectNodeContents(element);
-    preCaretRange.setEnd(range.endContainer, range.endOffset);
-    caretOffset = preCaretRange.toString().length;
-    return caretOffset;
-  }
+    function getCaretPosition(element) {
+      var caretOffset = 0;
+      var range = window.getSelection().getRangeAt(0);
+      var preCaretRange = range.cloneRange();
+      preCaretRange.selectNodeContents(element);
+      preCaretRange.setEnd(range.endContainer, range.endOffset);
+      caretOffset = preCaretRange.toString().length;
+      return caretOffset;
+    }
 
-  function setCaretPosition(element, position) {
-    var range = document.createRange();
-    var sel = window.getSelection();
-    range.setStart(element.childNodes[0], position);
-    range.collapse(true);
-    sel.removeAllRanges();
-    sel.addRange(range);
-  }
-
-  function getCaretHTMLBegin(element) {
-    var caretOffset = 0;
-    var range = window.getSelection().getRangeAt(0);
-    var preCaretRange = range.cloneRange();
-    preCaretRange.selectNodeContents(element);
-    preCaretRange.setEnd(range.endContainer, range.beginOffset);
-    caretOffset = preCaretRange.toString().length;
-    return caretOffset;
-  }
-
-  function getCaretBegin(element) {
-    var caretOffset = 0;
-    var range = window.getSelection().getRangeAt(0);
-    var preCaretRange = range.cloneRange();
-    preCaretRange.selectNodeContents(element);
-    preCaretRange.setEnd(range.endContainer, range.beginOffset);
-    caretOffset = preCaretRange.toString().length;
-    return caretOffset;
-  }
-
-  function getSelectionBegin(element) {
-    var caretOffset = 0;
-    return caretOffset;
-  }
-
-
-  // --------------------------------------
+    function setCaretPosition(element, position) {
+      var range = document.createRange();
+      var sel = window.getSelection();
+      range.setStart(element.childNodes[0], position + 1);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
 
   
     let caretPos;
@@ -81,7 +52,8 @@
     inputField.addEventListener('keydown', onKeyDown);
     inputField.focus();
     function onKeyDown() {
-      caretPos = parseInt(getCaretPosition(inputField), 10) + 1;
+      console.log("test: " + getCaretPosition(inputField));
+      caretPos = parseInt(getCaretPosition(inputField), 10);
     }
     
     function onInput(e) {
@@ -98,15 +70,13 @@
       for (command of inputArray) {
         const operatorRegex = /([\/+\-*%\=])/g;
         var commands = command.split(operatorRegex);
-        console.log(inputArray);
+        // console.log(inputArray);
         console.log(command.match(commandRegex));
       }
       populateInput();
     }
     
     function populateInput() {
-      // console.log(inputArray);
-      console.log('Input populated');
       inputField.innerHTML = inputArray.join();
       setCaretPosition(inputField, caretPos);
     }
