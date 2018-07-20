@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <div class="inputfield" contenteditable="true">
+    <span>lr100</span>,
+    <span>lr-100</span>,
+    <span>tv=bla</span>,
+    <span>x*200</span>
+  </div>
+  
+  <script type="text/javascript">
+  
+  const commandRegex = /(bdc)|(bdr)|(bdw)|(bd)|(fs)|(f)|(lh)|(ttu)|(ttl)|(o)|[lrtbwhaxynv]/g,
+    operatorRegex = /[\/+\-*%\=]/g,
+    inputField = document.querySelector('.inputfield');
+    
+  let inputValue = [];
+  
+  // --------------------------------------
+
+  // Stripped/modified version of cpatik's Caret Position Fiddle:
+  // Demo: https://jsfiddle.net/cpatik/3QAeC/
+
+  function getCaretPosition(element) {
+    var caretOffset = 0;
+    var range = window.getSelection().getRangeAt(0);
+    var preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(element);
+    preCaretRange.setEnd(range.endContainer, range.endOffset);
+    caretOffset = preCaretRange.toString().length;
+    return caretOffset;
+  }
+
+  function setCaretPosition(element, position) {
+    var range = document.createRange();
+    var sel = window.getSelection();
+    range.setStart(element.childNodes[0], position);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function getCaretHTMLBegin(element) {
+    var caretOffset = 0;
+    var range = window.getSelection().getRangeAt(0);
+    var preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(element);
+    preCaretRange.setEnd(range.endContainer, range.beginOffset);
+    caretOffset = preCaretRange.toString().length;
+    return caretOffset;
+  }
+
+  function getCaretBegin(element) {
+    var caretOffset = 0;
+    var range = window.getSelection().getRangeAt(0);
+    var preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(element);
+    preCaretRange.setEnd(range.endContainer, range.beginOffset);
+    caretOffset = preCaretRange.toString().length;
+    return caretOffset;
+  }
+
+  function getSelectionBegin(element) {
+    var caretOffset = 0;
+    return caretOffset;
+  }
+
+
+  // --------------------------------------
+
+  
+    let caretPos;
+    
+    inputField.addEventListener('input', onInput);
+    inputField.addEventListener('keydown', onKeyDown);
+    inputField.focus();
+    function onKeyDown() {
+      caretPos = parseInt(getCaretPosition(inputField), 10) + 1;
+    }
+    
+    function onInput(e) {
+      inputValue = this.innerText;
+      console.log(inputValue);
+      parseInput();
+    }
+    let inputArray = [];
+    
+    function parseInput() {
+      // create an array of all commands, e.g. ['lr-100', 'x*200']
+      inputArray = inputValue.split(',');
+      
+      for (command of inputArray) {
+        const operatorRegex = /([\/+\-*%\=])/g;
+        var commands = command.split(operatorRegex);
+        console.log(inputArray);
+        console.log(command.match(commandRegex));
+      }
+      populateInput();
+    }
+    
+    function populateInput() {
+      // console.log(inputArray);
+      console.log('Input populated');
+      inputField.innerHTML = inputArray.join();
+      setCaretPosition(inputField, caretPos);
+    }
+     
+    //wrap is niet nodig, aangezien we elke keer opnieuw de inhoud van de div renderen.
+    
+    
+    
+  </script>
+
+
+</body></html>
