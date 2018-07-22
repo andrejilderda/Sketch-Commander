@@ -11,7 +11,7 @@
     BEWARE! Don't try to format the code below nicely, because the added spaces
     will be added to the calculation that determines the caret position.
   -->
-  <div class="inputfield" contenteditable="true"><span>lr100</span>,<span>lr-100</span>,<span>tv=bla</span>,<span>x*200</span></div>
+  <div class="inputfield" style="white-space: pre;" contenteditable="true"><span>lr100</span>,<span>lr-100</span>,<span>tv=bla</span>,<span>x*200</span></div>
   
   <script type="text/javascript">
   
@@ -20,71 +20,98 @@
       inputField = document.querySelector('.inputfield');
     
     let inputValue = [];
-  
-    // --------------------------------------
-
-    // Stripped/modified version of cpatik's Caret Position Fiddle:
-    // Demo: https://jsfiddle.net/cpatik/3QAeC/
-
-    function getCaretPosition(element) {
-      var caretOffset = 0;
-      var range = window.getSelection().getRangeAt(0);
-      var preCaretRange = range.cloneRange();
-      preCaretRange.selectNodeContents(element);
-      preCaretRange.setEnd(range.endContainer, range.endOffset);
-      caretOffset = preCaretRange.toString().length;
-      return caretOffset;
-    }
-
-    function setCaretPosition(element, position) {
-      var range = document.createRange();
-      var sel = window.getSelection();
-      range.setStart(element.childNodes[0], position + 1);
-      range.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(range);
-    }
-
-  
+    let valueHistory = [];
     let caretPos;
+    let prevInputLength = inputField.textContent.length;
+    let inputArray = [];
     
-    inputField.addEventListener('input', onInput);
     inputField.addEventListener('keydown', onKeyDown);
+    inputField.addEventListener('input', onInput);
     inputField.focus();
-    function onKeyDown() {
-      console.log("test: " + getCaretPosition(inputField));
-      caretPos = parseInt(getCaretPosition(inputField), 10);
+
+    function onKeyDown(e) {
+      caretPos = getCaretPosition();
+      
+      // when user presses cmd+z
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+        e.preventDefault();
+        handleUndo();
+      }
     }
     
     function onInput(e) {
       inputValue = this.innerText;
       console.log(inputValue);
+      // add to history array
+      valueHistory.unshift(inputValue);
+      // history will be max this long
+      if ( valueHistory.length >= 20 ) valueHistory.pop();
+      
       parseInput();
     }
-    let inputArray = [];
-    
+
     function parseInput() {
       // create an array of all commands, e.g. ['lr-100', 'x*200']
+      if ( !inputValue ) return;
       inputArray = inputValue.split(',');
       
       for (command of inputArray) {
         const operatorRegex = /([\/+\-*%\=])/g;
         var commands = command.split(operatorRegex);
-        // console.log(inputArray);
-        console.log(command.match(commandRegex));
       }
       populateInput();
     }
     
     function populateInput() {
       inputField.innerHTML = inputArray.join();
-      setCaretPosition(inputField, caretPos);
+      setCaretPosition();
     }
-     
-    //wrap is niet nodig, aangezien we elke keer opnieuw de inhoud van de div renderen.
+
+    // Stripped/modified version of cpatik's Caret Position Fiddle:
+    // Demo: https://jsfiddle.net/cpatik/3QAeC/
     
-    
-    
+    function setCaretPosition(element) {
+      var element = element || inputField;
+      let range = document.createRange();
+      let sel = window.getSelection();
+      
+      // see if something was added or removed and set the caret position accordingly
+      let newInputLength = inputField.textContent.length;
+      let inputDiff = newInputLength - prevInputLength;
+      caretPos = caretPos + inputDiff;
+      
+      if (!inputField.textContent.trim()) {
+        newInputLength = 0;
+      }
+      
+      // set caret position
+      range.setStart(element.childNodes[0], caretPos);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      
+      prevInputLength = newInputLength;
+    }
+
+    function getCaretPosition(element) {
+      var element = element || inputField;
+      let caretOffset = 0;
+      let range = window.getSelection().getRangeAt(0);
+      let preCaretRange = range.cloneRange();
+      preCaretRange.selectNodeContents(element);
+      preCaretRange.setEnd(range.endContainer, range.endOffset);
+      caretOffset = preCaretRange.toString().length;
+      return parseInt(caretOffset, 10);
+    }
+
+    // triggered whenever the user presses cmd + z
+    function handleUndo() {
+      if ( valueHistory[0] ) {
+        inputValue = valueHistory[1];
+        valueHistory.shift();
+        parseInput();
+      };
+    }
   </script>
 
 
