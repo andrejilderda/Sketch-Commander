@@ -24,8 +24,12 @@
           <a class="c-context-tab__link" data-context="2">Rename</a>
         </li>
       </ul>
-
-      <input type="text" class="c-commander" id="c-commander" placeholder="Enter a command...">
+      
+      <!-- 
+        BEWARE! Don't try to format the code below nicely, because the added spaces
+        will be added to the calculation that determines the caret position.
+      -->
+      <div contenteditable="true" class="c-commander" id="c-commander" placeholder="Enter a command..."></div>
     </div>
     <div class="c-flex__scroll">
       <div class="c-context-list">

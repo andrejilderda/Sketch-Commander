@@ -36,8 +36,13 @@ var currentContext = 0;
 var commandsUl = document.querySelector(".c-commands-list");
 var optionsUl = document.querySelector(".c-options-list");
 
-var inputFieldValue = document.querySelector('.c-commander').value;
+var inputFieldValue = document.querySelector('.c-commander').innerText;
 var cyclingThroughOptions = false;
+
+let valueHistory = [];
+let caretPos;
+let prevInputLength = inputField.textContent.length;
+let inputArray = [];
 
 
 function setInputValue(value) {
@@ -49,16 +54,31 @@ inputField.focus();
 let tabKeyPressed = false;
 
 function getInputValue() {
-  return document.querySelector(".c-commander").value;
+  return document.querySelector(".c-commander").innerText;
 }
 
-inputField.addEventListener('input', function(e) {
+inputField.addEventListener('input', onInput);
+inputField.addEventListener('keydown', onKeydown, false);
+
+function onInput(e) {
+  inputFieldValue = this.innerText;
+  valueHistory.unshift(inputFieldValue); // add to history array
+  if ( valueHistory.length >= 20 ) valueHistory.pop(); // limit history length
+  renderInput();
+  
   commands.clear();
   commands.parse(getInputValue());
-  console.log(commands.get());
-})
+};
 
-inputField.addEventListener('keydown', function(e) {
+function onKeydown(e) {
+  caretPos = getCaretPosition();
+  
+  // when user presses cmd+z
+  if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+    e.preventDefault();
+    handleUndo();
+  }
+  
   // close on keydown enter or escape key
   if (e.keyCode === 27) {
     returnToSketch('closeModal');
@@ -94,9 +114,11 @@ inputField.addEventListener('keydown', function(e) {
     e.preventDefault();
     switchContextAction('prev');
   }
-}, false);
+};
 
-inputField.addEventListener('keyup', function(e) {
+inputField.addEventListener('keyup', onKeyup);
+
+function onKeyup(e) {
   if (e.keyCode != 40 && e.keyCode != 38) { //don't parse input on pressing ↑ or ↓ arrow
     parseInput();
   }
@@ -105,7 +127,20 @@ inputField.addEventListener('keyup', function(e) {
   if (e.keyCode == 9) {
     tabKeyPressed = false;
   }
-});
+};
+
+function renderInput() {
+  // create an array of all commands, e.g. ['lr-100', 'x*200']
+  if ( !inputFieldValue ) return;
+  console.log(inputFieldValue);
+  inputArray = inputFieldValue.split(',');
+  
+  for (const command of inputArray) {
+    const operatorRegex = /([\/+\-*%\=])/g;
+    var commands = command.split(operatorRegex);
+  }
+  populateInput();
+}
 
 // function to replace current input value with the notation of selected option
 function selectOption() {
@@ -120,7 +155,7 @@ function selectOption() {
 
 
 function parseInput() {
-  inputFieldValue = document.querySelector('.c-commander').value;
+  inputFieldValue = document.querySelector('.c-commander').innerText;
   const items = commands.get();
   if (DEBUG) console.log(commands.get());
   commandsUl.innerHTML = ''; // remove existing elements
@@ -152,6 +187,57 @@ function parseInput() {
   if (inputFieldValue == "") {
     navigateThroughList('reset');
   }
+}
+
+function populateInput() {
+  inputField.innerHTML = inputArray.join();
+  setCaretPosition();
+}
+
+// Stripped/modified version of cpatik's Caret Position Fiddle:
+// Demo: https://jsfiddle.net/cpatik/3QAeC/
+
+function setCaretPosition(element) {
+  var element = element || inputField;
+  let range = document.createRange();
+  let sel = window.getSelection();
+  
+  // see if something was added or removed and set the caret position accordingly
+  let newInputLength = inputField.textContent.length;
+  let inputDiff = newInputLength - prevInputLength;
+  caretPos = caretPos + inputDiff;
+  
+  if (!inputField.textContent.trim()) {
+    newInputLength = 0;
+  }
+  
+  // set caret position
+  range.setStart(element.childNodes[0], caretPos);
+  range.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(range);
+  
+  prevInputLength = newInputLength;
+}
+
+function getCaretPosition(element) {
+  var element = element || inputField;
+  let caretOffset = 0;
+  let range = window.getSelection().getRangeAt(0);
+  let preCaretRange = range.cloneRange();
+  preCaretRange.selectNodeContents(element);
+  preCaretRange.setEnd(range.endContainer, range.endOffset);
+  caretOffset = preCaretRange.toString().length;
+  return parseInt(caretOffset, 10);
+}
+
+// triggered whenever the user presses cmd + z
+function handleUndo() {
+  if ( valueHistory[0] ) {
+    inputFieldValue = valueHistory[1];
+    valueHistory.shift();
+    renderInput();
+  };
 }
 
 

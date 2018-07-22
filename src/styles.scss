@@ -32,9 +32,10 @@ body {
     height: 60px;
     margin: 0;
     color: #fff;
-    padding: 0 12px;
+    padding: 14px 12px 0;
     font-size: 24px;
     font-weight: 200;
+    white-space: pre;
     width: 100%;
     &::placeholder {
         color: lighten($backgroundColor, 30%)
@@ -136,4 +137,10 @@ body {
             color: $activeColor;
         }
     }
+}
+
+[contenteditable=true]:empty:before {
+  content: attr(placeholder);
+  display: block; /* For Firefox */
+  color: lighten($backgroundColor, 30%)
 }
