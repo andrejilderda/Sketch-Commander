@@ -184,13 +184,8 @@ const commands = function() {
     return obj;
   };
 
-  function publicSetObj(newObj) {
-    const props = ['type', 'operator', 'value'];
-    const command = {};
-    for (var key in newObj) {
-      command[props[key]] = newObj[key];
-    };
-    obj.push(command);
+  function publicAddObj(newObj) {
+    obj.push(newObj);
   }
 
   function publicParse(input) {
@@ -216,15 +211,25 @@ const commands = function() {
     // an array containing the command(s), e.g. ['lr100', 'x*2']
     input = input.split(",");
 
-    for (let item of input) {
-      item = String(stripSpace(item));
+    for (let input of input) {
+      input = String(stripSpace(input));
+      
+      // set up the base object
+      var obj = {
+        input: input,
+        defaultOperator: false,
+        isValid: false
+      }
 
-      // 1. splits the commands from the rest of the item, e.g. [ 'x', '*200' ], [ 'lr', '+10']
+      // 1. splits the commands from the rest of the input, e.g. [ 'x', '*200' ], [ 'lr', '+10']
       // 2. filter out the undefined and empty ones
-      const splitByCommandType = item.split(commandRegex).filter((val) => val);
+      const splitByCommandType = input.split(commandRegex).filter((val) => val);
       const commandType = splitByCommandType[0];
       // check if the command exists and it starts with a valid command. Else bail
-      if (!commandType || !commandType.match(commandRegex)) return; 
+      if (!commandType || !commandType.match(commandRegex)) {
+        publicAddObj(obj);
+        return;
+      }; 
       
       // check if there's a value given already. Else leave it '' while the user is typing
       const commandWithoutType = '';
@@ -236,17 +241,50 @@ const commands = function() {
       let operator = commandWithoutType.match(operatorRegex);
       if (operator) operator = operator[0]; // check if operator is given. If not, set it to the first match
       
+      // this is where the object with all commands is build
+      
       // check if there are individual commands (e.g. ttu, bdc)
       if ( commandType.match(individualCommandsRegex) ) {
-        if ( !operator ) operator = getDefaultOperator(commandType); // if no operator, get the default operator
-        publicSetObj([commandType, operator, value]);
+        let command = commandType;
+        
+        // if no operator, get the default operator
+        if ( !operator ) operator = getDefaultOperator(command)
+        if ( !operator ) obj.defaultOperator = true;
+        
+        // check if the command is valid (contains a valid commandtype, operator & value)
+        if ( obj.type && obj.operator && obj.value ) obj.isValid = true
+        // fill in the blanks
+        obj.input = input;
+        obj.type = command;
+        obj.operator = operator;
+        obj.value = value;
+        publicAddObj(obj);
       }
-      // if there are multiple commands from the groupedCommandsRegex (e.g. lr), loop through all of them
+      
+      // if there are multiple commands from the groupedCommandsRegex (e.g. lr), loop through all of them individually
       else {
-        commandType.match(groupedCommandsRegex).forEach(function(command) { // array, e.g. ['l','r']
-          if ( !operator ) operator = getDefaultOperator(command); // if no operator, get the default operator
-          publicSetObj([command, operator, value]);
+        var obj = {
+          input: input,
+          defaultOperator: false,
+          isValid: false,
+          items: []
+        }
+        commandType.match(groupedCommandsRegex).forEach((command, i) => { // array, e.g. ['l','r']
+          obj.items[i] = {}
+          // if no operator, get the default operator
+          if ( !operator ) {
+            operator = getDefaultOperator(command)
+            obj.defaultOperator = true;
+            obj.operator = operator;
+          };
+          obj.items[i].type = command;
+          obj.items[i].operator = operator;
+          obj.items[i].value = value;
+          if ( obj.items[i].type && obj.items[i].operator && obj.items[i].value ) {
+            obj.isValid = true
+          }
         });
+        publicAddObj(obj);
       }
     }
   }
@@ -260,7 +298,7 @@ const commands = function() {
   // }
 
   return {
-    add: publicSetObj,
+    add: publicAddObj,
     get: publicGetObj,
     clear: publicClearObj,
     parse: publicParse
