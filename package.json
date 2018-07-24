@@ -41,6 +41,7 @@
     "gulp": "^4.0.0",
     "gulp-autoprefixer": "*",
     "gulp-clean-css": "*",
+    "gulp-concat": "^2.6.1",
     "gulp-notify": "*",
     "gulp-plumber": "*",
     "gulp-sass": "*",
