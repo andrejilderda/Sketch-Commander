@@ -1,8 +1,3 @@
-import { DEBUG } from './shared'
-import { switchContextAction } from './preferences'
-
-export { initReceivers };
-
 // Receiver functions that receive input from Sketch
 // attached to the window object so that it can be called by the Sketch plugin
 (function initReceivers() {

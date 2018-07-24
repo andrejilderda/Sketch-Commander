@@ -1,12 +1,4 @@
 import pluginCall from 'sketch-module-web-view/client'
-import { initReceivers } from './receivers'
-import {
-  commands,
-  commandList,
-  DEBUG,
-  DEVMODE,
-  BROWSERDEBUG
-} from './shared'
 export { switchContextAction };
 
 // DEVMODE sets a few variables that are normally received from Sketch
