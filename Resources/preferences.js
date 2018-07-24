@@ -62,12 +62,13 @@ inputField.addEventListener('keydown', onKeydown, false);
 
 function onInput(e) {
   inputFieldValue = this.innerText;
+  console.log(inputFieldValue);
   valueHistory.unshift(inputFieldValue); // add to history array
   if ( valueHistory.length >= 20 ) valueHistory.pop(); // limit history length
-  renderInput();
   
   commands.clear();
   commands.parse(getInputValue());
+  renderInput();
 };
 
 function onKeydown(e) {
@@ -130,16 +131,20 @@ function onKeyup(e) {
 };
 
 function renderInput() {
-  // create an array of all commands, e.g. ['lr-100', 'x*200']
-  if ( !inputFieldValue ) return;
-  console.log(inputFieldValue);
-  inputArray = inputFieldValue.split(',');
+  const commandsLength = commands.get().length;
+  console.log(commands.get());
   
-  for (const command of inputArray) {
-    const operatorRegex = /([\/+\-*%\=])/g;
-    var commands = command.split(operatorRegex);
-  }
-  populateInput();
+  let html = '';
+  commands.get().forEach( function(item, index) {
+    var input = item.input;
+    if ( commandsLength > 1 && commandsLength - 1 !== index) {
+      input = input + ',';
+    } 
+    html = html + `<span class="c-${item.isValid}">${input}</span>`
+  })
+  
+  inputField.innerHTML = html.trim().replace(/\n/g,'');
+  setCaretPosition();
 }
 
 // function to replace current input value with the notation of selected option
@@ -158,47 +163,43 @@ function parseInput() {
   inputFieldValue = document.querySelector('.c-commander').innerText;
   const items = commands.get();
   if (DEBUG) console.log(commands.get());
-  commandsUl.innerHTML = ''; // remove existing elements
-
-
-  for (var i = 0; i < items.length; i++) {
-    // var commandType = items[i].type;
-    // var commandTypeName = commandList.filter(function(commandTypeName) {
-    //   return commandTypeName.notation === commandType;
-    // })[0];
-    // commandTypeName = commandTypeName.name;
-    // 
-    // // create the list
-    // var li = document.createElement('li');
-    // li.classList.add('c-commands-list__item');
-    // li.innerHTML = commandTypeName + " " + items[i].operator + " " + items[i].amount;
-    // commandsUl.append(li);
-  }
-  // one or more valid commands have been entered
-  if (items.length > 0) {
-    optionsUl.style.display = "none";
-    navigateThroughList('reset');
-  } else { // no valid commands entered (yet)
-    optionsUl.style.display = "block";
-    filterActionlist();
-  }
-
-  // inputfield is empty
-  if (inputFieldValue == "") {
-    navigateThroughList('reset');
-  }
 }
 
-function populateInput() {
-  inputField.innerHTML = inputArray.join();
-  setCaretPosition();
-}
+// function renderCommandsList() {
+//   commandsUl.innerHTML = ''; // remove existing elements
+//   for (var i = 0; i < items.length; i++) {
+//     // var commandType = items[i].type;
+//     // var commandTypeName = commandList.filter(function(commandTypeName) {
+//     //   return commandTypeName.notation === commandType;
+//     // })[0];
+//     // commandTypeName = commandTypeName.name;
+//     // 
+//     // // create the list
+//     // var li = document.createElement('li');
+//     // li.classList.add('c-commands-list__item');
+//     // li.innerHTML = commandTypeName + " " + items[i].operator + " " + items[i].amount;
+//     // commandsUl.append(li);
+//   }
+//   // one or more valid commands have been entered
+//   if (items.length > 0) {
+//     optionsUl.style.display = "none";
+//     navigateThroughList('reset');
+//   } else { // no valid commands entered (yet)
+//     optionsUl.style.display = "block";
+//     filterActionlist();
+//   }
+// 
+//   // inputfield is empty
+//   if (inputFieldValue == "") {
+//     navigateThroughList('reset');
+//   }
+// }
 
 // Stripped/modified version of cpatik's Caret Position Fiddle:
 // Demo: https://jsfiddle.net/cpatik/3QAeC/
 
-function setCaretPosition(element) {
-  var element = element || inputField;
+function setCaretPosition() {
+  var element = inputField;
   let range = document.createRange();
   let sel = window.getSelection();
   
@@ -206,6 +207,7 @@ function setCaretPosition(element) {
   let newInputLength = inputField.textContent.length;
   let inputDiff = newInputLength - prevInputLength;
   caretPos = caretPos + inputDiff;
+  console.log({caretPos});
   
   if (!inputField.textContent.trim()) {
     newInputLength = 0;
