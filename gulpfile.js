@@ -17,7 +17,12 @@ var browserSync     = require('browser-sync'),
       'html':        'src/*.html',
       'base_html':   ['src/*.html', '!src/_*.html'],
       'styles':      'src/*.scss',
-      'scripts':     ['src/webview-main.js', './src/webview-receivers.js', './src/shared.js']
+      'scripts':     [
+                'src/webview-main.js',
+                './src/webview-caret.js',
+                './src/webview-receivers.js',
+                './src/shared.js'
+              ]
     },
     output = {
       'html':        'Sketch\ Commander.sketchplugin/Contents/Resources',

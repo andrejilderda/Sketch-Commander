@@ -31,7 +31,6 @@ var inputFieldValue = document.querySelector('.c-commander').innerText;
 var cyclingThroughOptions = false;
 
 let valueHistory = [];
-let caretPos;
 let prevInputLength = inputField.textContent.length;
 let inputArray = [];
 
@@ -63,7 +62,6 @@ function onInput(e) {
 };
 
 function onKeydown(e) {
-  caretPos = getCaretPosition();
   
   // when user presses cmd+z
   if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
@@ -122,8 +120,10 @@ function onKeyup(e) {
 };
 
 function renderInput() {
+  let currentCaretPosition = getCaretPosition(inputField);
   const commandsLength = commands.get().length;
   console.log(commands.get());
+  
   
   let html = '';
   commands.get().forEach( function(item, index) {
@@ -135,7 +135,8 @@ function renderInput() {
   })
   
   inputField.innerHTML = html.trim().replace(/\n/g,'');
-  setCaretPosition();
+  var data = getCaretData(inputField, currentCaretPosition);
+  setCaretPosition(data);
 }
 
 // function to replace current input value with the notation of selected option
@@ -185,44 +186,6 @@ function parseInput() {
 //     navigateThroughList('reset');
 //   }
 // }
-
-// Stripped/modified version of cpatik's Caret Position Fiddle:
-// Demo: https://jsfiddle.net/cpatik/3QAeC/
-
-function setCaretPosition() {
-  var element = inputField;
-  let range = document.createRange();
-  let sel = window.getSelection();
-  
-  // see if something was added or removed and set the caret position accordingly
-  let newInputLength = inputField.textContent.length;
-  let inputDiff = newInputLength - prevInputLength;
-  caretPos = caretPos + inputDiff;
-  console.log({caretPos});
-  
-  if (!inputField.textContent.trim()) {
-    newInputLength = 0;
-  }
-  
-  // set caret position
-  range.setStart(element.childNodes[0], caretPos);
-  range.collapse(true);
-  sel.removeAllRanges();
-  sel.addRange(range);
-  
-  prevInputLength = newInputLength;
-}
-
-function getCaretPosition(element) {
-  var element = element || inputField;
-  let caretOffset = 0;
-  let range = window.getSelection().getRangeAt(0);
-  let preCaretRange = range.cloneRange();
-  preCaretRange.selectNodeContents(element);
-  preCaretRange.setEnd(range.endContainer, range.endOffset);
-  caretOffset = preCaretRange.toString().length;
-  return parseInt(caretOffset, 10);
-}
 
 // triggered whenever the user presses cmd + z
 function handleUndo() {
