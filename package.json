@@ -23,7 +23,7 @@
     "postinstall": "npm run build && skpm-link"
   },
   "resources": [
-    "Resources/preferences.js",
+    "Resources/webview.js",
     "Resources/shared.js"
   ],
   "bugs": {

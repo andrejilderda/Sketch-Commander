@@ -1,5 +1,4 @@
 import pluginCall from 'sketch-module-web-view/client'
-export { switchContextAction };
 
 // DEVMODE sets a few variables that are normally received from Sketch
 // Useful to debug the webview outside Sketch (using Gulp). 

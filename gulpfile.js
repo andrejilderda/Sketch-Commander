@@ -17,10 +17,12 @@ var browserSync     = require('browser-sync'),
       'html':        'src/*.html',
       'base_html':   ['src/*.html', '!src/_*.html'],
       'styles':      'src/*.scss',
+      'scripts':     ['src/webview-main.js', './src/webview-receivers.js', './src/shared.js']
     },
     output = {
       'html':        'Sketch\ Commander.sketchplugin/Contents/Resources',
       'styles':      'Sketch\ Commander.sketchplugin/Contents/Resources',
+      'scripts':     'Resources'
     }
 ;
 
@@ -65,6 +67,12 @@ gulp.task('sync:html', function(done) {
     done()
 });
 
+gulp.task('scripts', function(done) {
+  return gulp.src(input.scripts)
+    .pipe(concat('webview.js'))
+    .pipe(gulp.dest('./Resources/'));
+    done()
+});
 
 //reload html task
 gulp.task('reload', function(done){
@@ -81,10 +89,11 @@ gulp.task('watch', function() {
         }
     });
     gulp.watch(input.styles, gulp.parallel('site:css' ));
+    gulp.watch(input.scripts, gulp.parallel('scripts' ));
 });
 
 //build all task
-gulp.task('build:all', gulp.parallel( 'site:css', 'sync:html' ));
+gulp.task('build:all', gulp.parallel( 'site:css', 'sync:html', 'scripts' ));
 
 //this task will run on default 'gulp' without arguments
 gulp.task('default', gulp.series( 'build:all', 'browser-sync', 'watch' ));

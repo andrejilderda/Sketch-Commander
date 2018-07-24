@@ -1,5 +1,5 @@
 import BrowserWindow from 'sketch-module-web-view';
-import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from '../Resources/shared';
+import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from '../Resources/webview.js';
 import { resizeObject, moveObject, setWidthHeightObject, resize, textActions, layerActions, fillActions, mathOps, makeColor } from './layer-actions'
 
 var sketch = require('sketch');
