@@ -11,26 +11,84 @@
     BEWARE! Don't try to format the code below nicely, because the added spaces
     will be added to the calculation that determines the caret position.
   -->
-  <div class="inputfield" style="white-space: pre;" contenteditable="true"><span>lr100</span>,<span>lr-100</span>,<span>tv=bla</span>,<span>x*200</span></div>
+  <div class="inputfield" style="white-space: pre;" contenteditable="true">niet in span,<span>lr100</span>,<span>lr-100</span>,<span>tv=bla</span>,<span>x*200</span></div>
   
   <script type="text/javascript">
+  const inputField = document.querySelector('.inputfield');
+  let prevInputLength = inputField.textContent.length;
+  const commandRegex = /(bdc)|(bdr)|(bdw)|(bd)|(fs)|(f)|(lh)|(ttu)|(ttl)|(o)|[lrtbwhaxynv]/g,
+    operatorRegex = /[\/+\-*%\=]/g;
   
-    const commandRegex = /(bdc)|(bdr)|(bdw)|(bd)|(fs)|(f)|(lh)|(ttu)|(ttl)|(o)|[lrtbwhaxynv]/g,
-      operatorRegex = /[\/+\-*%\=]/g,
-      inputField = document.querySelector('.inputfield');
-    
-    let inputValue = [];
-    let valueHistory = [];
-    let caretPos;
-    let prevInputLength = inputField.textContent.length;
-    let inputArray = [];
+  let inputValue = [];
+  let valueHistory = [];
+  let caretPos;
+  let inputArray = [];
+  
+  ///////////////////////////////////////////////////////////
+  // https://medium.com/compass-true-north/a-dancing-caret-the-unknown-perils-of-adjusting-cursor-position-f252734f595e
+  
+  function getCaretPosition(el){
+    var caretOffset = 0, sel;
+    if (typeof window.getSelection !== "undefined") {
+      var range = window.getSelection().getRangeAt(0);
+      var selected = range.toString().length;
+      var preCaretRange = range.cloneRange();
+      console.error(el);
+      preCaretRange.selectNodeContents(el);
+      preCaretRange.setEnd(range.endContainer, range.endOffset);
+      caretOffset = preCaretRange.toString().length - selected;
+    }
+    return caretOffset;
+  }
+
+  
+  function getAllTextnodes(el){
+    var n, a=[], walk=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false);
+    while(n=walk.nextNode()) a.push(n);
+    return a;
+  }
+
+  function getCaretData(el, position){
+    var node; nodes = getAllTextnodes(el);
+    for(var n = 0; n < nodes.length; n++) {
+      if (position > nodes[n].nodeValue.length && nodes[n+1]) {
+        // remove amount from the position, go to next node
+        position -= nodes[n].nodeValue.length;
+      } else {
+        node = nodes[n];
+        break;
+      }
+    }
+    // you'll need the node and the position (offset) to set the caret
+    return { node: node, position: position };
+  }
+
+  // setting the caret with this info  is also standard
+  function setCaretPosition(d){
+    // console.warn(d);
+    var sel = window.getSelection(),
+    range = document.createRange();
+    range.setStart(d.node, d.position);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+  
+  // var data = getCaretData(inputField, caretPos);
+  // setCaretPosition(data);
+  
+  
+  
+  
+  // ///////////////////////////////////////
+
     
     inputField.addEventListener('keydown', onKeyDown);
     inputField.addEventListener('input', onInput);
     inputField.focus();
 
     function onKeyDown(e) {
-      caretPos = getCaretPosition();
+      caretPos = getCaretPosition(inputField);
       
       // when user presses cmd+z
       if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
@@ -41,11 +99,29 @@
     
     function onInput(e) {
       inputValue = this.innerText;
-      console.log(inputValue);
       // add to history array
       valueHistory.unshift(inputValue);
       // history will be max this long
       if ( valueHistory.length >= 20 ) valueHistory.pop();
+      
+      ////////////////////////////////
+      var nodes = getAllTextnodes(inputField),
+      node;
+      node = nodes.filter(function(node) {
+       return node.nodeValue.length;
+      }).pop() || columns[0];
+     
+      console.log({node});
+      var currentCaretPosition = getCaretPosition(inputField);
+      var data = getCaretData(inputField, currentCaretPosition);
+      setCaretPosition(data);
+      
+      // if(node) {
+      //   setCaretPosition({
+      //     node: node,
+      //     position: node.nodeValue.length
+      //   });   
+      // }
       
       parseInput();
     }
@@ -63,46 +139,51 @@
     }
     
     function populateInput() {
-      inputField.innerHTML = inputArray.join();
-      setCaretPosition();
+      // inputField.innerHTML = inputArray.join();
+      // setCaretPosition();
     }
 
     // Stripped/modified version of cpatik's Caret Position Fiddle:
     // Demo: https://jsfiddle.net/cpatik/3QAeC/
     
-    function setCaretPosition(element) {
-      var element = element || inputField;
-      let range = document.createRange();
-      let sel = window.getSelection();
-      
-      // see if something was added or removed and set the caret position accordingly
-      let newInputLength = inputField.textContent.length;
-      let inputDiff = newInputLength - prevInputLength;
-      caretPos = caretPos + inputDiff;
-      
-      if (!inputField.textContent.trim()) {
-        newInputLength = 0;
-      }
-      
-      // set caret position
-      range.setStart(element.childNodes[0], caretPos);
-      range.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(range);
-      
-      prevInputLength = newInputLength;
-    }
+    // function setCaretPosition(element) {
+    //   var element = element || inputField;
+    //   let range = document.createRange();
+    //   let sel = window.getSelection();
+    // 
+    //   // see if something was added or removed and set the caret position accordingly
+    //   let newInputLength = inputField.textContent.length;
+    //   let inputDiff = newInputLength - prevInputLength;
+    //   caretPos = caretPos + inputDiff;
+    // 
+    //   if (!inputField.textContent.trim()) {
+    //     newInputLength = 0;
+    //   }
+    // 
+    //   // set caret position
+    //   console.log('node position:');
+    //   console.log(getCaretPosition());
+    //   console.log('nodes:');
+    //   console.log(element.childNodes);
+    //   // range.setStart(element.childNodes[0], caretPos);
+    //   range.collapse(true);
+    //   sel.removeAllRanges();
+    //   sel.addRange(range);
+    //   // console.log(caretPos);
+    // 
+    //   prevInputLength = newInputLength;
+    // }
 
-    function getCaretPosition(element) {
-      var element = element || inputField;
-      let caretOffset = 0;
-      let range = window.getSelection().getRangeAt(0);
-      let preCaretRange = range.cloneRange();
-      preCaretRange.selectNodeContents(element);
-      preCaretRange.setEnd(range.endContainer, range.endOffset);
-      caretOffset = preCaretRange.toString().length;
-      return parseInt(caretOffset, 10);
-    }
+    // function getCaretPosition(element) {
+    //   var element = element || inputField;
+    //   let caretOffset = 0;
+    //   let range = window.getSelection().getRangeAt(0);
+    //   let preCaretRange = range.cloneRange();
+    //   preCaretRange.selectNodeContents(element);
+    //   preCaretRange.setEnd(range.endContainer, range.endOffset);
+    //   caretOffset = preCaretRange.toString().length;
+    //   return parseInt(caretOffset, 10);
+    // }
 
     // triggered whenever the user presses cmd + z
     function handleUndo() {
