@@ -44,21 +44,20 @@ inputField.focus();
 let tabKeyPressed = false;
 
 function getInputValue() {
-  return document.querySelector(".c-commander").innerText;
+  return document.querySelector(".c-commander").innerText.replace(/\n/g,'');
 }
 
 inputField.addEventListener('input', onInput);
 inputField.addEventListener('keydown', onKeydown, false);
+inputField.addEventListener('keyup', onKeyup);
 
 function onInput(e) {
   inputFieldValue = this.innerText;
-  console.log(inputFieldValue);
+  
   valueHistory.unshift(inputFieldValue); // add to history array
   if ( valueHistory.length >= 20 ) valueHistory.pop(); // limit history length
   
-  commands.clear();
-  commands.parse(getInputValue());
-  renderInput();
+  parseInput();
 };
 
 function onKeydown(e) {
@@ -81,7 +80,7 @@ function onKeydown(e) {
       returnToSketch('closeExecute', JSON.stringify(commands.get()));
     }
   }
-  if (e.keyCode == 9) {
+  if (e.keyCode == 9) { // tab
     e.preventDefault();
     if (!cyclingThroughOptions) {
       tabKeyPressed = true;
@@ -106,38 +105,42 @@ function onKeydown(e) {
   }
 };
 
-inputField.addEventListener('keyup', onKeyup);
-
 function onKeyup(e) {
-  if (e.keyCode != 40 && e.keyCode != 38) { //don't parse input on pressing ↑ or ↓ arrow
-    parseInput();
-  }
-
-  // reset status of the keypress
-  if (e.keyCode == 9) {
-    tabKeyPressed = false;
-  }
+  // reset status of tab keypress
+  if (e.keyCode == 9) tabKeyPressed = false;
 };
+
+function parseInput() {
+  inputFieldValue = getInputValue();
+  if ( !inputFieldValue ) return;
+  commands.clear();
+  commands.parse(getInputValue());
+  renderInput();
+}
 
 function renderInput() {
   let currentCaretPosition = getCaretPosition(inputField);
   const commandsLength = commands.get().length;
-  console.log(commands.get());
   
   
   let html = '';
   commands.get().forEach( function(item, index) {
     var input = item.input;
-    if ( commandsLength > 1 && commandsLength - 1 !== index) {
-      input = input + ',';
-    } 
-    html = html + `<span class="c-${item.isValid}">${input}</span>`
+
+    // don't try to format this nicely, since it will be interpreted as text and mess up the caret positioning
+    html = html + `<span class="c-command  c-command--valid-${item.isValid}">${input}</span>`
+    if ( commandsLength > 0 && commandsLength - 1 !== index) {
+      html = html + ',';
+    }
   })
   
   inputField.innerHTML = html.trim().replace(/\n/g,'');
   var data = getCaretData(inputField, currentCaretPosition);
   setCaretPosition(data);
 }
+
+
+
 
 // function to replace current input value with the notation of selected option
 function selectOption() {
@@ -149,14 +152,6 @@ function selectOption() {
     }
   }
 };
-
-
-function parseInput() {
-  inputFieldValue = document.querySelector('.c-commander').innerText;
-  const items = commands.get();
-  if (DEBUG) console.log(commands.get());
-}
-
 // function renderCommandsList() {
 //   commandsUl.innerHTML = ''; // remove existing elements
 //   for (var i = 0; i < items.length; i++) {

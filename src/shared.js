@@ -207,6 +207,8 @@ const commands = function() {
   }
 
   function splitCommands(input) {
+    if ( !input ) return;
+    
     // an array containing the command(s), e.g. ['lr100', 'x*2']
     input = input.split(",");
 
@@ -214,7 +216,7 @@ const commands = function() {
       input = String(stripSpace(input));
       
       // set up the base object
-      var obj = {
+      let obj = {
         input: input,
         defaultOperator: false,
         isValid: false
@@ -223,67 +225,70 @@ const commands = function() {
       // 1. splits the commands from the rest of the input, e.g. [ 'x', '*200' ], [ 'lr', '+10']
       // 2. filter out the undefined and empty ones
       const splitByCommandType = input.split(commandRegex).filter((val) => val);
-      const commandType = splitByCommandType[0];
-      // check if the command exists and it starts with a valid command. Else bail
-      if (!commandType || !commandType.match(commandRegex)) {
-        publicAddObj(obj);
-        return;
-      }; 
+      var commandType = '';
+      if ( splitByCommandType ) commandType = splitByCommandType[0];
       
-      // check if there's a value given already. Else leave it '' while the user is typing
-      const commandWithoutType = '';
-      if ( splitByCommandType[1] ) commandWithoutType = splitByCommandType[1];
-
-      // strip the operator including all leftovers before that (f.e. the invalid 'q' in 'lrq+100')
-      let value = commandWithoutType.split(operatorRegex).pop();
-      
-      let operator = commandWithoutType.match(operatorRegex);
-      if (operator) operator = operator[0]; // check if operator is given. If not, set it to the first match
-      
-      // this is where the object with all commands is build
-      
-      // check if there are individual commands (e.g. ttu, bdc)
-      if ( commandType.match(individualCommandsRegex) ) {
-        let command = commandType;
-        
-        // if no operator, get the default operator
-        if ( !operator ) operator = getDefaultOperator(command)
-        if ( !operator ) obj.defaultOperator = true;
-        
-        // check if the command is valid (contains a valid commandtype, operator & value)
-        if ( obj.type && obj.operator && obj.value ) obj.isValid = true
-        // fill in the blanks
-        obj.input = input;
-        obj.type = command;
-        obj.operator = operator;
-        obj.value = value;
+      if ( !commandType ) publicAddObj(obj);
+      // check if the command contains a valid commandtype. Else add just the input and bail
+      else if ( !commandType.match(individualCommandsRegex) && !commandType.match(groupedCommandsRegex) ) {
         publicAddObj(obj);
       }
-      
-      // if there are multiple commands from the groupedCommandsRegex (e.g. lr), loop through all of them individually
       else {
-        var obj = {
-          input: input,
-          defaultOperator: false,
-          isValid: false,
-          items: []
-        }
-        commandType.match(groupedCommandsRegex).forEach((command, i) => { // array, e.g. ['l','r']
-          obj.items[i] = {}
+        // check if there's a value given already. Else leave it '' while the user is typing
+        let commandWithoutType = '';
+        if ( splitByCommandType[1] ) commandWithoutType = splitByCommandType[1];
+
+        // strip the operator including all leftovers before that (f.e. the invalid 'q' in 'lrq+100')
+        let value = commandWithoutType.split(operatorRegex).pop();
+        
+        let operator = commandWithoutType.match(operatorRegex);
+        if (operator) operator = operator[0]; // check if operator is given. If not, set it to the first match
+        
+        // this is where the object with all commands is build
+        
+        // check if there are individual commands (e.g. ttu, bdc)
+        if ( commandType.match(individualCommandsRegex) ) {
+          let command = commandType;
+          
           // if no operator, get the default operator
-          if ( !operator ) {
-            operator = getDefaultOperator(command)
-            obj.defaultOperator = true;
-            obj.operator = operator;
-          };
-          obj.items[i].type = command;
-          obj.items[i].operator = operator;
-          obj.items[i].value = value;
-          if ( obj.items[i].type && obj.items[i].operator && obj.items[i].value ) {
-            obj.isValid = true
+          if ( !operator ) operator = getDefaultOperator(command)
+          if ( !operator ) obj.defaultOperator = true;
+          
+          // check if the command is valid (contains a valid commandtype, operator & value)
+          if ( obj.type && obj.operator && obj.value ) obj.isValid = true
+          // fill in the blanks
+          obj.input = input;
+          obj.type = command;
+          obj.operator = operator;
+          obj.value = value;
+          publicAddObj(obj);
+        }
+        
+        // if there are multiple commands from the groupedCommandsRegex (e.g. lr), loop through all of them individually
+        else {
+          let obj = {
+            input: input,
+            defaultOperator: false,
+            isValid: false,
+            items: []
           }
-        });
-        publicAddObj(obj);
+          commandType.match(groupedCommandsRegex).forEach((command, i) => { // array, e.g. ['l','r']
+            obj.items[i] = {}
+            // if no operator, get the default operator
+            if ( !operator ) {
+              operator = getDefaultOperator(command)
+              obj.defaultOperator = true;
+              obj.operator = operator;
+            };
+            obj.items[i].type = command;
+            obj.items[i].operator = operator;
+            obj.items[i].value = value;
+            if ( obj.items[i].type && obj.items[i].operator && obj.items[i].value ) {
+              obj.isValid = true
+            }
+          });
+          publicAddObj(obj);
+        }
       }
     }
   }
