@@ -7,7 +7,6 @@ function getCaretPosition(el){
     var range = window.getSelection().getRangeAt(0);
     var selected = range.toString().length;
     var preCaretRange = range.cloneRange();
-    console.error(el);
     preCaretRange.selectNodeContents(el);
     preCaretRange.setEnd(range.endContainer, range.endOffset);
     caretOffset = preCaretRange.toString().length - selected;
