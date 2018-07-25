@@ -74,7 +74,9 @@ gulp.task('sync:html', function(done) {
 
 gulp.task('scripts', function(done) {
   return gulp.src(input.scripts)
+    .pipe(sourcemaps.init())
     .pipe(concat('webview.js'))
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest('./Resources/'));
     done()
 });
