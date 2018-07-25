@@ -255,12 +255,12 @@ const commands = function() {
           if ( !operator ) obj.defaultOperator = true;
           
           // check if the command is valid (contains a valid commandtype, operator & value)
-          if ( obj.type && obj.operator && obj.value ) obj.isValid = true
           // fill in the blanks
           obj.input = input;
           obj.type = command;
           obj.operator = operator;
           obj.value = value;
+          if ( obj.type && obj.operator && obj.value ) obj.isValid = true
           publicAddObj(obj);
         }
         
