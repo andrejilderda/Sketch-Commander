@@ -242,55 +242,44 @@ const commands = function() {
         let value = commandWithoutType.split(operatorRegex).pop();
         
         let operator = commandWithoutType.match(operatorRegex);
-        if (operator) operator = operator[0]; // check if operator is given. If not, set it to the first match
+        if (operator) operator = operator[0]; // check if operator is given. If so, set it to the first match
         
-        // this is where the object with all commands is build
+        obj.input = input;
+        obj.operator = operator;
+        obj.value = value;
         
         // check if there are individual commands (e.g. ttu, bdc)
         if ( commandType.match(individualCommandsRegex) ) {
-          let command = commandType;
-          
-          // if no operator, get the default operator
-          if ( !operator ) operator = getDefaultOperator(command)
-          if ( !operator ) obj.defaultOperator = true;
-          
-          // check if the command is valid (contains a valid commandtype, operator & value)
-          // fill in the blanks
-          obj.input = input;
-          obj.type = command;
-          obj.operator = operator;
-          obj.value = value;
-          if ( obj.type && obj.operator && obj.value ) obj.isValid = true
-          publicAddObj(obj);
+          buildObj(obj, function() {
+            let command = commandType;
+            obj.type = command;
+          })
         }
         
         // if there are multiple commands from the groupedCommandsRegex (e.g. lr), loop through all of them individually
         else {
-          let obj = {
-            input: input,
-            defaultOperator: false,
-            isValid: false,
-            items: []
-          }
-          commandType.match(groupedCommandsRegex).forEach((command, i) => { // array, e.g. ['l','r']
-            obj.items[i] = {}
-            // if no operator, get the default operator
-            if ( !operator ) {
-              operator = getDefaultOperator(command)
-              obj.defaultOperator = true;
-              obj.operator = operator;
-            };
-            obj.items[i].type = command;
-            obj.items[i].operator = operator;
-            obj.items[i].value = value;
-            if ( obj.items[i].type && obj.items[i].operator && obj.items[i].value ) {
-              obj.isValid = true
-            }
-          });
-          publicAddObj(obj);
+          buildObj(obj, function() {
+            obj.type = [];
+            commandType.match(groupedCommandsRegex).forEach((command, i) => { // array, e.g. ['l','r']
+              obj.type[i] = command;
+            });
+          })
         }
       }
     }
+  }
+  
+  function buildObj(obj, callback) {
+    let operator = obj.operator;
+    callback(obj);
+    let command = obj.type;
+    if( trueTypeOf(obj.type) === 'array' ) command = obj.type[0];
+    
+    // if no operator, get the default operator
+    if ( !operator ) obj.operator = getDefaultOperator(command)
+    if ( !operator ) obj.defaultOperator = true;
+    if ( obj.type && obj.operator && obj.value ) obj.isValid = true
+    publicAddObj(obj);
   }
 
   // function stripInput(input) {

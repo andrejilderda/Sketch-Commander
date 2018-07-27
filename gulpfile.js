@@ -21,7 +21,8 @@ var browserSync     = require('browser-sync'),
                 'src/webview-main.js',
                 './src/webview-caret.js',
                 './src/webview-receivers.js',
-                './src/shared.js'
+                './src/shared.js',
+                './src/utils.js'
               ]
     },
     output = {
