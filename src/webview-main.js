@@ -122,16 +122,26 @@ function renderInput() {
   let currentCaretPosition = getCaretPosition(inputField);
   const commandsLength = commands.get().length;
   
-  
   let html = '';
+  // console.dir(commands.get());
   commands.get().forEach( function(item, index) {
-    let input = item.input.literal;
+    let inputLiteral = item.input.literal;
+    let inputSplit = item.input.split;
+    let type = item.type;
+    const notLastNotOnly = commandsLength > 0 && commandsLength - 1 !== index;
 
-    // don't try to format this nicely, since it will be interpreted as text and mess up the caret positioning
-    html = html + `<span class="c-command  c-command--valid-${item.isValid}">${input}</span>`
-    if ( commandsLength > 0 && commandsLength - 1 !== index) {
-      html = html + ',';
-    }
+    // * ⚠️ BEWARE: don't try to format the elements below nicely, since it will be interpreted as text and mess up the caret positioning
+    // by default just output the users' literal input
+    let input = item.input.literal;
+    // format the input differently when the default operator is applied
+    if ( type && item.defaultOperator === true ) {
+      input = `<span class="c-command__type" data-default-operator='${item.operator}'>${inputSplit[0]}</span>${inputSplit[1] ? inputSplit[1] : ''}`;
+    };
+    let element = `<span class="c-command  ${item.isValid ? 'c-command--is-valid' : '' }">${input}</span>`
+    
+    html += element;
+    // we append the , comma again when it's not the last and only command
+    if ( notLastNotOnly ) html += '<span class=c-command__seperator>,</span>';
   })
   
   inputField.innerHTML = html.trim().replace(/\n/g,'');

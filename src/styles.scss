@@ -139,8 +139,23 @@ body {
     }
 }
 
+.c-command {
+  &--is-valid {
+    background: #455d7a;
+    border-radius: 5px;
+    padding: 4px;
+  }
+  &__type {
+    &:after {
+      content: attr(data-default-operator);
+      color: rgba($backgroundColor, 0.75)
+    }
+  }
+}
+
+
 [contenteditable=true]:empty:before {
   content: attr(placeholder);
   display: block; /* For Firefox */
-  color: lighten($backgroundColor, 30%)
+  color: lighten($backgroundColor, 30%);
 }
