@@ -125,7 +125,7 @@ function renderInput() {
   
   let html = '';
   commands.get().forEach( function(item, index) {
-    var input = item.input;
+    let input = item.input.literal;
 
     // don't try to format this nicely, since it will be interpreted as text and mess up the caret positioning
     html = html + `<span class="c-command  c-command--valid-${item.isValid}">${input}</span>`

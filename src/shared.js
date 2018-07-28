@@ -20,10 +20,10 @@ const BROWSERDEBUG = false; // sets a few variables that are normally received f
   
   Testing: https://regex101.com/r/TXQbhz/7
 */
-const commandRegex = /^(bdc|bdr|bdw|bd|fs|f|lh|ttu|ttl|o|n|v)|(^[lrtbwhaxy]+(?!([lrtbwhaxy]))\2)/g,
-  individualCommandsRegex = /(bdc|bdr|bdw|bd|fs|f|lh|ttu|ttl|o|n|v)/g,
-  groupedCommandsRegex = /[lrtbwhaxy]/g,
-  operatorRegex = /([\/+\-*%\=])/g,
+const commandRegex = /^(bdc|bdr|bdw|bd|fs|lh|ttu|ttl|o|n|v)|(^[lrtbwhaxy]+(?!([lrtbwhaxy]))\2)/g,
+  individualCommandsRegex = /(bdc|bdr|bdw|bd|fs|lh|ttu|ttl|o|n|v)/g,
+  groupedCommandsRegex = /^[lrtbwhaxy]+(?!([lrtbwhaxy]))/g,
+  operatorRegex = /^([\/+\-*%\=])/,
   colorRegex = /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/g;
 
 export const commandList = [{
@@ -215,12 +215,6 @@ const commands = function() {
     for (let input of input) {
       input = String(stripSpace(input));
       
-      // set up the base object
-      let obj = {
-        input: input,
-        defaultOperator: false,
-        isValid: false
-      }
 
       // 1. splits the commands from the rest of the input, e.g. [ 'x', '*200' ], [ 'lr', '+10']
       // 2. filter out the undefined and empty ones
@@ -228,11 +222,20 @@ const commands = function() {
       var commandType = '';
       if ( splitByCommandType ) commandType = splitByCommandType[0];
       
-      if ( !commandType ) publicAddObj(obj);
-      // check if the command contains a valid commandtype. Else add just the input and bail
-      else if ( !commandType.match(individualCommandsRegex) && !commandType.match(groupedCommandsRegex) ) {
-        publicAddObj(obj);
+      // set up the base object
+      let obj = {
+        input: {
+          literal: input,
+          split: splitByCommandType
+        },
+        defaultOperator: false,
+        isValid: false
       }
+      
+      // check if the command contains a valid commandtype. Else just add the object containing the input
+      const noValidCommandType = !commandType || !commandType.match(individualCommandsRegex) && !commandType.match(groupedCommandsRegex);
+      
+      if ( noValidCommandType ) publicAddObj(obj);
       else {
         // check if there's a value given already. Else leave it '' while the user is typing
         let commandWithoutType = '';
@@ -241,10 +244,14 @@ const commands = function() {
         // strip the operator including all leftovers before that (f.e. the invalid 'q' in 'lrq+100')
         let value = commandWithoutType.split(operatorRegex).pop();
         
-        let operator = commandWithoutType.match(operatorRegex);
+        // regex only matches the operators that come right after the command type 
+        // (f.e. 'a+100' is valid, but 'a100+' as an operator is not.
+        // latter will be interpret as 'command: a' 'defaultOperator: +' 'value: 100+')
+        let operator = operatorRegex.exec(commandWithoutType);
         if (operator) operator = operator[0]; // check if operator is given. If so, set it to the first match
         
-        obj.input = input;
+        // fill in the blanks
+        obj.input.literal = input;
         obj.operator = operator;
         obj.value = value;
         
@@ -260,9 +267,9 @@ const commands = function() {
         else {
           buildObj(obj, function() {
             obj.type = [];
-            commandType.match(groupedCommandsRegex).forEach((command, i) => { // array, e.g. ['l','r']
-              obj.type[i] = command;
-            });
+            for (var i = 0; i < commandType.length; i++) {
+              obj.type[i] = commandType[i];
+            }
           })
         }
       }
