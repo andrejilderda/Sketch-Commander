@@ -60,7 +60,7 @@ export default function(context) {
 
   webUI.webContents.on('closeExecute', (s) => {
     webUI.close();
-    executeCommand(s);
+    loopThroughCommands(s);
     doc.reloadInspector();
   });
   
@@ -115,7 +115,7 @@ const getSelectedLayerNames = function() {
 };
 
 
-function executeCommand(commandObj) {
+function loopThroughCommands(commandObj) {
   commandObj = JSON.parse(commandObj);
 
   for (var k = 0; k < commandObj.length; k++) {
@@ -123,78 +123,88 @@ function executeCommand(commandObj) {
     const operator = commandObj[k].operator;
     const value = commandObj[k].value;
     
+    // loop through commands when an array with multiple commands is passed (f.e. ['l','r'] from 'lr+100')
+    if ( Array.isArray(commandType) ) {
+      commandType.forEach( item => {
+        executeCommand(item, operator, value);
+      })
+    }
+    else executeCommand(commandType, operator, value);
+    
     if (DEBUG) console.log('executeCommand:' + commandType + "   " + operator + "   " + value )
     
-    // console.log(textActions.setSize());
-    
-    // loop through layer selection
-    function loopThroughSelection(callback) {
-      if (callback && typeof callback === 'function') {
-        for (var i = 0; i < selection.count(); i++) {
-          var layer = selection.objectAtIndex(i);
-          // make a copy of the passed in arguments
-          var args = Array.prototype.slice.call(arguments);
-          // overwrite the passed in function name with the layer
-          args[0] = layer;
-          // run the callback function with the function name and use the arguments
-          callback.apply(callback[0], args);
-        };
-      }
-    }
+  }
+}
 
-    switchStatement:
-      switch (commandType) {
-        case "l":
-        case "r":
-        case "t":
-        case "b":
-        case "a":
-          loopThroughSelection(resizeObject, commandType, value, operator);
-          break switchStatement;
-        case "w":
-        case "h":
-          loopThroughSelection(setWidthHeightObject, commandType, value, operator);
-          break switchStatement;
-        case "x":
-        case "y":
-          loopThroughSelection(moveObject, commandType, value, operator);
-          break switchStatement;
-        case "fs":
-          loopThroughSelection(textActions.setSize, value, operator);
-          break switchStatement;
-        case "ttl":
-          loopThroughSelection(textActions.convertLowerCase);
-          break switchStatement;
-        case "ttu":
-          loopThroughSelection(textActions.convertUpperCase);
-          break switchStatement;
-        case "lh":
-          loopThroughSelection(textActions.setLineheight, value, operator);
-          break switchStatement;
-        case "v":
-          loopThroughSelection(textActions.setValue, value, operator);
-          break switchStatement;
-        case "n":
-          loopThroughSelection(layerActions.rename, value, operator);
-          break switchStatement;
-        case "bdc":
-          loopThroughSelection(borderActions.setColor, value, operator);
-          break switchStatement;
-        case "bdr":
-          loopThroughSelection(borderActions.radius, value, operator);
-          break switchStatement;
-        case "bdw":
-          loopThroughSelection(borderActions.thickness, value, operator);
-          break switchStatement;
-        case "bd":
-          loopThroughSelection(borderActions.checkOperator, value, operator);
-          break switchStatement;
-        case "f":
-          loopThroughSelection(fillActions.setColor, value, operator);
-          break switchStatement;
-        case "o":
-          loopThroughSelection(fillActions.setOpacity, value, operator);
-          break switchStatement;
-      }
+function executeCommand(commandType, operator, value) {
+  switchStatement:
+    switch (commandType) {
+      case "l":
+      case "r":
+      case "t":
+      case "b":
+      case "a":
+        loopThroughSelection(resizeObject, commandType, value, operator);
+        break switchStatement;
+      case "w":
+      case "h":
+        loopThroughSelection(setWidthHeightObject, commandType, value, operator);
+        break switchStatement;
+      case "x":
+      case "y":
+        loopThroughSelection(moveObject, commandType, value, operator);
+        break switchStatement;
+      case "fs":
+        loopThroughSelection(textActions.setSize, value, operator);
+        break switchStatement;
+      case "ttl":
+        loopThroughSelection(textActions.convertLowerCase);
+        break switchStatement;
+      case "ttu":
+        loopThroughSelection(textActions.convertUpperCase);
+        break switchStatement;
+      case "lh":
+        loopThroughSelection(textActions.setLineheight, value, operator);
+        break switchStatement;
+      case "v":
+        loopThroughSelection(textActions.setValue, value, operator);
+        break switchStatement;
+      case "n":
+        loopThroughSelection(layerActions.rename, value, operator);
+        break switchStatement;
+      case "bdc":
+        loopThroughSelection(borderActions.setColor, value, operator);
+        break switchStatement;
+      case "bdr":
+        loopThroughSelection(borderActions.radius, value, operator);
+        break switchStatement;
+      case "bdw":
+        loopThroughSelection(borderActions.thickness, value, operator);
+        break switchStatement;
+      case "bd":
+        loopThroughSelection(borderActions.checkOperator, value, operator);
+        break switchStatement;
+      case "f":
+        loopThroughSelection(fillActions.setColor, value, operator);
+        break switchStatement;
+      case "o":
+        loopThroughSelection(fillActions.setOpacity, value, operator);
+        break switchStatement;
+    }
+}
+
+
+// loop through layer selection
+function loopThroughSelection(callback) {
+  if (callback && typeof callback === 'function') {
+    for (var i = 0; i < selection.count(); i++) {
+      var layer = selection.objectAtIndex(i);
+      // make a copy of the passed in arguments
+      var args = Array.prototype.slice.call(arguments);
+      // overwrite the passed in function name with the layer
+      args[0] = layer;
+      // run the callback function with the function name and use the arguments
+      callback.apply(callback[0], args);
+    };
   }
 }
