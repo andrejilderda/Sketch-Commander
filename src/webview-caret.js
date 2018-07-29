@@ -1,4 +1,4 @@
-// Code below is based on/copied from Donnie D'Amato's helpful Medium post:
+// Parts of the code below were copied from Donnie D'Amato's helpful Medium post:
 // https://medium.com/compass-true-north/a-dancing-caret-the-unknown-perils-of-adjusting-cursor-position-f252734f595e
 
 function getCaretPosition(el){
@@ -35,6 +35,35 @@ function getCaretData(el, position){
   }
   // you'll need the node and the position (offset) to set the caret
   return { node: node, position: position };
+}
+
+function handleCaretPosition( element, caretPos ) {
+  try {
+    var data = getCaretData(element, caretPos);
+    setCaretPosition(data);
+  } catch (e) {
+    if ( e instanceof DOMException ) {
+      // user input is stripped from spaces on the beginning of the command (using stripSpace()).
+      // if the user attempts to add a space after a ',' the setCaretPosition attempts to move the caret
+      // to the position after the space which was stripped, resulting in a DOMException, since the
+      // DOM element couldn't be found. So in that case we'll shift the caretPos to - 1
+      console.log('DOMException: caretPos will shift to -1.');
+      var data = getCaretData(element, caretPos - 1);
+      setCaretPosition(data);
+    }
+    else if ( e instanceof TypeError ) {
+      // catch other errors. Most likely a space was entered in the input field and nothing else.
+      // This will trigger a 'TypeError: "Argument 1 of Range.setStart is not an object."'
+      // In this case we'll just reset the caret position to the start of the input like nothing happened
+      console.log('TypeError: setCaretPosition has triggered an error. We\'ll reset the caret to the start of the input field.');
+      var data = getCaretData(element, 0);
+      setCaretPosition(data);
+    } 
+    else {
+      // Just log the message for any errors I oversaw...
+      console.log(e);
+    }
+  }
 }
 
 function setCaretPosition(d) {

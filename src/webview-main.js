@@ -147,28 +147,8 @@ function renderInput() {
   })
   
   inputField.innerHTML = html.trim().replace(/\n/g,'');
-  try {
-    var data = getCaretData(inputField, currentCaretPosition);
-    setCaretPosition(data);
-  } catch (e) {
-    if ( e instanceof DOMException ) {
-      // user input is stripped from spaces on the beginning of the command (using stripSpace()).
-      // if the user attempts to add a space after a ',' the setCaretPosition attempts to move the caret
-      // to the position after the space which was stripped, resulting in a DOMException, since the
-      // DOM element couldn't be found. So in that case we'll shift the currentCaretPosition to - 1
-      if ( DEBUG ) console.log('DOMException: currentCaretPosition will shift to -1.');
-      var data = getCaretData(inputField, currentCaretPosition - 1);
-      setCaretPosition(data);
-    }
-    else {
-      // catch other errors. Most likely a space was entered in the input field and nothing else.
-      // This will trigger a 'TypeError: "Argument 1 of Range.setStart is not an object."'
-      // In this case we'll just reset the caret position to the start of the input like nothing happened
-      if ( DEBUG ) console.log('setCaretPosition has triggered an error. We\'ll reset the caret to the start of the input field.');
-      var data = getCaretData(inputField, 0);
-      setCaretPosition(data);
-    }
-  }
+  
+  handleCaretPosition( inputField, currentCaretPosition );
 }
 
 
