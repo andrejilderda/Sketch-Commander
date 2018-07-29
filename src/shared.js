@@ -21,7 +21,7 @@ const BROWSERDEBUG = false; // sets a few variables that are normally received f
   Testing: https://regex101.com/r/TXQbhz/7
 */
 const commandRegex = /^(bdc|bdr|bdw|bd|fs|lh|ttu|ttl|o|n|v)|(^[lrtbwhaxy]+(?!([lrtbwhaxy]))\2)/g,
-  individualCommandsRegex = /(bdc|bdr|bdw|bd|fs|lh|ttu|ttl|o|n|v)/g,
+  individualCommandsRegex = /^(bdc|bdr|bdw|bd|fs|lh|ttu|ttl|o|n|v)/g,
   groupedCommandsRegex = /^[lrtbwhaxy]+(?!([lrtbwhaxy]))/g,
   operatorRegex = /^([\/+\-*%\=])/,
   colorRegex = /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/g;
