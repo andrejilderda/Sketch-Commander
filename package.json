@@ -23,8 +23,7 @@
     "postinstall": "npm run build && skpm-link"
   },
   "resources": [
-    "Resources/webview.js",
-    "Resources/shared.js"
+    "src/shared.js"
   ],
   "bugs": {
     "url": "https://github.com/ajilderda/Sketch-Commander/issues"
