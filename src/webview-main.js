@@ -123,11 +123,11 @@ function renderInput() {
   const commandsLength = commands.get().length;
   
   let html = '';
-  // console.dir(commands.get());
   commands.get().forEach( function(item, index) {
     let inputLiteral = item.input.literal;
     let inputSplit = item.input.split;
     let type = item.type;
+    let element = '';
     const notLastNotOnly = commandsLength > 0 && commandsLength - 1 !== index;
 
     // * ⚠️ BEWARE: don't try to format the elements below nicely, since it will be interpreted as text and mess up the caret positioning
@@ -136,8 +136,10 @@ function renderInput() {
     // format the input differently when the default operator is applied
     if ( type && item.defaultOperator === true ) {
       input = `<span class="c-command__type" data-default-operator='${item.operator}'>${inputSplit[0]}</span>${inputSplit[1] ? inputSplit[1] : ''}`;
-    };
-    let element = `<span class="c-command  ${item.isValid ? 'c-command--is-valid' : '' }">${input}</span>`
+    }
+    if ( inputLiteral ) {
+      element = `<span class="c-command  ${item.isValid ? 'c-command--is-valid' : '' }">${input}</span>`
+    }
     
     html += element;
     // we append the , comma again when it's not the last and only command
@@ -145,8 +147,28 @@ function renderInput() {
   })
   
   inputField.innerHTML = html.trim().replace(/\n/g,'');
-  var data = getCaretData(inputField, currentCaretPosition);
-  setCaretPosition(data);
+  try {
+    var data = getCaretData(inputField, currentCaretPosition);
+    setCaretPosition(data);
+  } catch (e) {
+    if ( e instanceof DOMException ) {
+      // user input is stripped from spaces on the beginning of the command (using stripSpace()).
+      // if the user attempts to add a space after a ',' the setCaretPosition attempts to move the caret
+      // to the position after the space which was stripped, resulting in a DOMException, since the
+      // DOM element couldn't be found. So in that case we'll shift the currentCaretPosition to - 1
+      if ( DEBUG ) console.log('DOMException: currentCaretPosition will shift to -1.');
+      var data = getCaretData(inputField, currentCaretPosition - 1);
+      setCaretPosition(data);
+    }
+    else {
+      // catch other errors. Most likely a space was entered in the input field and nothing else.
+      // This will trigger a 'TypeError: "Argument 1 of Range.setStart is not an object."'
+      // In this case we'll just reset the caret position to the start of the input like nothing happened
+      if ( DEBUG ) console.log('setCaretPosition has triggered an error. We\'ll reset the caret to the start of the input field.');
+      var data = getCaretData(inputField, 0);
+      setCaretPosition(data);
+    }
+  }
 }
 
 

@@ -37,7 +37,6 @@ function getCaretData(el, position){
   return { node: node, position: position };
 }
 
-// setting the caret with this info  is also standard
 function setCaretPosition(d) {
   var sel = window.getSelection(),
   range = document.createRange();
