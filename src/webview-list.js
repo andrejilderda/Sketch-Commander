@@ -5,9 +5,45 @@ class List {
     this.active = false;
   }
   
-  render() {
-    // render template into element
-    this.element.innerHTML = this.template;
+  filterList( wordToMatch, filterBy ) {
+    // see if filter value was provided.
+    if ( !wordToMatch ) return this.data;
+    // property to filter by, (name) by default
+    const prop = filterBy || 'name';
+    
+    // filter and sort results
+    return this.data.filter( item => {
+      const regex = new RegExp( wordToMatch, 'gi' );
+      
+      // add the ability to pass an array of 2 props to match by
+      if ( trueTypeOf(prop) === 'array' && prop.length === 2 ) {
+        return item[prop[0]].match(regex) || item[prop[1]].match(regex)
+      }
+      return item[prop].match(regex);
+    }).sort( function( a, b ) {
+      // TODO: exact match = highest score
+      // if (inputFieldValue === a[prop]) {
+      //   return a[prop] - b[prop];
+      // }
+      
+      var textA = a.name.toUpperCase();
+      var textB = b.name.toUpperCase();
+      return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+    })
+    
+  }
+  
+  render( wordToMatch ) {
+    let data;
+    if ( wordToMatch ) data = listCommands.filterList( wordToMatch, [ 'name', 'notation' ] );
+    else data = this.data;
+    
+    // render markup into element
+    this.element.innerHTML = `
+      <ul class="c-list  ${this.active ? `is-active` : ``}">
+        ${this.template( data )}
+      </ul>
+    `;
     
     // setup event listeners
     const items = Array.from( this.element.querySelectorAll('[data-item]') );
@@ -17,44 +53,21 @@ class List {
   }
 }
 
+
 const listCommands = new List();
 listCommands.data = commandList;
 listCommands.element = document.querySelector('[data-list="commands"]');
-listCommands.template =  `
-  <div>Template was rendered</div>
-  <ul class="c-list">
-    ${listCommands.data.map(item => `
+listCommands.template = function( data ) {
+  return `
+    ${data.map(item => `
       <li class="c-list__item" data-item>
         ${item.name}
         <span class="c-list__notation">${item.notation}</span>
       </li>
     `).join('')}
-  </ul>
-`;
-
-listCommands.filterList = function ( wordToMatch ) {
-  // see if filter value was provided.
-  if ( !wordToMatch ) return this.data;
-  
-  // filter and sort results
-  return this.data.filter( item => {
-    const regex = new RegExp(wordToMatch, 'gi');
-    return item.name.match(regex) || item.notation.match(regex);
-  }).sort( function( a,b ) {
-    // TODO: exact match = highest score
-    if (inputFieldValue === a.notation) {
-      return a.notation - b.notation;
-    }
-    var textA = a.notation.toUpperCase();
-    var textB = b.notation.toUpperCase();
-    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
-  })
-}
-
-
-listCommands.render( listCommands.filterList('c') );
-
-
+  `
+};
+listCommands.render();
 
 
 
@@ -62,7 +75,6 @@ document.addEventListener('keydown', navigateList);
 function navigateList(e) {
   // only continue when ↑ & ↓ keys are pressed
   if ( !e.keyCode === 40 || !e.keyCode === 38 ) return;
-  
 }
 
 
