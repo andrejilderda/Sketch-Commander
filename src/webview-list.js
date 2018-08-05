@@ -51,8 +51,39 @@ class List {
       console.log('clicked item in list');
     }))
   }
+  
+  
+  onKeydown( e ) {
+    if ( !this.active ) return false;
+    
+    // only continue when ↑ & ↓ keys are pressed
+    if ( e.keyCode !== 40 && e.keyCode !== 38 ) return false;
+    
+    let increment = -1; // have nothing selected by default
+    const listItems = this.element.querySelectorAll( '[data-item]' );
+    const length = listItems.length + 1; // so that it's possible to have nothing selected
+    
+    // check if there already is an element selected, so that we can use its index;
+    listItems.forEach( ( el, elIndex ) => {
+      if ( el.classList.contains('is-active') === true ) increment = elIndex;
+    });
+    increment = e.keyCode === 40 ? increment += 1 : increment = increment - 1;
+    
+    const index = mod( increment, length );
+    cyclingThroughOptions = true;
+
+    listItems.forEach( el => el.classList.remove( 'is-active' ) );
+
+    if ( listItems[index] != undefined ) {
+      listItems[index].classList.toggle('is-active');
+      // this useful sucker surprisingly works in safari/webview. Keep it disabled when debugging in FF
+      if ( !BROWSERDEBUG ) listItems[index].scrollIntoViewIfNeeded( false );
+    } 
+    else cyclingThroughOptions = false;
+  }
 }
 
+// this.length = this.length + 1; // so that it's possible to have nothing selected
 
 const listCommands = new List();
 listCommands.data = commandList;
@@ -73,53 +104,5 @@ listCommands.render();
 
 document.addEventListener('keydown', navigateList);
 function navigateList(e) {
-  // only continue when ↑ & ↓ keys are pressed
-  if ( !e.keyCode === 40 || !e.keyCode === 38 ) return;
+  listCommands.onKeydown( e );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// // for navigating through the actionlist
-// var selectedAction = -1;
-// 
-// function navigateThroughList(value) {
-//   var listItems = document.querySelectorAll(".c-context-list.is-active .c-options-list__item:not(.is-hidden)");
-// 
-//   if (value == 'reset') {
-//     selectedAction = -1;
-//   } else if (value == 'selectFirst') { // used when filtering items
-//     selectedAction = 0;
-//   } else if (!value) {
-//     selectedAction++;
-//   } else {
-//     if (Number.isInteger(value))
-//       selectedAction = selectedAction += value;
-//   }
-// 
-//   var length = listItems.length + 1; // so that it's possible to have nothing selected
-//   var index = mod(selectedAction, length);
-//   cyclingThroughOptions = true;
-// 
-//   listItems.forEach(function(el) {
-//     el.classList.remove('is-active');
-//   })
-// 
-//   if (listItems[index] != undefined) {
-//     listItems[index].classList.toggle('is-active');
-//     // this useful sucker surprisingly works in safari/webview, but lets keep it disabled when debugging in FF
-//     if (!BROWSERDEBUG) listItems[index].scrollIntoViewIfNeeded(false);
-//   } else {
-//     cyclingThroughOptions = false;
-//   }
-// }

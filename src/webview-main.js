@@ -91,14 +91,6 @@ function onKeydown(e) {
       selectOption();
     }
   }
-  if (e.keyCode == 40) { //down arrow
-    e.preventDefault();
-    navigateThroughList(+1);
-  }
-  if (e.keyCode == 38) { //up arrow
-    e.preventDefault();
-    navigateThroughList(-1);
-  }
   if (e.shiftKey && tabKeyPressed) {
     e.preventDefault();
     switchContextAction('prev');
