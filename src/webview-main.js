@@ -203,60 +203,6 @@ function handleUndo() {
   };
 }
 
-
-// List all commands by default
-(function listCommands() {
-  for (var key in commandList) {
-    var commandTypeName = commandList[key].name;
-    var commandNotation = commandList[key].notation;
-    var commandTags = commandList[key].tags;
-    var commandDefaultOperator = commandList[key].defaultOperator;
-    var li = document.createElement('li');
-
-    li.addEventListener("click", function(e) {
-      setInputValue(e.target.dataset.notation);
-      inputField.focus();
-      parseInput();
-    });
-    li.classList.add('c-options-list__item');
-    li.dataset.notation = commandNotation;
-    li.dataset.name = commandTypeName;
-    li.dataset.tags = commandTags;
-    li.dataset.defaultOperator = commandDefaultOperator;
-    li.innerHTML = commandTypeName;
-    optionsUl.append(li);
-
-    var span = document.createElement('span');
-    span.classList.add('c-options-list__notation');
-    span.innerHTML = commandNotation;
-    li.prepend(span);
-  }
-})();
-
-// for filtering the action list as long as there are no matching commands found
-function filterActionlist() {
-  var optionsItems = document.querySelectorAll(".c-options-list__item");
-  var optionsArray = Array.from(optionsItems);
-  optionsArray.filter(function(el) {
-    var filter = inputFieldValue.toLowerCase();
-    var filteredItems = el.dataset.notation + " " + el.dataset.name + " " + el.dataset.tags;
-    // console.log(el.dataset.name + ":   " + filteredItems.toLowerCase().indexOf(filter));
-    if (filteredItems.toLowerCase().indexOf(filter) == -1) {
-      el.classList.add("is-hidden");
-    } else {
-      el.classList.remove("is-hidden");
-    }
-
-    var result = optionsArray.sort(function(a, b) {
-      if (inputFieldValue === a.dataset.notation) {
-        return a.dataset.notation - b.dataset.notation;
-      }
-      return a.dataset.notation - b.dataset.notation;
-    });
-    navigateThroughList('selectFirst');
-  });
-}
-
 // for switching task contexts
 function switchContextAction(value) {
   if (value == 'next')
@@ -280,40 +226,6 @@ function switchContextAction(value) {
   contextList[index].classList.toggle('is-active');
 
   returnToSketch('saveContext', index);
-}
-
-// for navigating through the actionlist
-var selectedAction = -1;
-
-function navigateThroughList(value) {
-  var listItems = document.querySelectorAll(".c-context-list.is-active .c-options-list__item:not(.is-hidden)");
-
-  if (value == 'reset') {
-    selectedAction = -1;
-  } else if (value == 'selectFirst') { // used when filtering items
-    selectedAction = 0;
-  } else if (!value) {
-    selectedAction++;
-  } else {
-    if (Number.isInteger(value))
-      selectedAction = selectedAction += value;
-  }
-
-  var length = listItems.length + 1; // so that it's possible to have nothing selected
-  var index = mod(selectedAction, length);
-  cyclingThroughOptions = true;
-
-  listItems.forEach(function(el) {
-    el.classList.remove('is-active');
-  })
-
-  if (listItems[index] != undefined) {
-    listItems[index].classList.toggle('is-active');
-    // this useful sucker surprisingly works in safari/webview, but lets keep it disabled when debugging in FF
-    if (!BROWSERDEBUG) listItems[index].scrollIntoViewIfNeeded(false);
-  } else {
-    cyclingThroughOptions = false;
-  }
 }
 
 // lists the selected layers

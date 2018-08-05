@@ -94,8 +94,7 @@ body {
     }
 }
 
-.c-options-list,
-.c-selection-list {
+.c-list {
     @include bare-list;
     font-weight: 200;
     color: #fff;
@@ -116,7 +115,7 @@ body {
             display: none;
         }
         &.is-active .c-selection-list__notation,
-        &.is-active .c-options-list__notation {
+        &.is-active .c-list__notation {
             color: $activeColor;
         }
     }
