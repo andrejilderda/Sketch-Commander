@@ -38,7 +38,6 @@ function getCaretNode(el, position){
 }
 
 function handleCaretPos( element, caretPos ) {
-  console.log(getCaretNode(element, caretPos));
   try {
     var data = getCaretNode(element, caretPos);
     setCaretPos(data);
