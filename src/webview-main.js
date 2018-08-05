@@ -30,7 +30,7 @@ var optionsUl = document.querySelector(".c-options-list");
 var inputFieldValue = document.querySelector('.c-commander').innerText;
 var cyclingThroughOptions = false;
 
-let valueHistory = [];
+let undoHistory = [];
 let prevInputLength = inputField.textContent.length;
 let inputArray = [];
 
@@ -54,8 +54,8 @@ inputField.addEventListener('keyup', onKeyup);
 function onInput(e) {
   inputFieldValue = this.innerText;
   
-  valueHistory.unshift(inputFieldValue); // add to history array
-  if ( valueHistory.length >= 20 ) valueHistory.pop(); // limit history length
+  undoHistory.unshift(inputFieldValue); // add to history array
+  if ( undoHistory.length >= 50 ) undoHistory.pop(); // limit history length
   
   parseInput();
 };
@@ -111,7 +111,7 @@ function parseInput() {
 }
 
 function renderInput() {
-  let currentCaretPosition = getCaretPosition(inputField);
+  let currentCaretPos = getCaretPos(inputField);
   const commandsLength = commands.get().length;
   
   let html = '';
@@ -140,7 +140,7 @@ function renderInput() {
   
   inputField.innerHTML = html.trim().replace(/\n/g,'');
   
-  handleCaretPosition( inputField, currentCaretPosition );
+  handleCaretPos( inputField, currentCaretPos );
 }
 
 
@@ -186,12 +186,15 @@ function selectOption() {
 //   }
 // }
 
+
 // triggered whenever the user presses cmd + z
+// (this is what you get when you don't rely on native inputs, but like it to behave like one...)
 function handleUndo() {
-  if ( valueHistory[0] ) {
-    inputFieldValue = valueHistory[1];
-    valueHistory.shift();
-    renderInput();
+  if ( undoHistory[1] ) {
+    inputField.innerHTML = undoHistory[1];
+    undoHistory.shift();
+    parseInput();
+    setCaretPosToEnd( inputField );
   };
 }
 
