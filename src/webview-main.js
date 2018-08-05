@@ -111,7 +111,8 @@ function parseInput() {
 }
 
 function renderInput() {
-  let currentCaretPos = getCaretPos(inputField);
+  var caretPos = getCaretPos(inputField);
+  
   const commandsLength = commands.get().length;
   
   let html = '';
@@ -140,7 +141,7 @@ function renderInput() {
   
   inputField.innerHTML = html.trim().replace(/\n/g,'');
   
-  handleCaretPos( inputField, currentCaretPos );
+  caret.position = caretPos;
 }
 
 
@@ -164,7 +165,7 @@ function handleUndo() {
     inputField.innerHTML = undoHistory[1];
     undoHistory.shift();
     parseInput();
-    setCaretPosToEnd( inputField );
+    setCaretPosToEnd();
   };
 }
 
