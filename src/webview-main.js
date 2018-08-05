@@ -156,36 +156,6 @@ function selectOption() {
     }
   }
 };
-// function renderCommandsList() {
-//   commandsUl.innerHTML = ''; // remove existing elements
-//   for (var i = 0; i < items.length; i++) {
-//     // var commandType = items[i].type;
-//     // var commandTypeName = commandList.filter(function(commandTypeName) {
-//     //   return commandTypeName.notation === commandType;
-//     // })[0];
-//     // commandTypeName = commandTypeName.name;
-//     // 
-//     // // create the list
-//     // var li = document.createElement('li');
-//     // li.classList.add('c-commands-list__item');
-//     // li.innerHTML = commandTypeName + " " + items[i].operator + " " + items[i].amount;
-//     // commandsUl.append(li);
-//   }
-//   // one or more valid commands have been entered
-//   if (items.length > 0) {
-//     optionsUl.style.display = "none";
-//     navigateThroughList('reset');
-//   } else { // no valid commands entered (yet)
-//     optionsUl.style.display = "block";
-//     filterActionlist();
-//   }
-// 
-//   // inputfield is empty
-//   if (inputFieldValue == "") {
-//     navigateThroughList('reset');
-//   }
-// }
-
 
 // triggered whenever the user presses cmd + z
 // (this is what you get when you don't rely on native inputs, but like it to behave like one...)
