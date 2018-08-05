@@ -19,11 +19,11 @@ var browserSync     = require('browser-sync'),
       'styles':      'src/*.scss',
       'scripts':     [
                 './src/shared.js',
+                './src/utils.js',
                 './src/webview-main.js',
                 './src/webview-caret.js',
                 './src/webview-list.js',
-                './src/webview-receivers.js',
-                './src/utils.js'
+                './src/webview-receivers.js'
               ]
     },
     output = {
