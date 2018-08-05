@@ -37,7 +37,10 @@ function getCaretNode(el, position){
   return { node: node, position: position };
 }
 
+
 function handleCaretPos( element, caretPos ) {
+  handleLists( element, caretPos );
+  
   try {
     var data = getCaretNode(element, caretPos);
     setCaretPos(data);
@@ -93,3 +96,15 @@ function handleCaretLeftRight( e ) {
     e.preventDefault()
   }
 };
+
+function handleLists( element, caretPos ) {
+  const node = getCaretNode(element, caretPos).node;
+  const parent = node.parentNode;
+  
+  // is caret at '>|'? Then open layer select list
+  if ( parent.classList.contains( 'c-command' ) && !parent.childElementCount && node.nodeValue[0] === '>') {
+    console.log('layer select: open');
+  } else {
+    console.log('layer select: close');
+  }
+}
