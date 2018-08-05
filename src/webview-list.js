@@ -90,30 +90,6 @@ function navigateList(e) {
 
 
 
-// for filtering the action list as long as there are no matching commands found
-// function filterActionlist() {
-//   var optionsItems = document.querySelectorAll(".c-options-list__item");
-//   var optionsArray = Array.from(optionsItems);
-//   this.data.filter(function(el) {
-//     var filter = inputFieldValue.toLowerCase();
-//     var filteredItems = el.dataset.notation + " " + el.dataset.name + " " + el.dataset.tags;
-//     // console.log(el.dataset.name + ":   " + filteredItems.toLowerCase().indexOf(filter));
-//     if (filteredItems.toLowerCase().indexOf(filter) == -1) {
-//       el.classList.add("is-hidden");
-//     } else {
-//       el.classList.remove("is-hidden");
-//     }
-// 
-//     var result = optionsArray.sort(function(a, b) {
-//       if (inputFieldValue === a.dataset.notation) {
-//         return a.dataset.notation - b.dataset.notation;
-//       }
-//       return a.dataset.notation - b.dataset.notation;
-//     });
-//     navigateThroughList('selectFirst');
-//   });
-// }
-// 
 // // for navigating through the actionlist
 // var selectedAction = -1;
 // 
