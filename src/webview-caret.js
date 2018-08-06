@@ -92,7 +92,7 @@ function setCaretPosToEnd() {
 }
 
 // Set caretPositioning when user presses ← or →
-caret.input.addEventListener('keydown', function handleCaretLeftRight( e ) {
+caret.input.addEventListener('keydown', function( e ) {
   let newCaretPos;
   // if ( e.keyCode === 16 ) {
   //   caret.position = 2;
