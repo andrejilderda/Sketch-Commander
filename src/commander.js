@@ -3,6 +3,7 @@ import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from './shared';
 import { resizeObject, moveObject, setWidthHeightObject, resize, textActions, layerActions, fillActions, mathOps, makeColor } from './layer-actions'
 
 var sketch = require('sketch');
+var Settings = require('sketch/settings');
 var context,
   doc,
   selection,
@@ -18,11 +19,11 @@ export default function(context) {
 
   // does a userInputSetting already exist?
   try {
-    prevUserInput = sketch.settingForKey("userInputSetting");
-    contextTabs = sketch.settingForKey("contextTabs");
+    prevUserInput = Settings.settingForKey("userInputSetting");
+    contextTabs = Settings.settingForKey("contextTabs");
   } catch (e) { // else reset history
-    sketch.setSettingForKey("userInputSetting", "");
-    sketch.setSettingForKey("contextTabs", "");
+    Settings.setSettingForKey("userInputSetting", "");
+    Settings.setSettingForKey("contextTabs", "");
   }
 
   // create BrowserWindow
@@ -45,10 +46,10 @@ export default function(context) {
   webUI.webContents.on('returnUserInput', (s) => {
     // if (DEBUG) console.log('USER INPUT:');
     // if (DEBUG) console.log(s);
-    sketch.setSettingForKey('userInputSetting', s);
+    Settings.setSettingForKey('userInputSetting', s);
   });
   webUI.webContents.on('saveContext', (s) => {
-    sketch.setSettingForKey('contextTabs', s);
+    Settings.setSettingForKey('contextTabs', s);
   });
   webUI.webContents.on('nativeLog', (s) => {
     // will log it to Sketch in a toast message
