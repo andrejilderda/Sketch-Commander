@@ -11,26 +11,22 @@
     }
   }
 
+  // receive selected layer names
+  window.setPageLayers = function(input) {
+    if (DEBUG) console.log('Received setPageLayers:');
+    if (DEBUG) console.log(JSON.parse(input));
+    if (input) {
+      window.pageLayers = JSON.parse(input);
+    }
+  }
+
   // receive active context from Sketch
   window.contextTabsInit = function(input) {
+    if (DEBUG) console.log('Received contextTabsInit:');
+    if (DEBUG) console.log(input);
     if (input) {
       const activeContext = Number(input);
       switchContextAction(activeContext);
-    }
-  }
-
-  // receive selected layer names
-  window.selectedLayers = function(input) {
-    if (input) {
-      selectedLayerNames = input;
-    }
-    listSelectedLayers();
-  }
-
-  // receive artboard names
-  window.artboardLayers = function(input) {
-    if (input) {
-      artboardNames = input;
     }
   }
 })()

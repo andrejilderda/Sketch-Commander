@@ -4,7 +4,7 @@ if (BROWSERDEBUG) {
   let prevUserInput = "lr100, lr-100, tv=bla, x*200";
   let contextTabs = 0;
   let artboardLayerNameArray = 'testlayer 1,testlayer 2';
-  let pageLayers = [{
+  var pageLayers = [{
     "type": "Artboard",
     "id": "8FBDA0A2-CAA7-4774-A965-F432874B5F48",
     "frame": {

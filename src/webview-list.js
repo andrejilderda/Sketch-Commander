@@ -118,6 +118,10 @@ function handleListsState() {
   }
 }
 
+//////////////////////////////////////////////////////////////////
+//  LIST: Commands                                              //
+//////////////////////////////////////////////////////////////////
+
 const listCommands = new List();
 listCommands.data = commandList;
 listCommands.element = document.querySelector('[data-list="commands"]');
@@ -136,22 +140,23 @@ listCommands.template = function( data ) {
 listCommands.render();
 
 
+//////////////////////////////////////////////////////////////////
+//  LIST: layers                                                //
+//////////////////////////////////////////////////////////////////
 
-document.addEventListener('keydown', navigateList);
-function navigateList(e) {
-  listCommands.onKeydown( e );
-}
-
-
-function handleLists() {
-  const node = getCaretNode().node;
-  let parent;
-  if ( node ) parent = node.parentNode;
-  
-  // is caret at '>|'? Then open layer select list
-  if ( parent && parent.classList.contains( 'c-command' ) && !parent.childElementCount && node.nodeValue[0] === '>') {
-    listCommands.active = true;
-  } else {
-    listCommands.active = false;
-  }
-}
+const listLayers = new List();
+listLayers.data = pageLayers;
+listLayers.element = document.querySelector('[data-list="layers"]');
+listLayers.template = function( data ) {
+  return `
+    <ul class="c-list">
+      ${data.map(item => `
+        <li class="c-list__item" data-item>
+          <span class="c-list__notation">${item.type}</span>
+          ${item.name}
+        </li>
+      `).join('')}
+    </ul>
+  `
+};
+listLayers.render();

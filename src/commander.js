@@ -4,6 +4,8 @@ import { resizeObject, moveObject, setWidthHeightObject, resize, textActions, la
 
 var sketch = require('sketch');
 var Settings = require('sketch/settings');
+var document = require('sketch/dom').getSelectedDocument();
+
 var context,
   doc,
   selection,
@@ -80,39 +82,17 @@ export default function(context) {
     webUI.show();
 
     // 💫 emitter: call a function in the webview
-    webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
-    webUI.webContents.executeJavaScript('contextTabsInit("' + contextTabs + '")');
-    webUI.webContents.executeJavaScript('selectedLayerNameArray ="' + getSelectedLayerNames() + '"');
-    webUI.webContents.executeJavaScript('artboardLayerNameArray ="' + getArtboardLayers() + '"');
+    webUI.webContents.executeJavaScript("setPageLayers('" + getPageLayers() + "')");
+    // webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
+    // webUI.webContents.executeJavaScript('contextTabsInit("' + contextTabs + '")');
   })
-
 
   return webUI;
 }
 
-const getArtboardLayers = function() {
-  // create array with artboard layers
-  var artboardNames = [];
-  var selectedArtboard = doc.currentPage().currentArtboard()
-  var artboardLayers = selectedArtboard.layers();
-
-  for (var i = 0; i < artboardLayers.count(); i++) {
-    var layer = artboardLayers.objectAtIndex(i);
-    // artboardLayerNameArray.push(layer.name());
-    artboardLayerNameArray.push(layer.objectID());
-  }
-  return artboardNames;
-};
-
 // create array with selected layers
-const getSelectedLayerNames = function() {
-  const layerNames = [];
-  for (var i = 0; i < selection.count(); i++) {
-    var layer = selection.objectAtIndex(i);
-    // selectedLayerNameArray.push(layer.name());
-    layerNames.push(layer.objectID());
-  }
-  return layerNames;
+const getPageLayers = function() {
+  return JSON.stringify(document.selectedPage.layers);
 };
 
 
