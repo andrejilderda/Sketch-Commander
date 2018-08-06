@@ -1,8 +1,12 @@
+// Array containing all instances created with List
+let listInstances = [];
+
 class List {
   constructor() {
     this.data;
     this.filteredData;
     this._active = false;
+    listInstances.push(this);
   }
   set active( state ) {
     if ( this._active !== state ) {
@@ -95,12 +99,31 @@ class List {
   }
 }
 
+document.addEventListener('keydown', navigateList);
+function navigateList(e) {
+  listCommands.onKeydown( e );
+}
+
+
+function handleListsState() {
+  const node = getCaretNode().node;
+  let parent;
+  if ( node ) parent = node.parentNode;
+  
+  // is caret at '>|'? Then open layer select list
+  if ( parent && parent.classList.contains( 'c-command' ) && !parent.childElementCount && node.nodeValue[0] === '>') {
+    listCommands.active = true;
+  } else {
+    listCommands.active = false;
+  }
+}
+
 const listCommands = new List();
 listCommands.data = commandList;
 listCommands.element = document.querySelector('[data-list="commands"]');
 listCommands.template = function( data ) {
   return `
-    <ul class="c-list ${this.active} ${this.active ? `is-active` : ``}">
+    <ul class="c-list">
       ${data.map(item => `
         <li class="c-list__item" data-item>
           <span class="c-list__notation">${item.notation}</span>

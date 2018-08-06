@@ -9,6 +9,7 @@ const caret = {
   },
   set position( value ) {
     this._position = value;
+    handleListsState();
     handleCaretPos();
   }
 }
@@ -54,8 +55,6 @@ function getCaretNode( el, position ){
 
 
 function handleCaretPos( caretPos ) {
-  handleLists();
-  
   try {
     if ( caret.position > 0 ) setCaretPos();
   } catch (e) {
