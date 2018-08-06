@@ -57,7 +57,7 @@ function handleCaretPos( caretPos ) {
   handleLists();
   
   try {
-    setCaretPos();
+    if ( caret.position > 0 ) setCaretPos();
   } catch (e) {
     if ( e instanceof DOMException ) {
       // user input is stripped from spaces on the beginning of the command (using stripSpace()).
@@ -67,6 +67,12 @@ function handleCaretPos( caretPos ) {
       console.log('DOMException: caret.position will shift to -1.');
       if (caret.position > 0 ) caret.position += -1;
       else caret.position = 0
+    }
+    if ( e instanceof TypeError ) {
+      // catch other errors. Most likely a space was entered in the input field and nothing else.
+      // This will trigger a 'TypeError: "Argument 1 of Range.setStart is not an object."'
+      console.log('TypeError: setCaretPosition has triggered an error. We\'ll reset the caret to the start of the input field.');
+      caret.position = 0;
     }
     else {
       // Just log the message for any errors I oversaw...
@@ -85,10 +91,14 @@ function setCaretPos(d) {
   sel.addRange(range);
 }
 
-function setCaretPosToEnd() {
+function getTotalNodeLength() {
   let totalLength = 0;
-  getAllTextnodes().forEach( node => totalLength += node.length )
-  caret.position = totalLength;
+  getAllTextnodes().forEach( node => totalLength += node.length );
+  return totalLength;
+}
+
+function setCaretPosToEnd() {
+  caret.position = getTotalNodeLength();
 }
 
 // Set caretPositioning when user presses ← or →

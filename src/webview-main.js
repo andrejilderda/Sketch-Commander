@@ -104,9 +104,8 @@ function onKeyup(e) {
 
 function parseInput() {
   inputFieldValue = getInputValue();
-  if ( !inputFieldValue ) return;
   commands.clear();
-  commands.parse(getInputValue());
+  commands.parse( getInputValue() );
   renderInput();
 }
 
