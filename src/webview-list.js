@@ -2,7 +2,23 @@ class List {
   constructor() {
     this.data;
     this.filteredData;
-    this.active = false;
+    this._active = false;
+  }
+  set active( state ) {
+    if ( this._active !== state ) {
+      this.changeState( state )
+      console.log('state changed');
+    };
+    this._active = state;
+  }
+  get active() {
+    return this._active;
+  }
+  
+  changeState( active ) {
+    const activeClass = 'is-active'
+    if ( active === true ) this.element.classList.add( activeClass )
+    else this.element.classList.remove( activeClass )
   }
   
   filterList( wordToMatch, filterBy ) {
@@ -39,11 +55,7 @@ class List {
     else data = this.data;
     
     // render markup into element
-    this.element.innerHTML = `
-      <ul class="c-list  ${this.active ? `is-active` : ``}">
-        ${this.template( data )}
-      </ul>
-    `;
+    this.element.innerHTML = `${this.template( data )}`;
     
     // setup event listeners
     const items = Array.from( this.element.querySelectorAll('[data-item]') );
@@ -52,12 +64,12 @@ class List {
     }))
   }
   
-  
+  // only continue when ↑ & ↓ keys are pressed 
   onKeydown( e ) {
     if ( !this.active ) return false;
-    
     // only continue when ↑ & ↓ keys are pressed
     if ( e.keyCode !== 40 && e.keyCode !== 38 ) return false;
+    e.preventDefault();
     
     let increment = -1; // have nothing selected by default
     const listItems = this.element.querySelectorAll( '[data-item]' );
@@ -83,19 +95,19 @@ class List {
   }
 }
 
-// this.length = this.length + 1; // so that it's possible to have nothing selected
-
 const listCommands = new List();
 listCommands.data = commandList;
 listCommands.element = document.querySelector('[data-list="commands"]');
 listCommands.template = function( data ) {
   return `
-    ${data.map(item => `
-      <li class="c-list__item" data-item>
-        ${item.name}
-        <span class="c-list__notation">${item.notation}</span>
-      </li>
-    `).join('')}
+    <ul class="c-list ${this.active} ${this.active ? `is-active` : ``}">
+      ${data.map(item => `
+        <li class="c-list__item" data-item>
+          <span class="c-list__notation">${item.notation}</span>
+          ${item.name}
+        </li>
+      `).join('')}
+    </ul>
   `
 };
 listCommands.render();
@@ -105,4 +117,18 @@ listCommands.render();
 document.addEventListener('keydown', navigateList);
 function navigateList(e) {
   listCommands.onKeydown( e );
+}
+
+
+function handleLists() {
+  const node = getCaretNode().node;
+  let parent;
+  if ( node ) parent = node.parentNode;
+  
+  // is caret at '>|'? Then open layer select list
+  if ( parent && parent.classList.contains( 'c-command' ) && !parent.childElementCount && node.nodeValue[0] === '>') {
+    listCommands.active = true;
+  } else {
+    listCommands.active = false;
+  }
 }

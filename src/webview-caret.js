@@ -113,18 +113,3 @@ caret.input.addEventListener('keydown', function( e ) {
     e.preventDefault()
   }
 }, false);
-
-
-
-function handleLists() {
-  const node = getCaretNode().node;
-  let parent;
-  if ( node ) parent = node.parentNode;
-  
-  // is caret at '>|'? Then open layer select list
-  if ( parent && parent.classList.contains( 'c-command' ) && !parent.childElementCount && node.nodeValue[0] === '>') {
-    // console.log('layer select: open');
-  } else {
-    // console.log('layer select: close');
-  }
-}
