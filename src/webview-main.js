@@ -1,16 +1,5 @@
 import pluginCall from 'sketch-module-web-view/client'
 
-// DEVMODE sets a few variables that are normally received from Sketch
-// Useful to debug the webview outside Sketch (using Gulp). 
-// Do disable in production!
-if (BROWSERDEBUG) {
-  // prevUserInput = " ";
-  let prevUserInput = "lr100, lr-100, tv=bla, x*200";
-  let contextTabs = 0;
-  let selectedLayerNameArray = 'testlayer 1,testlayer 2';
-  let artboardLayerNameArray = 'testlayer 1,testlayer 2';
-};
-
 function returnToSketch(name, args) {
   if (DEBUG) console.log('triggered returnToSketch():' + name + '       Arguments: ' + args);
   if (BROWSERDEBUG) return;
