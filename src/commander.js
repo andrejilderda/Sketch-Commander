@@ -92,7 +92,9 @@ export default function(context) {
 
 // create array with selected layers
 const getPageLayers = function() {
-  return JSON.stringify(document.selectedPage.layers);
+  // replace single quotes with 
+  var layers = JSON.stringify(document.selectedPage.layers).replace(/'/g, '');
+  return layers;
 };
 
 
