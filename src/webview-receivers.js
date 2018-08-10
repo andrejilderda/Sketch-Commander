@@ -18,6 +18,7 @@
     if (input) {
       window.pageLayers = JSON.parse(input);
     }
+    createLayerList();
   }
 
   // receive active context from Sketch

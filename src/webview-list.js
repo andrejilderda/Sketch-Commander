@@ -144,19 +144,21 @@ listCommands.render();
 //  LIST: layers                                                //
 //////////////////////////////////////////////////////////////////
 
-const listLayers = new List();
-listLayers.data = pageLayers;
-listLayers.element = document.querySelector('[data-list="layers"]');
-listLayers.template = function( data ) {
-  return `
-    <ul class="c-list">
-      ${data.map(item => `
-        <li class="c-list__item" data-item>
-          <span class="c-list__notation">${item.type}</span>
-          ${item.name}
-        </li>
-      `).join('')}
-    </ul>
-  `
-};
-listLayers.render();
+function createLayerList() {  
+  const listLayers = new List();
+  listLayers.data = window.pageLayers;
+  listLayers.element = document.querySelector('[data-list="layers"]');
+  listLayers.template = function( data ) {
+    return `
+      <ul class="c-list">
+        ${data.map(item => `
+          <li class="c-list__item" data-item>
+            <span class="c-list__notation">${item.type}</span>
+            ${item.name}
+          </li>
+        `).join('')}
+      </ul>
+    `
+  };
+  listLayers.render();
+}
