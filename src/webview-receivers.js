@@ -14,11 +14,14 @@
   // receive selected layer names
   window.setPageLayers = function(input) {
     if (DEBUG) console.log('Received setPageLayers:');
-    if (DEBUG) console.log(JSON.parse(input));
     if (input) {
       window.pageLayers = JSON.parse(input);
+      window.pageLayers.forEach( layer => {
+        layer.name = layer.name.replace(/charDoubleQuote/g, "\"").replace(/charSingleQuote/g, "'").replace(/charSingleQuote/g, "'").replace(/charAccoladeOpen/g, "{").replace(/charAccoladeClose/g, "}")
+      });
     }
     createLayerList();
+    if (DEBUG) console.log(window.pageLayers);
   }
 
   // receive active context from Sketch

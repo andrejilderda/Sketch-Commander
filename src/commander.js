@@ -82,7 +82,10 @@ export default function(context) {
     webUI.show();
 
     // 💫 emitter: call a function in the webview
-    webUI.webContents.executeJavaScript("setPageLayers('" + getPageLayers() + "')");
+    setTimeout(function() {
+      webUI.webContents.executeJavaScript("setPageLayers('" + JSON.stringify( getPageLayers() ) + "')");
+    },100)
+    // webUI.webContents.executeJavaScript("setPageLayers('[{"name":"Rectangle1","type":"Shape"},{"name":"Group","type":"Group"}]')");
     // webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
     // webUI.webContents.executeJavaScript('contextTabsInit("' + contextTabs + '")');
   })
@@ -92,11 +95,48 @@ export default function(context) {
 
 // create array with selected layers
 const getPageLayers = function() {
-  // replace single quotes with 
-  var layers = JSON.stringify(document.selectedPage.layers).replace(/'/g, '');
-  return layers;
+  const pageLayersData = document.selectedPage.layers;
+  
+  // const selectedLayers = document.selectedLayers.layers; // just the selected layers
+  // selectedLayers.forEach( item => {
+  //   console.log(item.parentArtboard()); // no idea why this doesn't work
+  // } )
+  
+  const pageLayers = deepLayerMap( pageLayersData, true );
+  return pageLayers;
 };
 
+// function for getting all layers on current page in flat array
+function deepLayerMap(obj, includeGroups) {
+  var layerMap = [];
+  
+  obj.forEach( layer => {
+    var val;
+    
+    if ( layer.type === 'Group' || layer.type === 'Artboard' && layer.layers ) {
+      if ( includeGroups ) {
+        // push group name and type
+        layerMap.push({
+          // woah, replace all characters that could break the webview (like: "'{}).
+          name: layer.name.replace(/"/g, 'charDoubleQuote').replace(/'/g, 'charSingleQuote').replace(/{/g, 'charAccoladeOpen').replace(/}/g, 'charAccoladeClose'),
+          type: layer.type
+        });
+      }
+      // get the group's children layers
+      val = deepLayerMap( layer.layers );
+    }
+    else {
+      val = { 
+        name: layer.name.replace(/"/g, 'charDoubleQuote').replace(/'/g, 'charSingleQuote').replace(/{/g, 'charAccoladeOpen').replace(/}/g, 'charAccoladeClose'),
+        type: layer.type
+      }
+    }
+    layerMap.push( val );
+  })
+  // flatten multi-level array
+  // https://stackoverflow.com/questions/29158723/javascript-flattening-an-array-of-arrays-of-objects/29158772#29158772
+  return [].concat.apply([], layerMap);
+}
 
 function loopThroughCommands(commandObj) {
   commandObj = JSON.parse(commandObj);
