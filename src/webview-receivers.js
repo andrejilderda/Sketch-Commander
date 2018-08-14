@@ -14,6 +14,7 @@
   // receive selected layer names
   window.setPageLayers = function(input) {
     if (DEBUG) console.log('Received setPageLayers:');
+    if (BROWSERDEBUG) input = JSON.stringify(pageLayersMockData);
     if (input) {
       window.pageLayers = JSON.parse(input);
       window.pageLayers.forEach( layer => {

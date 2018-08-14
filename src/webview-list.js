@@ -115,7 +115,10 @@ function handleListsState() {
     if (DEBUG) console.log('Command started with >, request page layers from Sketch');
     
     listCommands.active = true;
-    returnToSketch('requestPageLayers');
+    
+    // request pagelayers from Sketch, unless browser debug mode is active
+    if ( !BROWSERDEBUG ) returnToSketch('requestPageLayers');
+    else setPageLayers();
   } else {
     listCommands.active = false;
   }
