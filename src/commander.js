@@ -53,6 +53,10 @@ export default function(context) {
   webUI.webContents.on('saveContext', (s) => {
     Settings.setSettingForKey('contextTabs', s);
   });
+  webUI.webContents.on('requestPageLayers', () => {
+    console.log('Page layers requested by webUI');
+    webUI.webContents.executeJavaScript("setPageLayers('" + JSON.stringify( getPageLayers() ) + "')");
+  });
   webUI.webContents.on('nativeLog', (s) => {
     // will log it to Sketch in a toast message
     // sketch.UI.message(s)
@@ -82,10 +86,6 @@ export default function(context) {
     webUI.show();
 
     // 💫 emitter: call a function in the webview
-    setTimeout(function() {
-      webUI.webContents.executeJavaScript("setPageLayers('" + JSON.stringify( getPageLayers() ) + "')");
-    },100)
-    // webUI.webContents.executeJavaScript("setPageLayers('[{"name":"Rectangle1","type":"Shape"},{"name":"Group","type":"Group"}]')");
     // webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
     // webUI.webContents.executeJavaScript('contextTabsInit("' + contextTabs + '")');
   })

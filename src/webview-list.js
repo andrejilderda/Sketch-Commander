@@ -112,7 +112,10 @@ function handleListsState() {
   
   // is caret at '>|'? Then open layer select list
   if ( parent && parent.classList.contains( 'c-command' ) && !parent.childElementCount && node.nodeValue[0] === '>') {
+    if (DEBUG) console.log('Command started with >, request page layers from Sketch');
+    
     listCommands.active = true;
+    returnToSketch('requestPageLayers');
   } else {
     listCommands.active = false;
   }
