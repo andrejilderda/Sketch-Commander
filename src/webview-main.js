@@ -10,9 +10,6 @@ var btn = document.querySelector('#btn');
 var inputField = document.querySelector('.c-commander');
 var replace = document.querySelector('#replace');
 
-var contextTabs = document.querySelectorAll(".c-context-tab__item");
-var contextList = document.querySelectorAll(".c-context-list");
-var currentContext = 0;
 var commandsUl = document.querySelector(".c-commands-list");
 var optionsUl = document.querySelector(".c-options-list");
 
@@ -71,18 +68,7 @@ function onKeydown(e) {
   }
   if (e.keyCode == 9) { // tab
     e.preventDefault();
-    if (!cyclingThroughOptions) {
-      tabKeyPressed = true;
-      if (!e.shiftKey) {
-        switchContextAction('next');
-      }
-    } else {
-      selectOption();
-    }
-  }
-  if (e.shiftKey && tabKeyPressed) {
-    e.preventDefault();
-    switchContextAction('prev');
+    selectOption();
   }
 };
 
@@ -155,31 +141,6 @@ function handleUndo() {
     parseInput();
     setCaretPosToEnd();
   };
-}
-
-// for switching task contexts
-function switchContextAction(value) {
-  if (value == 'next')
-    currentContext = currentContext + 1;
-  else if (value == 'prev')
-    currentContext = currentContext - 1;
-  else
-    currentContext = value;
-
-  var length = contextTabs.length;
-  var index = mod(currentContext, length);
-
-  contextTabs.forEach(function(el) {
-    el.classList.remove('is-active');
-  })
-  contextList.forEach(function(el) {
-    el.classList.remove('is-active');
-  })
-  // triggers visibility of both active tab as the list below
-  contextTabs[index].classList.toggle('is-active');
-  contextList[index].classList.toggle('is-active');
-
-  returnToSketch('saveContext', index);
 }
 
 // lists the selected layers

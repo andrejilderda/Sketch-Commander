@@ -10,8 +10,7 @@ var context,
   doc,
   selection,
   userInput,
-  prevUserInput = "",
-  contextTabs = "";
+  prevUserInput = "";
 
 export default function(context) {
   context = context;
@@ -22,10 +21,8 @@ export default function(context) {
   // does a userInputSetting already exist?
   try {
     prevUserInput = Settings.settingForKey("userInputSetting");
-    contextTabs = Settings.settingForKey("contextTabs");
   } catch (e) { // else reset history
     Settings.setSettingForKey("userInputSetting", "");
-    Settings.setSettingForKey("contextTabs", "");
   }
 
   // create BrowserWindow
@@ -49,9 +46,6 @@ export default function(context) {
     // if (DEBUG) console.log('USER INPUT:');
     // if (DEBUG) console.log(s);
     Settings.setSettingForKey('userInputSetting', s);
-  });
-  webUI.webContents.on('saveContext', (s) => {
-    Settings.setSettingForKey('contextTabs', s);
   });
   webUI.webContents.on('requestPageLayers', () => {
     console.log('Page layers requested by webUI');
@@ -87,7 +81,6 @@ export default function(context) {
 
     // 💫 emitter: call a function in the webview
     // webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
-    // webUI.webContents.executeJavaScript('contextTabsInit("' + contextTabs + '")');
   })
 
   return webUI;

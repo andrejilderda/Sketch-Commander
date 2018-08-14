@@ -13,18 +13,6 @@
 <body>
   <div class="c-flex">
     <div class="c-flex__fixed">
-      <ul class="c-context-tab">
-        <li class="c-context-tab__item">
-          <a class="c-context-tab__link" data-context="0">Commands</a>
-        </li>
-        <li class="c-context-tab__item">
-          <a class="c-context-tab__link" data-context="1">Select</a>
-        </li>
-        <li class="c-context-tab__item">
-          <a class="c-context-tab__link" data-context="2">Rename</a>
-        </li>
-      </ul>
-      
       <!-- 
         BEWARE! Don't try to format the code below nicely, because the added spaces
         will be added to the calculation that determines the caret position.
@@ -32,24 +20,6 @@
       <div contenteditable="true" class="c-commander" id="c-commander" placeholder="Enter a command..."></div>
     </div>
     <div class="c-flex__scroll">
-      <div class="c-context-list">
-        <ul class="c-commands-list">
-
-        </ul>
-        <ul class="c-options-list">
-
-        </ul>
-      </div>
-      <div class="c-context-list">
-        <ul class="c-options-list  c-selection-list">
-
-        </ul>
-      </div>
-      <div class="c-context-list">
-        <ul class="c-options-list">
-
-        </ul>
-      </div>
       <div data-list='layers'>
         This is where the layers should be rendered.
       </div>
