@@ -27,15 +27,12 @@ function setInputValue(value) {
 inputField.focus();
 
 // Key event listeners
-let tabKeyPressed = false;
-
 function getInputValue() {
   return document.querySelector(".c-commander").innerText.replace(/\n/g,'');
 }
 
 inputField.addEventListener('input', onInput);
 inputField.addEventListener('keydown', onKeydown, false);
-inputField.addEventListener('keyup', onKeyup);
 
 function onInput(e) {
   inputFieldValue = this.innerText;
@@ -70,11 +67,6 @@ function onKeydown(e) {
     e.preventDefault();
     selectOption();
   }
-};
-
-function onKeyup(e) {
-  // reset status of tab keypress
-  if (e.keyCode == 9) tabKeyPressed = false;
 };
 
 function parseInput() {
