@@ -1,5 +1,11 @@
 // Array containing all instances created with List
 let listInstances = [];
+listInstances.updateState = function() {
+  if ( !listInstances ) return;
+  listInstances.forEach( item => {
+    item.active = false;
+  })
+}
 
 class List {
   constructor() {
@@ -13,6 +19,7 @@ class List {
       this.changeState( state )
       console.log('state changed');
     };
+    console.log(listInstances);
     this._active = state;
   }
   get active() {
@@ -67,37 +74,59 @@ class List {
       console.log('clicked item in list');
     }))
   }
-  
-  // only continue when ↑ & ↓ keys are pressed 
-  onKeydown( e ) {
-    if ( !this.active ) return false;
-    // only continue when ↑ & ↓ keys are pressed
-    if ( e.keyCode !== 40 && e.keyCode !== 38 ) return false;
-    e.preventDefault();
-    
-    let increment = -1; // have nothing selected by default
-    const listItems = this.element.querySelectorAll( '[data-item]' );
-    const length = listItems.length + 1; // so that it's possible to have nothing selected
-    
-    // check if there already is an element selected, so that we can use its index;
-    listItems.forEach( ( el, elIndex ) => {
-      if ( el.classList.contains('is-active') === true ) increment = elIndex;
-    });
-    increment = e.keyCode === 40 ? increment += 1 : increment = increment - 1;
-    
-    const index = mod( increment, length );
-    cyclingThroughOptions = true;
-
-    listItems.forEach( el => el.classList.remove( 'is-active' ) );
-
-    if ( listItems[index] != undefined ) {
-      listItems[index].classList.toggle('is-active');
-      // this useful sucker surprisingly works in safari/webview. Keep it disabled when debugging in FF
-      if ( !BROWSERDEBUG ) listItems[index].scrollIntoViewIfNeeded( false );
-    } 
-    else cyclingThroughOptions = false;
-  }
 }
+
+List.prototype.onKeydown = function( e ) {
+  if ( !this.active ) return false;
+  
+  // only continue when ↑ & ↓ or enther key is pressed
+  if ( e.keyCode === 40 || e.keyCode === 38 ) this.onUpDownKey( e );
+  else if ( e.keyCode === 13 ) this.onEnterKey( e );
+  else return false;
+  
+  e.preventDefault();
+}
+
+List.prototype.onUpDownKey = function( e ) {
+  let increment = -1; // have nothing selected by default
+  const listItems = this.element.querySelectorAll( '[data-item]' );
+  const length = listItems.length + 1; // so that it's possible to have nothing selected
+  
+  // check if there already is an element selected, so that we can use its index;
+  listItems.forEach( ( el, elIndex ) => {
+    if ( el.classList.contains('is-active') === true ) increment = elIndex;
+  });
+  increment = e.keyCode === 40 ? increment += 1 : increment = increment - 1;
+  
+  const index = mod( increment, length );
+  cyclingThroughOptions = true;
+  
+  listItems.forEach( el => el.classList.remove( 'is-active' ) );
+  
+  if ( listItems[index] != undefined ) {
+    listItems[index].classList.toggle('is-active');
+    // this useful sucker surprisingly works in safari/webview. Keep it disabled when debugging in FF
+    if ( !BROWSERDEBUG ) listItems[index].scrollIntoViewIfNeeded( false );
+  } 
+  else cyclingThroughOptions = false;
+}
+
+List.prototype.onEnterKey = function( e ) {
+  this.selectOption();
+}
+
+// function to replace current input value with the notation of selected option
+List.prototype.selectOption = function() {
+  var optionsUl = this.element.querySelector("ul");
+  var optionsUlNodes = optionsUl.querySelectorAll( 'li' );
+  for (var i = 0; i < optionsUlNodes.length; i++) {
+    if ( optionsUlNodes[i].classList.contains("is-active") ) {
+      console.log(optionsUlNodes[i]);
+      var el = optionsUlNodes[i];
+      setInputValue( el.dataset.notation );
+    }
+  }
+};
 
 document.addEventListener('keydown', navigateList);
 function navigateList(e) {
@@ -131,6 +160,7 @@ function handleListsState() {
 const listCommands = new List();
 listCommands.data = commandList;
 listCommands.element = document.querySelector('[data-list="commands"]');
+listCommands.active = true;
 listCommands.template = function( data ) {
   return `
     <ul class="c-list">

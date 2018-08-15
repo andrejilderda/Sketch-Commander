@@ -10,7 +10,7 @@ export {
 // Do disable in production!
 const DEBUG = true;
 const DEVMODE = false;
-const BROWSERDEBUG = false; // sets a few variables that are normally received from Sketch
+const BROWSERDEBUG = true; // sets a few variables that are normally received from Sketch
 
 /* 
   Regex (this is madness ;))

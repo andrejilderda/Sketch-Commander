@@ -11,7 +11,6 @@ var inputField = document.querySelector('.c-commander');
 var replace = document.querySelector('#replace');
 
 var commandsUl = document.querySelector(".c-commands-list");
-var optionsUl = document.querySelector(".c-options-list");
 
 var inputFieldValue = document.querySelector('.c-commander').innerText;
 var cyclingThroughOptions = false;
@@ -22,7 +21,7 @@ let inputArray = [];
 
 
 function setInputValue(value) {
-  inputField.value = value;
+  document.querySelector('.c-commander').innerText = value;
 }
 inputField.focus();
 
@@ -56,16 +55,10 @@ function onKeydown(e) {
     returnToSketch('closeModal');
   }
   if (e.keyCode === 13) {
-    if (cyclingThroughOptions) {
-      selectOption();
-    } else {
+    if ( !cyclingThroughOptions ) {
       returnToSketch('returnUserInput', getInputValue());
       returnToSketch('closeExecute', JSON.stringify(commands.get()));
     }
-  }
-  if (e.keyCode == 9) { // tab
-    e.preventDefault();
-    selectOption();
   }
 };
 
@@ -110,19 +103,6 @@ function renderInput() {
   caret.position = caretPos;
 }
 
-
-
-
-// function to replace current input value with the notation of selected option
-function selectOption() {
-  var optionsUlNodes = optionsUl.childNodes;
-  for (var i = 0; i < optionsUlNodes.length; i++) {
-    if ((" " + optionsUlNodes[i].className + " ").replace(/[\n\t]/g, " ").indexOf(" is-active ") > -1) {
-      var el = optionsUlNodes[i];
-      setInputValue(el.dataset.notation + el.dataset.defaultOperator);
-    }
-  }
-};
 
 // triggered whenever the user presses cmd + z
 // (this is what you get when you don't rely on native inputs, but like it to behave like one...)
