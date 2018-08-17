@@ -80,7 +80,7 @@ export default function(context) {
     webUI.show();
 
     // 💫 emitter: call a function in the webview
-    // webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
+    webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
   })
 
   return webUI;

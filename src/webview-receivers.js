@@ -6,7 +6,16 @@
     if (input) {
       if (DEBUG) console.log('Received prevUserInput:');
       if (DEBUG) console.log(input);
-      document.querySelector('.c-commander').value = input;
+      setInputValue( input );
+      requestAnimationFrame(function() {
+        let range = document.createRange();
+        let el = inputField;
+        range.selectNodeContents(el);
+        let sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+        selectElementContents(el);
+      });
       document.querySelector('.c-commander').select();
     }
   }
