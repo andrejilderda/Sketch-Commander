@@ -56,7 +56,7 @@ function getCaretNode( el, position ){
 
 function handleCaretPos( caretPos ) {
   try {
-    if ( caret.position > 0 ) setCaretPos();
+    if ( caret.position >= 0 ) setCaretPos();
   } catch (e) {
     if ( e instanceof DOMException ) {
       // user input is stripped from spaces on the beginning of the command (using stripSpace()).
@@ -65,7 +65,7 @@ function handleCaretPos( caretPos ) {
       // DOM el couldn't be found. So in that case we'll shift the caretPos to - 1
       console.log('DOMException: caret.position will shift to -1.');
       if (caret.position > 0 ) caret.position += -1;
-      else caret.position = 0
+      else caret.position = 0;
     }
     if ( e instanceof TypeError ) {
       // catch other errors. Most likely a space was entered in the input field and nothing else.
@@ -100,15 +100,19 @@ function setCaretPosToEnd() {
   caret.position = getTotalNodeLength();
 }
 
-// Set caretPositioning when user presses ← or →
 caret.input.addEventListener('keydown', function( e ) {
-  let newCaretPos;
-  // if ( e.keyCode === 16 ) {
-  //   caret.position = 2;
-  // }
   if ( e.keyCode === 37 || e.keyCode === 39 ) {
-    if ( e.keyCode ==  37 && caret.position >= 0 ) caret.position += -1;
-    else caret.position += 1;
-    e.preventDefault()
+    // do nothing when shift or alt key is pressed, user probably wants to 
+    // select something or move to beginning of command
+    if ( e.shiftKey || e.altKey ) return;
+    // cmd + → moves to end
+    else if ( e.metaKey && e.keyCode === 39 ) setCaretPosToEnd();
+    // cmd + → moves to beginning
+    else if ( e.metaKey && e.keyCode === 37 ) caret.position = -1;
+    
+    // Set caretPositioning when user presses ← or →
+    else if ( e.keyCode ===  37 && caret.position >= 0 ) caret.position += -1;
+    else caret.position += 1
+    e.preventDefault();
   }
 }, false);

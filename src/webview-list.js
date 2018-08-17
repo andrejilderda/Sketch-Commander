@@ -21,7 +21,7 @@ class List {
       this.changeState( state )
       console.log('state changed');
     };
-    console.log(listInstances);
+    // console.log(listInstances);
     this._active = state;
   }
   
