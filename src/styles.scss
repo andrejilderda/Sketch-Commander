@@ -46,10 +46,14 @@ body {
     width: 100%;
     
     // previous input is selected by default, so that it is easily overwritten
+    // with these rules we hide the selection background color so that you 
+    // can't visually see it's selected.
+    // This class is removed when user is typing.
     &.has-previous-user-input::selection,
     &.has-previous-user-input *::selection {
       background: rgba(0,0,0,0);
     }
+    
 }
 
 .c-flex {
@@ -123,20 +127,17 @@ body {
 }
 
 .c-command {
-  display: inline;
-  white-space: pre;
+  display: inline-block;
   margin-top: -4px;
   &--is-valid {
     background: #455d7a;
     border-radius: 5px;
-    display: inline;
-    white-space: pre;
+    display: inline-block;
     margin-top: -4px;
     padding: 4px;
   }
   &__type {
-    display: inline;
-    white-space: pre;
+    display: inline-block;
     
     &:after {
       content: attr(data-default-operator);
