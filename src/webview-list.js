@@ -13,7 +13,9 @@ class List {
     this.filteredData;
     this._active = false;
     listInstances.push(this);
+    document.addEventListener( 'keydown', ( e ) => this.onKeydown( e ) );
   }
+  
   set active( state ) {
     if ( this._active !== state ) {
       this.changeState( state )
@@ -22,6 +24,7 @@ class List {
     console.log(listInstances);
     this._active = state;
   }
+  
   get active() {
     return this._active;
   }
@@ -68,23 +71,23 @@ class List {
     // render markup into element
     this.element.innerHTML = `${this.template( data )}`;
     
-    // setup event listeners
-    const items = Array.from( this.element.querySelectorAll('[data-item]') );
-    items.forEach( item => item.addEventListener('click', function(e) {
-      console.log('clicked item in list');
-    }))
+    // create click event listeners for all the list items
+    const listItems = this.element.querySelectorAll('li');
+    listItems.forEach( 
+      item => item.addEventListener('click', ( e ) => {
+        this.onListItemClick( e );
+      })
+    );
   }
 }
 
+// call relevant functions when ↑ & ↓ or enter key is pressed. Else return.
 List.prototype.onKeydown = function( e ) {
   if ( !this.active ) return false;
   
-  // only continue when ↑ & ↓ or enther key is pressed
   if ( e.keyCode === 40 || e.keyCode === 38 ) this.onUpDownKey( e );
   else if ( e.keyCode === 13 ) this.onEnterKey( e );
   else return false;
-  
-  e.preventDefault();
 }
 
 List.prototype.onUpDownKey = function( e ) {
@@ -111,27 +114,24 @@ List.prototype.onUpDownKey = function( e ) {
   else cyclingThroughOptions = false;
 }
 
-List.prototype.onEnterKey = function( e ) {
-  this.selectOption();
-}
-
 // function to replace current input value with the notation of selected option
-List.prototype.selectOption = function() {
-  var optionsUl = this.element.querySelector("ul");
-  var optionsUlNodes = optionsUl.querySelectorAll( 'li' );
-  for (var i = 0; i < optionsUlNodes.length; i++) {
-    if ( optionsUlNodes[i].classList.contains("is-active") ) {
-      console.log(optionsUlNodes[i]);
-      var el = optionsUlNodes[i];
-      setInputValue( el.dataset.notation );
+List.prototype.onEnterKey = function( e ) {
+  var ul = this.element.querySelector("ul");
+  var ulNodes = ul.children;
+  for (var i = 0; i < ulNodes.length; i++) {
+    if ( ulNodes[i].classList.contains("is-active") ) {
+      setInputValue( ulNodes[i].dataset.notation, true );
     }
   }
-};
-
-document.addEventListener('keydown', navigateList);
-function navigateList(e) {
-  listCommands.onKeydown( e );
 }
+
+// called when a list item is clicked
+List.prototype.onListItemClick = function( e ) {
+  let notation = e.target.dataset.notation;
+  setInputValue( notation, true );
+}
+
+
 
 
 function handleListsState() {
@@ -165,7 +165,7 @@ listCommands.template = function( data ) {
   return `
     <ul class="c-list">
       ${data.map(item => `
-        <li class="c-list__item" data-item>
+        <li class="c-list__item" data-item data-notation="${item.notation}">
           <span class="c-list__notation">${item.notation}</span>
           ${item.name}
         </li>
