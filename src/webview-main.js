@@ -1,8 +1,12 @@
 import pluginCall from 'sketch-module-web-view/client'
 
-function returnToSketch(name, args) {
-  if (DEBUG) console.log('triggered returnToSketch():' + name + '       Arguments: ' + args);
-  if (BROWSERDEBUG) return;
+function returnToSketch( name, args ) {
+  if ( DEBUG ) console.log( 'triggered returnToSketch():' + name + '       Arguments: ' + args );
+  if ( DEBUG ) pluginCall( 'nativeLog', 'CALLED: ' + name );
+  if ( DEBUG && args ) pluginCall( 'nativeLog', 'ARGUMENTS: '+ args );
+  if ( BROWSERDEBUG ) return;
+  
+  // call function in Sketch
   pluginCall(name, args);
 }
 

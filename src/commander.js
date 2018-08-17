@@ -60,9 +60,9 @@ export default function(context) {
   });
 
   webUI.webContents.on('closeExecute', (s) => {
-    webUI.close();
     loopThroughCommands(s);
     doc.reloadInspector();
+    webUI.close();
   });
   
   webUI.webContents.on('closeModal', () => {
