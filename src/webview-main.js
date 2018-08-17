@@ -20,8 +20,11 @@ let prevInputLength = inputField.textContent.length;
 let inputArray = [];
 
 
-function setInputValue(value) {
-  document.querySelector('.c-commander').innerText = value;
+function setInputValue( value, append) {
+  if ( append ) inputField.innerHTML = inputField.innerHTML + value;
+  else inputField.innerHTML = value;
+  setCaretPosToEnd();
+  parseInput();
 }
 inputField.focus();
 
