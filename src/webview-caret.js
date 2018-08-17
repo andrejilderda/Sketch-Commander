@@ -108,7 +108,7 @@ caret.input.addEventListener('keydown', function( e ) {
     // cmd + → moves to end
     else if ( e.metaKey && e.keyCode === 39 ) setCaretPosToEnd();
     // cmd + → moves to beginning
-    else if ( e.metaKey && e.keyCode === 37 ) caret.position = -1;
+    else if ( e.metaKey && e.keyCode === 37 ) caret.position = 0;
     
     // Set caretPositioning when user presses ← or →
     else if ( e.keyCode ===  37 && caret.position >= 0 ) caret.position += -1;
