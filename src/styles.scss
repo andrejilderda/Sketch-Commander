@@ -3,6 +3,9 @@ $backgroundColor: #222831;
 $activeColor: #ff5200;
 $activeColor: #FCD86B;
 $activeBgColor: lighten($backgroundColor, 2%);
+$caretColor: #87e0ff;
+$caretColor: $activeColor;
+
 * {
     box-sizing: border-box;
     -webkit-font-smoothing: antialiased;
@@ -16,29 +19,36 @@ html {
     width: 100%;
     height: 100%;
 }
+
 body {
     font-family: -apple-system,"Helvetica Neue",sans-serif;
 }
+
 @mixin bare-list {
     margin: 0;
     padding: 0;
     list-style: none;
 }
-.c-commander, .commander:focus {
-    outline: 0;
+
+.c-commander {
     background: #1A1A1A;
     background: darken($backgroundColor, 5%);
     border: none;
-    height: 60px;
-    margin: 0;
+    caret-color: $caretColor;
     color: #fff;
-    padding: 14px 12px 0;
     font-size: 24px;
     font-weight: 200;
+    height: 60px;
+    margin: 0;
+    outline: 0;
+    padding: 18px 12px 0;
     white-space: pre;
     width: 100%;
-    &::placeholder {
-        color: lighten($backgroundColor, 30%)
+    
+    // previous input is selected by default, so that it is easily overwritten
+    &.has-previous-user-input::selection,
+    &.has-previous-user-input *::selection {
+      background: rgba(0,0,0,0);
     }
 }
 
@@ -113,22 +123,32 @@ body {
 }
 
 .c-command {
+  display: inline;
+  white-space: pre;
+  margin-top: -4px;
   &--is-valid {
     background: #455d7a;
     border-radius: 5px;
+    display: inline;
+    white-space: pre;
+    margin-top: -4px;
     padding: 4px;
   }
   &__type {
+    display: inline;
+    white-space: pre;
+    
     &:after {
       content: attr(data-default-operator);
-      color: rgba($backgroundColor, 0.75)
+      color: rgba($backgroundColor, 0.75);
     }
   }
 }
 
 
 [contenteditable=true]:empty:before {
+  color: lighten($backgroundColor, 15%);
   content: attr(placeholder);
   display: block; /* For Firefox */
-  color: lighten($backgroundColor, 30%);
+
 }
