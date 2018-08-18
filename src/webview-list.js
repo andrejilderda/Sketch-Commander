@@ -19,7 +19,7 @@ class List {
   set active( state ) {
     if ( this._active !== state ) {
       this.changeState( state )
-      console.log('state changed');
+      if (DEBUG) console.log('state changed');
     };
     // console.log(listInstances);
     this._active = state;
