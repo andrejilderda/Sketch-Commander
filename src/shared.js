@@ -20,11 +20,11 @@ const BROWSERDEBUG = false; // sets a few variables that are normally received f
   
   Testing: https://regex101.com/r/TXQbhz/7
 */
-const commandRegex = /^(bdc|bdr|bdw|bd|fs|lh|ttu|ttl|o|n|v)|(^[lrtbwhaxy]+(?!([lrtbwhaxy]))\2)/g,
-  individualCommandsRegex = /^(bdc|bdr|bdw|bd|fs|lh|ttu|ttl|o|n|v)/g,
+const commandRegex = /^(bdc|bdr|bdw|bd|fs|lh|ttu|ttl|c|f|o|n|v)|(^[lrtbwhaxy]+(?!([lrtbwhaxy]))\2)/g,
+  individualCommandsRegex = /^(bdc|bdr|bdw|bd|fs|lh|ttu|ttl|c|f|o|n|v)/g,
   groupedCommandsRegex = /^[lrtbwhaxy]+(?!([lrtbwhaxy]))/g,
-  operatorRegex = /^([\/+\-*%\=])/,
-  colorRegex = /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})/g;
+  operatorRegex = /^([\/+\-*%#\=])/,
+  colorRegex = /^\s*(?:[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\s*$/;
 
 export const commandList = [{
     notation: "bd",
@@ -55,6 +55,13 @@ export const commandList = [{
     expectedDataType: "integer"
   },
   {
+    notation: "c",
+    name: "Color",
+    tags: "",
+    defaultOperator: "#",
+    expectedDataType: "color"
+  },
+  {
     notation: "f",
     name: "Fill color",
     tags: "",
@@ -78,16 +85,12 @@ export const commandList = [{
   {
     notation: "ttu",
     name: "Text-transform: uppercase",
-    tags: "",
-    defaultOperator: "=",
-    expectedDataType: "integer"
+    tags: ""
   },
   {
     notation: "ttl",
     name: "Text-transform: lowercase",
-    tags: "",
-    defaultOperator: "=",
-    expectedDataType: "integer"
+    tags: ""
   },
   {
     notation: "o",
@@ -201,9 +204,11 @@ const commands = function() {
     return str.replace(/^\s+/g, ''); // remove just the space at the beginning of a line
   }
 
-  function getDefaultOperator(commandType) {
-    let operator = searchPropInArray(commandType, "notation", commandList).defaultOperator;
-    return operator;
+  // returns the matching command from commandList by commandType
+  // f.e. 'commandType( bd )' returns the border object from commandList
+  function getCommandByType(commandType) {
+    if ( !commandType ) return;
+    return searchPropInArray(commandType, "notation", commandList);
   }
 
   function splitCommands(input) {
@@ -279,13 +284,45 @@ const commands = function() {
   function buildObj(obj, callback) {
     let operator = obj.operator;
     callback(obj);
-    let command = obj.type;
-    if( trueTypeOf(obj.type) === 'array' ) command = obj.type[0];
+    let commandType = obj.type;
     
-    // if no operator, get the default operator
-    if ( !operator ) obj.operator = getDefaultOperator(command)
-    if ( !operator ) obj.defaultOperator = true;
-    if ( obj.type && obj.operator && obj.value ) obj.isValid = true
+    // are there multiple actions, like 'lrb'? Then just grab the first as the reference
+    if( trueTypeOf(obj.type) === 'array' ) commandType = obj.type[0];
+    
+    // grab the command as specified in commandList as a reference
+    const command = getCommandByType( commandType );
+    const defaultOperator = command.defaultOperator;
+    const expectedDataType = command.expectedDataType;
+    
+    // if no operator, get the default operator (if any)
+    if ( !operator && defaultOperator ) {
+      obj.operator = defaultOperator;
+      obj.defaultOperator = true;
+    }
+    
+    // validate the commands based on what datatype is expected (none, integer, color, string)
+    
+    // none — for single action commands that don't expect any arguments, like 
+    // ttu (text-transform: lowercase). These are always valid.
+    if ( !defaultOperator && !expectedDataType ) {
+      obj.isValid = true;
+    }
+    
+    // integer — check if it contains numbers and strip out other values if necessary
+    // (like '20foo' › '20'). As long as the string starts with a number it will be considered valid
+    if ( expectedDataType === 'integer' && Number.isInteger( parseInt( obj.value ) ) && obj.operator !== '#' ) {
+      obj.value = parseInt( obj.value );
+      obj.isValid = true;
+    }
+    
+    // color — check if given value is a valid color (and has '#' as its operator)
+    if ( expectedDataType === 'color' && colorRegex.test( obj.value ) && obj.operator === '#' ) {
+      obj.isValid = true;
+    }
+    
+    // string — when a string is expected, it's all good...
+    if ( expectedDataType === 'string' ) obj.isValid = true;
+    
     publicAddObj(obj);
   }
 
