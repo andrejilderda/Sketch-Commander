@@ -71,7 +71,7 @@ function handleCaretPos( caretPos ) {
       // catch other errors. Most likely a space was entered in the input field and nothing else.
       // This will trigger a 'TypeError: "Argument 1 of Range.setStart is not an object."'
       console.log('TypeError: setCaretPosition has triggered an error. We\'ll reset the caret to the start of the input field.');
-      caret.position = 0;
+      caret.position = -1;
     }
     else {
       // Just log the message for any errors I oversaw...
