@@ -98,7 +98,7 @@ function renderInput() {
       input = `<span class="c-command__type" data-default-operator='${item.operator}'>${inputSplit[0]}</span>${inputSplit[1] ? inputSplit[1] : ''}`;
     }
     if ( inputLiteral ) {
-      element = `<span class="c-command  ${item.isValid ? 'c-command--is-valid' : '' }">${input}</span>`
+      element = `<span class="c-command  ${item.isValid ? 'c-command--is-valid' : '' }"  ${item.isValid && item.operator === '#' ? `style="background-color: #${item.value}"` : '' }>${input}</span>`
     }
     
     html += element;
