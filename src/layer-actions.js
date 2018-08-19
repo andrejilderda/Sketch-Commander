@@ -107,46 +107,43 @@ export function setWidthHeightObject(layer, command, value, operator) {
 
 // Function below is exactly the same as in Keyboard Resize
 export function resize(layer, t, r, b, l) {
-  let frame = layer.frame();
-
-  //if layer is a textlayer, set width to fixed
-  if (layer.className() == "MSTextLayer") {
-    layer.setTextBehaviour(1);
+  let frame = layer.frame;
+  // if layer is a textlayer, set width to fixed
+  if (layer.type == "Text") {
+    layer.fixedWidth = true;
   }
-
+  
   // Top
   if (t) {
-    if (frame.height() + t < 0) {
-      let oldHeight = frame.height();
-      frame.setHeight(1); // When contracting size prevent object to get a negative height (e.g. -45px).
-      frame.setY(frame.y() + oldHeight - 1); // reposition the object
+    if (frame.height + t < 0) {
+      frame.height = 1; // When contracting size prevent object to get a negative height (e.g. -45px).
+      frame.y += - 1; // reposition the object
     } else {
-      frame.setY(frame.y() - t); // push/pull object to correct position
-      frame.setHeight(frame.height() + t);
+      frame.y += - t; // push/pull object to correct position
+      frame.height += t;
     }
   }
 
   // Right
   if (r) {
-    frame.setWidth(frame.width() + r);
-    if (frame.width() <= 1) frame.setWidth(1);
+    frame.width = frame.width + r;
+    if (frame.width <= 1) frame.width = 1;
   }
 
   // Bottom
   if (b) {
-    frame.setHeight(frame.height() + b);
-    if (frame.height() <= 1) frame.setHeight(1);
+    frame.height = frame.height + b;
+    if (frame.height <= 1) frame.height = 1;
   }
 
   // Left
   if (l) {
-    if (frame.width() + l <= 0) {
-      let oldWidth = frame.width();
-      frame.setWidth(1);
-      frame.setX(frame.x() + oldWidth - 1);
+    if (frame.width + l <= 0) {
+      frame.width = 1;
+      frame.x += - 1;
     } else {
-      frame.setX(frame.x() - l); // push/pull object to correct position
-      frame.setWidth(frame.width() + l);
+      frame.x += - l; // push/pull object to correct position
+      frame.width += l;
     }
   }
 }
