@@ -106,7 +106,6 @@ export function setWidthHeightObject(layer, command, value, operator) {
   }
 }
 
-// Function below is exactly the same as in Keyboard Resize
 export function resize(layer, t, r, b, l) {
   let frame = layer.frame;
   
@@ -287,7 +286,7 @@ export var textActions = {
 
 export var layerActions = {
   rename: function(layer, value, operator) {
-    let layerName = layer.name();
+    let layerName = layer.name;
     layer.nameIsFixed = 1;
 
     if (operator == "+") {
@@ -306,25 +305,61 @@ export var layerActions = {
 //////////////////////////////////////////////////////////////////
 
 export var fillActions = {
-  setColor: function(layer, color) {
-    if (layer.className() == "MSTextLayer") {
-      color = makeColor(color);
-      layer.setTextColor(color);
+  setColor: function(layer, color, operator) {
+    color = color.replace("#", "");
+    
+    if (layer.type === "Text") {
+      color = makeColor('#' + color);
+      layer.sketchObject.setTextColor(color);
     }
     
-    if (layer instanceof MSShapeGroup) {
-      let style = new sketch.Style();
-      let fills = layer.style().fills();
-
-      // create fill if there are none
-      if (fills.count() <= 0) {
-        fills.addStylePartOfType(0);
+    if (layer.type === "Shape") {
+      let layerColors = layer.style.fills;
+      
+      // unfortunately Sketch resets the fill type of gradients to 'Color'.
+      // This function will save the fill type and restore it properly after
+      // the callback has run.
+      function rebuildColors( callback ) {
+        // save the fill type for later
+        let fillTypes = [];
+        layerColors.forEach( fill => {
+          fillTypes.push( fill.fill );
+        });
+        
+        callback();
+        
+        // apply the colors
+        layer.style.fills = layerColors;
+        
+        // here's where we set the fill type back (see previous comment)
+        layer.style.fills.forEach( ( fill, i ) => {
+          fill.fill = fillTypes[i];
+        });
+        return;
       }
-      let fill = fills.firstObject();
-      color = color.replace("#", "");
-
-      //set color to first fill layer style
-      fill.color = style.colorFromString("#" + color);
+      
+      // when operator is "#" or "=" we overwrite all previous colors.
+      // Also create a fill when there are none
+      if ( !layerColors.length || operator === "#" || operator === "=") {
+        layer.style.fills = ["#" + color];
+        return;
+      }
+      else if ( operator === "+" ) {
+        rebuildColors ( function() {
+            layerColors.push(
+              {
+                fill: 'Color',
+                color: '#' + color
+              }
+            );
+          }
+        );
+      }
+      else if ( operator === "-" ) {
+        rebuildColors ( function() {
+          layerColors.splice(-1,1);
+        });
+      }
     }
   },
   // ,

@@ -24,7 +24,7 @@ const commandRegex = /^(bdc|bdr|bdw|bd|fs|lh|ttu|ttl|c|f|o|n|v)|(^[lrtbwhaxy]+(?
   individualCommandsRegex = /^(bdc|bdr|bdw|bd|fs|lh|ttu|ttl|c|f|o|n|v)/g,
   groupedCommandsRegex = /^[lrtbwhaxy]+(?!([lrtbwhaxy]))/g,
   operatorRegex = /^([\/+\-*%#\=])/,
-  colorRegex = /^\s*(?:[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\s*$/;
+  colorRegex = /^\s*#?(?:[A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\s*$/;
 
 export const commandList = [{
     notation: "bd",
@@ -315,8 +315,11 @@ const commands = function() {
       obj.isValid = true;
     }
     
-    // color — check if given value is a valid color (and has '#' as its operator)
-    if ( expectedDataType === 'color' && colorRegex.test( obj.value ) && obj.operator === '#' ) {
+    // color — check if given value is a valid color (and has '#', '+', '-', '=' as its operator)
+    if ( expectedDataType === 'color' && colorRegex.test( obj.value ) && obj.operator.match(/[+=#]/g) ) {
+      obj.isValid = true;
+    }
+    if ( expectedDataType === 'color' && !obj.value && operator === '-' ) {
       obj.isValid = true;
     }
     
