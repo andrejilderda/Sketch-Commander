@@ -368,7 +368,7 @@ export var fillActions = {
   // },
   setOpacity: function(layer, opacity) {
     opacity = opacity / 100;
-    layer.style().contextSettings().setOpacity(opacity);
+    layer.style.opacity = opacity;
   }
 }
 
