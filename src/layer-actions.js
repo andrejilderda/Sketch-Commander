@@ -56,9 +56,9 @@ export function moveObject(layer, command, value, operator) {
 
 // function is triggered when using operators = / * %
 export function setWidthHeightObject(layer, command, value, operator) {
-  let frame = layer.frame();
-  let frameHeight = frame.height();
-  let frameWidth = frame.width();
+  let frame = layer.frame;
+  let frameHeight = frame.height;
+  let frameWidth = frame.width;
   
   let calcAmount = Math.round(value);
   let calcAmountPercentage = calcAmount / 100;
@@ -66,10 +66,10 @@ export function setWidthHeightObject(layer, command, value, operator) {
   // Set width or height =
   if (operator == "=") {
     if (command === "w") {
-      frame.setWidth(value);
+      frame.width = value;
     }
     else if (command === "h") {
-      frame.setHeight(value);
+      frame.height = value;
     }
   }
   // add or subtract width/height
@@ -85,29 +85,30 @@ export function setWidthHeightObject(layer, command, value, operator) {
   // Set percentage %
   else if (operator == "%") {
     if (command == 'h')
-      frame.setHeight(Math.round(calcAmountPercentage * frameHeight));
+      frame.height = Math.round(calcAmountPercentage * frameHeight);
     else
-      frame.setWidth(Math.round(calcAmountPercentage * frameWidth));
+      frame.width = Math.round(calcAmountPercentage * frameWidth);
   }
   // Divide /
   else if (operator == "/") {
     if (command == 'h')
-      frame.setHeight(Math.round(frameHeight / value));
+      frame.height = Math.round(frameHeight / value);
     else
-      frame.setWidth(Math.round(frameWidth / value));
+      frame.width = Math.round(frameWidth / value);
   }
   // Multiply *
   else if (operator == "*") {
     if (command == 'h')
-      frame.setHeight(Math.round(frameHeight * value));
+      frame.height = Math.round(frameHeight * value);
     else
-      frame.setWidth(Math.round(frameWidth * value));
+      frame.width = Math.round(frameWidth * value);
   }
 }
 
 // Function below is exactly the same as in Keyboard Resize
 export function resize(layer, t, r, b, l) {
   let frame = layer.frame;
+  
   // if layer is a textlayer, set width to fixed
   if (layer.type == "Text") {
     layer.fixedWidth = true;
