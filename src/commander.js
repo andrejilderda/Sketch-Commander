@@ -16,7 +16,7 @@ export default function(context) {
   context = context;
   sketch = context.api(); // Load sketch API — http://developer.sketchapp.com/reference/api/
   doc = context.document;
-  selection = context.selection;
+  selection = document.selectedLayers.layers;
 
   // does a userInputSetting already exist?
   try {
@@ -212,15 +212,14 @@ function executeCommand(commandType, operator, value) {
 
 // loop through layer selection
 function loopThroughSelection(callback) {
-  if (callback && typeof callback === 'function') {
-    for (var i = 0; i < selection.count(); i++) {
-      var layer = selection.objectAtIndex(i);
+  if (callback && typeof callback === 'function') {    
+    selection.forEach(layer => {
       // make a copy of the passed in arguments
       var args = Array.prototype.slice.call(arguments);
       // overwrite the passed in function name with the layer
       args[0] = layer;
       // run the callback function with the function name and use the arguments
       callback.apply(callback[0], args);
-    };
+    });
   }
 }
