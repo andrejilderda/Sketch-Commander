@@ -230,6 +230,8 @@ export var borderActions = {
 
 export var textActions = {
   setSize: function(layer, value, operator) {
+    layer = layer.sketchObject;
+    
     value = Number(value);
     if (layer.className() == "MSTextLayer") {
       let fontSize = layer.fontSize();
@@ -238,6 +240,8 @@ export var textActions = {
   },
   
   setLineheight: function(layer, value, operator) {
+    layer = layer.sketchObject;
+    
     value = Number(value);
     if (layer.className() == "MSTextLayer") {
       let prevLineHeight = layer.lineHeight();
@@ -246,6 +250,8 @@ export var textActions = {
   },
   
   setValue: function(layer, value, operator) {
+    layer = layer.sketchObject;
+    
     if (layer.className() == "MSTextLayer") {
       let prevTextValue = layer.stringValue();
 
@@ -261,6 +267,8 @@ export var textActions = {
   },
   
   convertLowerCase: function(layer) {
+    layer = layer.sketchObject;
+    
     if (layer.className() == "MSTextLayer") {
       let textValue = layer.stringValue();
       let newValue = textValue.toLowerCase();
@@ -269,6 +277,8 @@ export var textActions = {
   },
   
   convertUpperCase: function(layer) {
+    layer = layer.sketchObject;
+    
     if (layer.className() == "MSTextLayer") {
       let textValue = layer.stringValue();
       let newValue = textValue.toUpperCase();
