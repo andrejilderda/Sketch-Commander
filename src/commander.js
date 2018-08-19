@@ -199,7 +199,6 @@ function executeCommand(commandType, operator, value) {
         break switchStatement;
       case "bd":
         loopThroughSelection(borderActions.checkOperator, value, operator);
-        console.log('eeehm 2');
         break switchStatement;
       case "f":
         loopThroughSelection(fillActions.setColor, value, operator);
