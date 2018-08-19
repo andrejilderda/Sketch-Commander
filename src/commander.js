@@ -1,29 +1,38 @@
 import BrowserWindow from 'sketch-module-web-view';
 import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from './shared';
-import { resizeObject, moveObject, setWidthHeightObject, resize, borderActions, textActions, layerActions, fillActions, mathOps, makeColor } from './layer-actions'
+import { resizeObject, moveObject, setWidthHeightObject, resize, borderActions, textActions, layerActions, fillActions, mathOps, makeColor } from './layer-actions';
+import * as select from './select-actions';
 
 var sketch = require('sketch');
 var Settings = require('sketch/settings');
 var document = require('sketch/dom').getSelectedDocument();
+var Artboard = require('sketch/dom').Artboard;
+var Page =  require('sketch/dom').Page;
+var Document = require('sketch/dom').Document;
 
 var context,
   doc,
-  selection,
   userInput,
   prevUserInput = "";
+
+export var selection = document.selectedLayers.layers;
 
 export default function(context) {
   context = context;
   sketch = context.api(); // Load sketch API — http://developer.sketchapp.com/reference/api/
   doc = context.document;
   selection = document.selectedLayers.layers;
-
+  
+  
   // does a userInputSetting already exist?
   try {
     prevUserInput = Settings.settingForKey("userInputSetting");
   } catch (e) { // else reset history
     Settings.setSettingForKey("userInputSetting", "");
   }
+  
+  console.log( select.searchLayers( selection, 'zelfde naam', 'page' ) );
+  select.selectOnCurrentPage( selection, 'zelfde naam')
 
   // create BrowserWindow
   const options = {
@@ -214,6 +223,7 @@ function executeCommand(commandType, operator, value) {
 function loopThroughSelection(callback) {
   if (callback && typeof callback === 'function') {    
     selection.forEach(layer => {
+      console.log(layer.sketchObject.parentArtboard());
       // make a copy of the passed in arguments
       var args = Array.prototype.slice.call(arguments);
       // overwrite the passed in function name with the layer

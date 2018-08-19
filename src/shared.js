@@ -8,7 +8,7 @@ export {
 
 // Useful to debug the webview outside Sketch (using Gulp). 
 // Do disable in production!
-const DEBUG = true;
+const DEBUG = false;
 const DEVMODE = false;
 const BROWSERDEBUG = false; // sets a few variables that are normally received from Sketch
 
