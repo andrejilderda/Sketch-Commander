@@ -27,10 +27,10 @@ export function resizeObject(layer, command, value, operator) {
 }
 
 export function moveObject(layer, command, value, operator) {
-  // console.log(command);
+  layer = layer.sketchObject;
+  
   let xAmount = Number(value);
   let yAmount = Number(value);
-  let frame = layer.frame();
   let xCurrent = layer.absoluteRect().rulerX();
   let yCurrent = layer.absoluteRect().rulerY();
 
@@ -44,6 +44,7 @@ export function moveObject(layer, command, value, operator) {
     } else if (command === "y") {
       layer.absoluteRect().setRulerY(yCurrent + yAmount);
     }
+    return;
   }
   if (operator == "=") {
     if (command === "x") {
