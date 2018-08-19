@@ -170,8 +170,7 @@ export var borderActions = {
   },
   
   setColor: function(layer, color) {
-    let style = new sketch.Style(); // requires access to the Sketch js API
-    let borders = layer.style().borders();
+    let borders = layer.sketchObject.style().borders();
 
     // check if there's a border, if not add a new one
     if (borders.count() <= 0) layer.style().addStylePartOfType(1);
@@ -179,12 +178,11 @@ export var borderActions = {
     let border = borders.lastObject();
     color = color.replace("#", "");
 
-    border.color = style.colorFromString("#" + color);
+    border.color = makeColor('#' + color);
   },
   
   add: function(layer, color) {
-    let style = new sketch.Style();
-    let border = layer.style().addStylePartOfType(1);
+    let border = layer.sketchObject.style().addStylePartOfType(1);
 
     // if no color is given (like bd+) set the color to black
     color = (color !== "") ? color : "000000";
@@ -199,15 +197,14 @@ export var borderActions = {
   },
   
   remove: function(layer) {
-    let style = new sketch.Style();
-    let borderCount = layer.style().borders().length - 1;
-    let border = layer.style().removeStyleBorderAtIndex(borderCount);
+    let borderCount = layer.sketchObject.style().borders().length - 1;
+    let border = layer.sketchObject.style().removeStyleBorderAtIndex(borderCount);
   },
   
   radius: function(layer, value, operator) {
-    if (!layer && !layer.isKindOfClass(MSShapeGroup)) return;
+    if (!layer && !layer.sketchObject.isKindOfClass(MSShapeGroup)) return;
     
-    let shape = layer.layers().firstObject();
+    let shape = layer.sketchObject.layers().firstObject();
     if (shape && shape.isKindOfClass(MSRectangleShape)) {
       var radius = shape.cornerRadiusFloat();
       shape.cornerRadiusFloat = mathOps(radius, value, operator);
@@ -217,9 +214,9 @@ export var borderActions = {
   thickness: function(layer, thickness, operator) {
     thickness = Number(thickness);
     // are there any borders?
-    let border = layer.style().borders().lastObject();
+    let border = layer.sketchObject.style().borders().lastObject();
     if (border !== null) {
-      var borderThickness = layer.style().borders().lastObject().thickness();
+      var borderThickness = layer.sketchObject.style().borders().lastObject().thickness();
       border.thickness = mathOps(borderThickness, thickness, operator);
     } else {
       this.add(layer, thickness);

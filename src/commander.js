@@ -1,6 +1,6 @@
 import BrowserWindow from 'sketch-module-web-view';
 import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from './shared';
-import { resizeObject, moveObject, setWidthHeightObject, resize, textActions, layerActions, fillActions, mathOps, makeColor } from './layer-actions'
+import { resizeObject, moveObject, setWidthHeightObject, resize, borderActions, textActions, layerActions, fillActions, mathOps, makeColor } from './layer-actions'
 
 var sketch = require('sketch');
 var Settings = require('sketch/settings');
@@ -199,6 +199,7 @@ function executeCommand(commandType, operator, value) {
         break switchStatement;
       case "bd":
         loopThroughSelection(borderActions.checkOperator, value, operator);
+        console.log('eeehm 2');
         break switchStatement;
       case "f":
         loopThroughSelection(fillActions.setColor, value, operator);
