@@ -30,9 +30,10 @@ export default function(context) {
   } catch (e) { // else reset history
     Settings.setSettingForKey("userInputSetting", "");
   }
-  
-  console.log( select.searchLayers( selection, 'zelfde naam', 'page' ) );
-  select.selectOnCurrentPage( selection, 'zelfde naam')
+  // console.log(selection);
+  console.log( select.searchLayers( 'zelfde naam', 'artboard', selection ) );
+  // select.searchLayers( 'zelfde naam', 'artboard', selection )
+  // select.selectLayers( 'zelfde naam', 'artboard', selection )
 
   // create BrowserWindow
   const options = {

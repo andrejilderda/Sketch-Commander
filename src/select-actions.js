@@ -1,10 +1,18 @@
 import selection from './commander'
+import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from './shared';
 
 //////////////////////////////////////////////////////////////////
 //  SELECT ACTIONS                                              //
 //////////////////////////////////////////////////////////////////
 
 var Page =  require('sketch/dom').Page;
+var Shape = require('sketch/dom').Shape;
+var Group = require('sketch/dom').Group;
+var Text = require('sketch/dom').Text;
+var Artboard = require('sketch/dom').Artboard;
+var SymbolInstance = require('sketch/dom').SymbolInstance;
+
+var document = require('sketch/dom').getSelectedDocument();
 
 // hacky method to use the parentArtboard()-method that is not present in the Javascript API yet
 // After the method is called we turn it into a wrapped object again.
@@ -16,18 +24,20 @@ var Page =  require('sketch/dom').Page;
 const currentPage = context.document.currentPage();
 const currentPageObj = Page.fromNative(currentPage);
 
-export function searchLayers( selection, name, searchField ) {
-  // searchField is either 'document', 'page' or 'artboard'
-  if ( !searchField ) searchField = currentPage
-  if ( searchField === 'page' ) searchField = currentPage;
-  if ( searchField === 'artboard' ) searchField = parentArtboardsFromSelection( selection )
-  console.log(searchField);
-  // TODO: Document
+// selection argument is optional for if you want to only 
+export function searchLayers( name, scope, selection ) {
+  // scope is either 'document', 'page' or 'artboard'
+  let searchScope;
   let result = [];
   
-  if ( Array.isArray( searchField ) ) {
-    console.log('true that');
-    searchField.forEach( artboard => {
+  // by default search in current page
+  if ( !scope ) searchScope = currentPage;
+  
+  if ( scope === 'page' ) searchScope = currentPage;
+  else if ( scope === 'artboard' ) searchScope = parentArtboardsFromSelection( selection )
+
+  if ( scope === 'artboard' ) {
+    searchScope.forEach( artboard => {
       artboard.children().forEach( item => {
         if ( item.name() == name ) {
           result.push( item );
@@ -35,22 +45,23 @@ export function searchLayers( selection, name, searchField ) {
       });
     }); 
   }
-  else {
-    searchField.children().forEach( item => {
+  else if ( scope === 'page' ){
+    searchScope.children().forEach( item => {
       if ( item.name() == name ) {
         result.push( item );
       }
     });
+  } 
+  else if ( scope === 'document' ) result = createNativeLayers( document.getLayersNamed( name ) );
+  else {
+    if (DEBUG) console.log('Invalid scope passed to searchLayers');
   }
   return result;
 }
 
-export function selectOnCurrentPage( selection, name ) {
-  currentPage.changeSelectionBySelectingLayers( searchLayers( selection, name, 'page') )
+export function selectLayers( name, scope, selection ) {
+  // currentPage.changeSelectionBySelectingLayers( searchLayers( name, scope, selection ) )
 }
-
-// filterOnCurrentPage('testie');
-// console.log(temp);
 
 export function parentArtboardsFromSelection( selection ) {
   let parentArtboards = [];
@@ -63,6 +74,32 @@ export function parentArtboardsFromSelection( selection ) {
     }
   })
   return parentArtboards;
+}
+
+function createNativeLayers( selection ) {
+  let nativeLayers = selection.map( item => {
+    console.log(item.type);
+    switch ( item.type ) {
+      case 'Group':
+        return Group.fromNative( item );
+      case 'Shape':
+        return Shape.fromNative( item );
+      case 'Text':
+        return Text.fromNative( item );
+      case 'SymbolInstance':
+        return SymbolInstance.fromNative( item );
+      case 'SymbolInstance':
+        return Artboard.fromNative( item );
+    }
+  });
+  return nativeLayers;
+}
+
+function createSketchObject( selection ) {
+  let sketchObjects = selection.map( item => {
+    return item.sketchObject;
+  });
+  return nativeLayers;
 }
 
 // parentArtboardsFromSelection.forEach( artboard => {
