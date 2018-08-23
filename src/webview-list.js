@@ -1,9 +1,9 @@
 // Array containing all instances created with List
 let listInstances = [];
-listInstances.updateState = function() {
+listInstances.updateState = function( listName ) {
   if ( !listInstances ) return;
   listInstances.forEach( item => {
-    item.active = false;
+    if ( item.name !== listName ) item.active = false;
   })
 }
 
@@ -19,10 +19,11 @@ class List {
   set active( state ) {
     if ( this._active !== state ) {
       this.changeState( state )
-      if (DEBUG) console.log('state changed');
-    };
+      if (DEBUG) console.log('state changed: ' + this.name);
+      listInstances.updateState( this.name );
+      this._active = state;
+    }
     // console.log(listInstances);
-    this._active = state;
   }
   
   get active() {
@@ -135,21 +136,21 @@ List.prototype.onListItemClick = function( e ) {
 
 
 function handleListsState() {
-  const node = getCaretNode().node;
+  const node = getCaretNode().node || '';
   let parent;
   if ( node ) parent = node.parentNode;
   
   // is caret at '>|'? Then open layer select list
-  if ( parent && parent.classList.contains( 'c-command' ) && !parent.childElementCount && node.nodeValue[0] === '>') {
+  if ( parent && parent.classList.contains( 'c-command' ) && !parent.childElementCount && node.nodeValue[0] === '>' ) {
     if (DEBUG) console.log('Command started with >, request page layers from Sketch');
     
-    listCommands.active = true;
+    listLayers.active = true;
     
     // request pagelayers from Sketch, unless browser debug mode is active
     if ( !BROWSERDEBUG ) returnToSketch('requestPageLayers');
     else setPageLayers();
   } else {
-    listCommands.active = false;
+    listLayers.active = false;
   }
 }
 
@@ -158,6 +159,7 @@ function handleListsState() {
 //////////////////////////////////////////////////////////////////
 
 const listCommands = new List();
+listCommands.name = 'commandList';
 listCommands.data = commandList;
 listCommands.element = document.querySelector('[data-list="commands"]');
 listCommands.active = true;
@@ -180,21 +182,19 @@ listCommands.render();
 //  LIST: layers                                                //
 //////////////////////////////////////////////////////////////////
 
-function createLayerList() {  
-  const listLayers = new List();
-  listLayers.data = window.pageLayers;
-  listLayers.element = document.querySelector('[data-list="layers"]');
-  listLayers.template = function( data ) {
-    return `
-      <ul class="c-list">
-        ${data.map(item => `
-          <li class="c-list__item" data-item>
-            <span class="c-list__notation">${item.type}</span>
-            ${item.name}
-          </li>
-        `).join('')}
-      </ul>
-    `
-  };
-  listLayers.render();
-}
+const listLayers = new List();
+listLayers.name = 'layerList';
+listLayers.data = window.pageLayers || [];
+listLayers.element = document.querySelector('[data-list="layers"]');
+listLayers.template = function( data ) {
+  return `
+    <ul class="c-list">
+      ${data.map(item => `
+        <li class="c-list__item" data-item>
+          <span class="c-list__notation">${item.type}</span>
+          ${item.name}
+        </li>
+      `).join('')}
+    </ul>
+  `
+};
