@@ -72,6 +72,7 @@ function onKeydown(e) {
 
 function parseInput() {
   inputFieldValue = getInputValue();
+  if ( !inputFieldValue ) listCommands.active = true;
   commands.clear();
   commands.parse( getInputValue() );
   renderInput();

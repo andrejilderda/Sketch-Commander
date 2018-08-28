@@ -1,7 +1,7 @@
 // If in BROWSERDEBUG a few variables that are normally received from Sketch are set
 
 if (BROWSERDEBUG) {
-  let prevUserInput = "lr100, lr-100, tv=bla, x*200";
+  var prevUserInputMockData = "lr100, lr-100, tv=bla, x*200";
   let artboardLayerNameArray = 'testlayer 1,testlayer 2';
   var pageLayersMockData = [
     {

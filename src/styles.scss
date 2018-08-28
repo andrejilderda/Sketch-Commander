@@ -146,6 +146,13 @@ body {
   }
 }
 
+[data-list] {
+  display: none;
+  
+  &.is-active {
+    display: block;
+  }
+}
 
 [contenteditable=true]:empty:before {
   color: lighten($backgroundColor, 15%);

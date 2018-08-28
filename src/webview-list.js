@@ -37,17 +37,18 @@ class List {
   }
   
   filterList( wordToMatch, filterBy ) {
+    wordToMatch = wordToMatch || '';
     // see if filter value was provided.
     if ( !wordToMatch ) return this.data;
     // property to filter by, (name) by default
     const prop = filterBy || 'name';
-    
+
     // filter and sort results
-    return this.data.filter( item => {
-      const regex = new RegExp( wordToMatch, 'gi' );
-      
+    var filteredData =  this.data.filter( item => {
+      const regex = new RegExp( wordToMatch, 'gi' ); 
+
       // add the ability to pass an array of 2 props to match by
-      if ( trueTypeOf(prop) === 'array' && prop.length === 2 ) {
+      if ( trueTypeOf( prop ) === 'array' && prop.length === 2 ) {
         return item[prop[0]].match(regex) || item[prop[1]].match(regex)
       }
       return item[prop].match(regex);
@@ -56,19 +57,24 @@ class List {
       // if (inputFieldValue === a[prop]) {
       //   return a[prop] - b[prop];
       // }
-      
-      var textA = a.name.toUpperCase();
-      var textB = b.name.toUpperCase();
+      let textA = a[filterBy[0]].toUpperCase() || a.name;
+      let textB = b[filterBy[0]].toUpperCase() || b.name;
+
+      if ( wordToMatch ) wordToMatch = wordToMatch.toUpperCase() || ''
+      if ( wordToMatch === textB ) return 1; // exact match
       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
     })
-    
+    return filteredData;
   }
   
-  render( wordToMatch ) {
+  render( wordToMatch, filterBy ) {
     let data;
-    if ( wordToMatch ) data = listCommands.filterList( wordToMatch, [ 'name', 'notation' ] );
-    else data = this.data;
+    filterBy = filterBy || 'notation';
     
+    if ( wordToMatch ) {
+      data = listCommands.filterList( wordToMatch, filterBy );
+    }
+    else data = this.data;
     // render markup into element
     this.element.innerHTML = `${this.template( data )}`;
     
@@ -138,8 +144,14 @@ List.prototype.onListItemClick = function( e ) {
 function handleListsState() {
   const node = getCaretNode().node || '';
   let parent;
-  if ( node ) parent = node.parentNode;
+  let commandNodeText;
   
+  if ( !parent ) listCommands.active = true;
+  if ( node ) parent = node.parentNode;
+  if ( parent && parent.closest('.c-command') ) {
+    commandNodeText = parent.closest('.c-command').textContent;
+  };
+
   // is caret at '>|'? Then open layer select list
   if ( parent && parent.classList.contains( 'c-command' ) && !parent.childElementCount && node.nodeValue[0] === '>' ) {
     if (DEBUG) console.log('Command started with >, request page layers from Sketch');
@@ -147,11 +159,18 @@ function handleListsState() {
     listLayers.active = true;
     
     // request pagelayers from Sketch, unless browser debug mode is active
-    if ( !BROWSERDEBUG ) returnToSketch('requestPageLayers');
+    if ( !BROWSERDEBUG && !window.pageLayers ) returnToSketch('requestPageLayers');
     else setPageLayers();
-  } else {
-    listLayers.active = false;
   }
+  else listLayers.active = false;
+  
+  // rules for when commandList is shown/hidden
+  // grab the textContent from '.c-command', which we use to filter commands
+  if ( !node || parent.classList.contains( 'c-command__type' ) || parent.classList.contains( 'c-command' ) ) {
+    listCommands.active = true;
+    listCommands.render ( commandNodeText, ['notation', 'name'] );
+  }
+  else listCommands.active = false;
 }
 
 //////////////////////////////////////////////////////////////////

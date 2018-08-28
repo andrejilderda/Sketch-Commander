@@ -14,23 +14,24 @@
         let sel = window.getSelection();
         sel.removeAllRanges();
         sel.addRange(range);
-        selectElementContents(el);
       });
-      document.querySelector('.c-commander').select();
     }
   }
 
   // receive selected layer names
   window.setPageLayers = function(input) {
     if (DEBUG) console.log('Received setPageLayers:');
-    if (BROWSERDEBUG) input = JSON.stringify(pageLayersMockData);
+    if (BROWSERDEBUG) input = JSON.stringify( pageLayersMockData );
     if (input) {
-      window.pageLayers = JSON.parse(input);
+      window.pageLayers = JSON.parse( input );
       window.pageLayers.forEach( layer => {
         layer.name = layer.name.replace(/charDoubleQuote/g, "\"").replace(/charSingleQuote/g, "'").replace(/charSingleQuote/g, "'").replace(/charAccoladeOpen/g, "{").replace(/charAccoladeClose/g, "}")
       });
     }
-    createLayerList();
+    listLayers.data = window.pageLayers;
+    listLayers.render();
     if (DEBUG) console.log(window.pageLayers);
   }
 })()
+
+if (BROWSERDEBUG) window.prevUserInput( prevUserInputMockData );
