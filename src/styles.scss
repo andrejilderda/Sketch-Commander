@@ -49,8 +49,8 @@ body {
     // with these rules we hide the selection background color so that you 
     // can't visually see it's selected.
     // This class is removed when user is typing.
-    &.has-previous-user-input::selection,
-    &.has-previous-user-input *::selection {
+    &.previous-user-input::selection,
+    &.previous-user-input *::selection {
       background: rgba(0,0,0,0);
     }
     

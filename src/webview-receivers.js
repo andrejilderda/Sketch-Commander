@@ -4,8 +4,7 @@
   // receive previous user input from Sketch
   window.prevUserInput = function(input) {
     if (input) {
-      if (DEBUG) console.log('Received prevUserInput:');
-      if (DEBUG) console.log(input);
+      if (DEBUG) console.log('Received prevUserInput: ' + input);
       setInputValue( input );
       requestAnimationFrame(function() {
         let range = document.createRange();
@@ -15,7 +14,7 @@
         sel.removeAllRanges();
         sel.addRange(range);
       });
-      inputField.classList.add('prevUserInput');
+      inputField.classList.add('previous-user-input');
     }
     // don't send any arguments (ignore input field value) when rendering
     // listCommands after setting the prevUserInput

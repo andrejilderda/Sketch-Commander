@@ -48,7 +48,7 @@ inputField.addEventListener('input', onInput);
 inputField.addEventListener('keydown', onKeydown, false);
 
 function onInput(e) {
-  inputField.classList.remove('has-previous-user-input');
+  inputField.classList.remove('previous-user-input');
   inputFieldValue = this.innerText;
   
   undoHistory.unshift(inputFieldValue); // add to history array

@@ -125,7 +125,7 @@ List.prototype.onUpDownKey = function( e ) {
 
 // function to replace current input value with the notation of selected option
 List.prototype.onEnterKey = function( e ) {
-  let firstRun = inputField.classList.contains( 'prevUserInput' );
+  let firstRun = inputField.classList.contains( 'previous-user-input' );
   var ul = this.element.querySelector("ul");
   var ulNodes = ul.children;
   for (var i = 0; i < ulNodes.length; i++) {
@@ -133,15 +133,13 @@ List.prototype.onEnterKey = function( e ) {
       setInputValue( ulNodes[i].dataset.notation, !firstRun );
     }
   }
-  inputField.classList.remove( 'prevUserInput' );
 }
 
 // called when a list item is clicked
 List.prototype.onListItemClick = function( e ) {
   let notation = e.target.dataset.notation;
-  let firstRun = inputField.classList.contains( 'prevUserInput' );
+  let firstRun = inputField.classList.contains( 'previous-user-input' );
   setInputValue( notation, !firstRun );
-  inputField.classList.remove( 'prevUserInput' );
 }
 
 function handleListsState() {
