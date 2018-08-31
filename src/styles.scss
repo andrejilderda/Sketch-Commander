@@ -127,6 +127,7 @@ body {
 }
 
 .c-command {
+  $el: '.c-command';
   display: inline-block;
   margin-top: -4px;
   &--is-valid {
@@ -135,6 +136,9 @@ body {
     display: inline-block;
     margin-top: -4px;
     padding: 4px;
+    &#{$el}--layer-select {
+      color: $activeColor;
+    }
   }
   &__type {
     display: inline-block;

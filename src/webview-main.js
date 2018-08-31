@@ -96,21 +96,35 @@ function renderInput() {
     let inputSplit = item.input.split;
     let type = item.type;
     let element = '';
-    const notLastNotOnly = commandsLength > 0 && commandsLength - 1 !== index;
 
-    // * ⚠️ BEWARE: don't try to format the elements below nicely, since it will be interpreted as text and mess up the caret positioning
+    // * ⚠️ BEWARE: when formatting the elements below nicely, normally the extra whitespace will be interpreted
+    // as text and mess up the caret positioning. 'singleLineString' prevents this by stripping this
+    
     // by default just output the users' literal input
     let input = item.input.literal;
     // format the input differently when the default operator is applied
     if ( type && item.defaultOperator === true ) {
-      input = `<span class="c-command__type" data-default-operator='${item.operator}'>${inputSplit[0]}</span>${inputSplit[1] ? inputSplit[1] : ''}`;
+      input = singleLineString`
+        <span class="c-command__type" data-default-operator='${item.operator}'>
+          ${inputSplit[0]}
+        </span>
+        ${inputSplit[1] ? inputSplit[1] : ''}
+      `
     }
     if ( inputLiteral ) {
-      element = `<span class="c-command  ${item.isValid ? 'c-command--is-valid' : '' }"  ${item.isValid && item.operator === '#' ? `style="background-color: #${item.value}"` : '' }>${input}</span>`
+      element = singleLineString`
+        <span class="c-command  
+          ${item.isValid ? 'c-command--is-valid' : '' } 
+          ${item.layerSelection ? 'c-command--layer-select' : '' }" 
+          ${item.isValid && item.operator === '#' ? `style="background-color: #${item.value}"` : '' }>
+          ${input}
+        </span>
+      `
     }
-    
     html += element;
+    
     // we append the , comma again when it's not the last and only command
+    const notLastNotOnly = commandsLength > 0 && commandsLength - 1 !== index;
     if ( notLastNotOnly ) html += '<span class=c-command__seperator>,</span>';
   })
   

@@ -240,6 +240,10 @@ const commands = function() {
       // check if the command contains a valid commandtype. Else just add the object containing the input
       const noValidCommandType = !commandType || !commandType.match(individualCommandsRegex) && !commandType.match(groupedCommandsRegex);
       
+      if ( input[0] === '>' ) { 
+        obj.layerSelection = true;
+        if ( input[1] ) obj.isValid = true; // when the '>' is followed by a character we're good
+      };
       if ( noValidCommandType ) publicAddObj(obj);
       else {
         // check if there's a value given already. Else leave it '' while the user is typing

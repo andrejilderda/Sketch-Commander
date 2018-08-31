@@ -22,3 +22,25 @@ var mod = function(n, m) {
   var remain = n % m;
   return Math.floor(remain >= 0 ? remain : remain + m);
 };
+
+// Removing leading whitespace in ES6 template strings
+// https://muffinresearch.co.uk/removing-leading-whitespace-in-es6-template-strings/
+var singleLineString = function(strings) {
+  var values = Array.prototype.slice.call(arguments, 1);
+  
+  // Interweave the strings with the 
+  // substitution vars first.
+  var output = '';
+  for (var i = 0; i < values.length; i++) {  
+    output += strings[i] + values[i];
+  }
+  output += strings[values.length];
+
+  // Split on newlines.
+  var lines = output.split(/(?:\r\n|\n|\r)/);
+    
+  // Rip out the leading whitespace.
+  return lines.map(function(line) {
+    return line.replace(/^\s+/gm, '');  
+  }).join('').trim();
+};
