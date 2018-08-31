@@ -138,26 +138,18 @@ List.prototype.onListItemClick = function( e ) {
   setInputValue( notation, true );
 }
 
-
-
-
 function handleListsState() {
-  const node = getCaretNode().node || '';
-  let parent;
-  let commandNodeText;
-  
-  if ( !parent ) listCommands.active = true;
-  if ( node ) parent = node.parentNode;
-  if ( parent && parent.closest('.c-command') ) {
-    commandNodeText = parent.closest('.c-command').textContent;
-  };
+  // returns command node where caret is currently at
+  const node = getCaretCommandNode();
+  let nodeText;
+  if ( node ) nodeText = getCaretCommandNode().textContent;
 
   // is caret at '>|'? Then open layer select list
-  if ( parent && parent.classList.contains( 'c-command' ) && !parent.childElementCount && node.nodeValue[0] === '>' ) {
+  if ( nodeText && nodeText[0] === '>' ) {
     if (DEBUG) console.log('Command started with >, request page layers from Sketch');
-    
+  
     listLayers.active = true;
-    
+  
     // request pagelayers from Sketch, unless browser debug mode is active
     if ( !BROWSERDEBUG && !window.pageLayers ) returnToSketch('requestPageLayers');
     else setPageLayers();
@@ -166,9 +158,9 @@ function handleListsState() {
   
   // rules for when commandList is shown/hidden
   // grab the textContent from '.c-command', which we use to filter commands
-  if ( !node || parent.classList.contains( 'c-command__type' ) || parent.classList.contains( 'c-command' ) ) {
+  if ( !node || node.children[0] && node.children[0].classList.contains( 'c-command__type' ) ) {
     listCommands.active = true;
-    listCommands.render ( commandNodeText, ['notation', 'name'] );
+    listCommands.render( nodeText, ['notation', 'name'] );
   }
   else listCommands.active = false;
 }

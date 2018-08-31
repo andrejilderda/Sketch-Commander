@@ -16,6 +16,10 @@
         sel.addRange(range);
       });
     }
+    // don't send any arguments (ignore input field value) when rendering
+    // listCommands after setting the prevUserInput
+    listCommands.active = true;
+    listCommands.render(); 
   }
 
   // receive selected layer names

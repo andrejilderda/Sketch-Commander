@@ -100,6 +100,18 @@ function setCaretPosToEnd() {
   caret.position = getTotalNodeLength();
 }
 
+// returns text of command node where caret is currently at
+function getCaretCommandNode() {
+  const node = getCaretNode().node || '';
+  let parent;
+  
+  if ( node ) parent = node.parentNode;
+  else return false;
+  
+  if ( parent.closest('.c-command') ) return parent.closest('.c-command');
+  else return false;
+}
+
 caret.input.addEventListener('keydown', function( e ) {
   if ( e.keyCode === 37 || e.keyCode === 39 ) {
     // do nothing when shift or alt key is pressed, user probably wants to 
