@@ -98,6 +98,8 @@ List.prototype.onKeydown = function( e ) {
 }
 
 List.prototype.onUpDownKey = function( e ) {
+  e.preventDefault();
+  
   let increment = -1; // have nothing selected by default
   const listItems = this.element.querySelectorAll( '[data-item]' );
   const length = listItems.length + 1; // so that it's possible to have nothing selected
@@ -123,13 +125,15 @@ List.prototype.onUpDownKey = function( e ) {
 
 // function to replace current input value with the notation of selected option
 List.prototype.onEnterKey = function( e ) {
+  let firstRun = inputField.classList.contains( 'prevUserInput' );
   var ul = this.element.querySelector("ul");
   var ulNodes = ul.children;
   for (var i = 0; i < ulNodes.length; i++) {
-    if ( ulNodes[i].classList.contains("is-active") ) {
-      setInputValue( ulNodes[i].dataset.notation, true );
+    if ( ulNodes[i].classList.contains("is-active")) {
+      setInputValue( ulNodes[i].dataset.notation, !firstRun );
     }
   }
+  inputField.classList.remove( 'prevUserInput' );
 }
 
 // called when a list item is clicked

@@ -15,6 +15,7 @@
         sel.removeAllRanges();
         sel.addRange(range);
       });
+      inputField.classList.add('prevUserInput');
     }
     // don't send any arguments (ignore input field value) when rendering
     // listCommands after setting the prevUserInput

@@ -25,8 +25,15 @@ let inputArray = [];
 
 
 function setInputValue( value, append) {
-  if ( append ) inputField.innerHTML = inputField.innerHTML + value;
+  if ( append ) {
+    const node = getCaretCommandNode();
+    // replace just the command node when there is one
+    if ( node ) node.textContent = value;
+    // if the caret is at ',', there will be no parent node that is a command
+    else inputField.innerHTML = inputField.innerHTML + value;
+  }
   else inputField.innerHTML = value;
+  
   setCaretPosToEnd();
   parseInput();
 }
