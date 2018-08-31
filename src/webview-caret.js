@@ -100,7 +100,7 @@ function setCaretPosToEnd() {
   caret.position = getTotalNodeLength();
 }
 
-// returns text of command node where caret is currently at
+// returns command node where the caret is currently at
 function getCaretCommandNode() {
   const node = getCaretNode().node || '';
   let parent;
