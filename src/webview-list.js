@@ -139,7 +139,9 @@ List.prototype.onEnterKey = function( e ) {
 // called when a list item is clicked
 List.prototype.onListItemClick = function( e ) {
   let notation = e.target.dataset.notation;
-  setInputValue( notation, true );
+  let firstRun = inputField.classList.contains( 'prevUserInput' );
+  setInputValue( notation, !firstRun );
+  inputField.classList.remove( 'prevUserInput' );
 }
 
 function handleListsState() {
