@@ -42,9 +42,8 @@ class List {
     if ( !wordToMatch ) return this.data;
     // property to filter by, (name) by default
     const prop = filterBy || 'name';
-
     // filter and sort results
-    var filteredData =  this.data.filter( item => {
+    var filteredData = this.data.filter( item => {
       const regex = new RegExp( wordToMatch, 'gi' ); 
 
       // add the ability to pass an array of 2 props to match by
@@ -57,8 +56,14 @@ class List {
       // if (inputFieldValue === a[prop]) {
       //   return a[prop] - b[prop];
       // }
-      let textA = a[filterBy[0]].toUpperCase() || a.name;
-      let textB = b[filterBy[0]].toUpperCase() || b.name;
+      let textA = a.name;
+      let textB = b.name;
+      
+      if ( trueTypeOf( prop ) === 'array' && prop.length === 2 ) {
+        let textA = a[filterBy[0]].toUpperCase();
+        let textB = b[filterBy[0]].toUpperCase();
+      }
+      
 
       if ( wordToMatch ) wordToMatch = wordToMatch.toUpperCase() || ''
       if ( wordToMatch === textB ) return 1; // exact match
@@ -72,7 +77,7 @@ class List {
     filterBy = filterBy || 'notation';
     
     if ( wordToMatch ) {
-      data = listCommands.filterList( wordToMatch, filterBy );
+      data = this.filterList( wordToMatch, filterBy );
     }
     else data = this.data;
     // render markup into element
@@ -130,7 +135,7 @@ List.prototype.onEnterKey = function( e ) {
   var ulNodes = ul.children;
   for (var i = 0; i < ulNodes.length; i++) {
     if ( ulNodes[i].classList.contains("is-active")) {
-      setInputValue( ulNodes[i].dataset.notation, !firstRun );
+      setInputValue( ulNodes[i].dataset.value, !firstRun );
     }
   }
 }
@@ -157,6 +162,8 @@ function handleListsState() {
     // request pagelayers from Sketch, unless browser debug mode is active
     if ( !BROWSERDEBUG && !window.pageLayers ) returnToSketch('requestPageLayers');
     else setPageLayers();
+    let filterText = nodeText.replace('>', '');
+    listLayers.render( filterText, 'name' );
   }
   else listLayers.active = false;
   
@@ -182,7 +189,7 @@ listCommands.template = function( data ) {
   return `
     <ul class="c-list">
       ${data.map(item => `
-        <li class="c-list__item" data-item data-notation="${item.notation}">
+        <li class="c-list__item" data-item data-value="${item.notation}">
           <span class="c-list__notation">${item.notation}</span>
           ${item.name}
         </li>
@@ -205,7 +212,7 @@ listLayers.template = function( data ) {
   return `
     <ul class="c-list">
       ${data.map(item => `
-        <li class="c-list__item" data-item>
+        <li class="c-list__item" data-item data-value=">${item.name}">
           <span class="c-list__notation">${item.type}</span>
           ${item.name}
         </li>
