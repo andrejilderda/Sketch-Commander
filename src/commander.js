@@ -143,25 +143,36 @@ function deepLayerMap(obj, includeGroups) {
 
 function loopThroughCommands(commandObj) {
   commandObj = JSON.parse(commandObj);
-
-  for (var k = 0; k < commandObj.length; k++) {
-    const commandType = commandObj[k].type;
-    const operator = commandObj[k].operator;
-    const value = commandObj[k].value;
+  
+  // first check if there's a selection set... ('>layername')
+  commandObj.forEach( function( command ) {
+    const layerSelection = command.layerSelection;
     
-    // loop through commands when an array with multiple commands is passed (f.e. ['l','r'] from 'lr+100')
-    if ( Array.isArray(commandType) ) {
-      commandType.forEach( item => {
-        executeCommand(item, operator, value);
-      })
+    if ( layerSelection ) {
+      const input = command.input.literal.replace( '>', '' );
+      setLayerSelection( input )
     }
-    else executeCommand(commandType, operator, value);
-    
-    if (DEBUG) console.log('executeCommand:' + commandType + "   " + operator + "   " + value )
-    
-  }
+  });
+  
+  // ...then continue going through all commands
+  commandObj.forEach( function( command ) {
+    if ( !command.layerSelection ) {
+      const commandType = command.type;
+      const operator = command.operator;
+      const value = command.value;
+      
+      // loop through commands when an array with multiple commands is passed (f.e. ['l','r'] from 'lr+100')
+      if ( Array.isArray(commandType) ) commandType.forEach( item => executeCommand(item, operator, value) )
+      else executeCommand(commandType, operator, value);
+      if (DEBUG) console.log(`executeCommand: ${commandType}  ${operator}  ${value}` )
+    }
+  });
 }
 
+function setLayerSelection( layerName ) {
+  selection = select.searchLayers( layerName, 'artboard', selection );
+}
+ 
 function executeCommand(commandType, operator, value) {
   switchStatement:
     switch (commandType) {
