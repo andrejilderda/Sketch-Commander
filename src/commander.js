@@ -30,10 +30,6 @@ export default function(context) {
   } catch (e) { // else reset history
     Settings.setSettingForKey("userInputSetting", "");
   }
-  // console.log(selection);
-  console.log( select.searchLayers( 'zelfde naam', 'artboard', selection ) );
-  // select.searchLayers( 'zelfde naam', 'artboard', selection )
-  // select.selectLayers( 'zelfde naam', 'artboard', selection )
 
   // create BrowserWindow
   const options = {
@@ -112,30 +108,36 @@ const getPageLayers = function() {
 // function for getting all layers on current page in flat array
 function deepLayerMap(obj, includeGroups) {
   var layerMap = [];
+  console.log(obj);
   
-  obj.forEach( layer => {
-    var val;
-    
-    if ( layer.type === 'Group' || layer.type === 'Artboard' && layer.layers ) {
-      if ( includeGroups ) {
-        // push group name and type
-        layerMap.push({
-          // woah, replace all characters that could break the webview (like: "'{}).
+  function recursiveFn( obj, includeGroups ) {
+    obj.forEach( layer => {
+      var val;
+      
+      if ( layer.type === 'Group' || layer.type === 'Artboard' && layer.layers ) {
+        if ( includeGroups ) {
+          // push group name and type
+          layerMap.push({
+            // woah, replace all characters that could break the webview (like: "'{}).
+            name: layer.name.replace(/"/g, 'charDoubleQuote').replace(/'/g, 'charSingleQuote').replace(/{/g, 'charAccoladeOpen').replace(/}/g, 'charAccoladeClose'),
+            type: layer.type
+          });
+          console.log('push it');
+          console.log(layerMap);
+        }
+        // get the group's children layers
+        val = recursiveFn( layer.layers, includeGroups );
+      }
+      else {
+        val = { 
           name: layer.name.replace(/"/g, 'charDoubleQuote').replace(/'/g, 'charSingleQuote').replace(/{/g, 'charAccoladeOpen').replace(/}/g, 'charAccoladeClose'),
           type: layer.type
-        });
+        }
       }
-      // get the group's children layers
-      val = deepLayerMap( layer.layers );
-    }
-    else {
-      val = { 
-        name: layer.name.replace(/"/g, 'charDoubleQuote').replace(/'/g, 'charSingleQuote').replace(/{/g, 'charAccoladeOpen').replace(/}/g, 'charAccoladeClose'),
-        type: layer.type
-      }
-    }
-    layerMap.push( val );
-  })
+      layerMap.push( val );
+    })
+  }
+  recursiveFn( obj, includeGroups );
   // flatten multi-level array
   // https://stackoverflow.com/questions/29158723/javascript-flattening-an-array-of-arrays-of-objects/29158772#29158772
   return [].concat.apply([], layerMap);
@@ -235,7 +237,6 @@ function executeCommand(commandType, operator, value) {
 function loopThroughSelection(callback) {
   if (callback && typeof callback === 'function') {    
     selection.forEach(layer => {
-      console.log(layer.sketchObject.parentArtboard());
       // make a copy of the passed in arguments
       var args = Array.prototype.slice.call(arguments);
       // overwrite the passed in function name with the layer
