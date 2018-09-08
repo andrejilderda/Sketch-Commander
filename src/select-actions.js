@@ -18,12 +18,20 @@ const currentPage =  document.selectedPage;
 // selection argument is only required for determining current artboard
 // scope is either 'document', 'page' or 'artboard'
 export function searchLayers( name, scope, selection ) {
+  
   if ( scope === 'page' ) {  
-    return loopThroughChildLayers( currentPage, name )
+    return loopThroughChildLayers( currentPage, function( match, layer ) {
+      if ( name && layer.name === name ) match.push()
+      else if ( !name ) match.push( layer ) // add all layers when no filter is given
+    } );
   }
   else if ( scope === 'artboard' ) {
     const searchScope = parentArtboardsFromSelection( selection );
-    return loopThroughChildLayers( searchScope, name )
+
+    return loopThroughChildLayers( searchScope, function( match, layer ) {
+      if ( name && layer.name === name ) match.push( layer )
+      else if ( !name ) match.push( layer ) // add all layers when no filter is given
+    });
   }
   else if ( scope === 'document' ) {
     return document.getLayersNamed( name );
@@ -33,23 +41,30 @@ export function searchLayers( name, scope, selection ) {
   }
 }
 
+// woah, replace all characters that could break the webview (like: "'{}).
+export function replaceDangerousCharacters( match, layer ) {
+  match.push({
+    name: layer.name.replace(/"/g, 'charDoubleQuote').replace(/'/g, 'charSingleQuote').replace(/{/g, 'charAccoladeOpen').replace(/}/g, 'charAccoladeClose'),
+    type: layer.type
+  });
+}
+
 // loop through child layers and optionally filter by layer name
-export function loopThroughChildLayers( layerGroup, filter ) {
+export function loopThroughChildLayers( layerGroup, callback ) {
   let match = [];
   
-  function recursiveFn( layerGroup, filter ) {
+  function recursiveFn( layerGroup, callback ) {
     layerGroup.layers.forEach( layer => {
-      if ( filter && layer.name === filter ) match.push( layer )
-      else if ( !filter ) match.push( layer ) // add all layers when no filter is given
+      callback(match, layer);
       
       // does the layerGroup contain child layers? If so, perform a (recursive) loop
-      if ( layer.layers ) recursiveFn( layer, filter );
+      if ( layer.layers ) recursiveFn( layer, callback );
     })
   }
   // if layerGroup that's passed is an array (f.e. 2 artboards), loop through all of them
-  if ( Array.isArray( layerGroup )) layerGroup.forEach( item => recursiveFn( item, filter ) );
-  else recursiveFn( layerGroup, filter );
-  
+  if ( Array.isArray( layerGroup ) ) layerGroup.forEach( item => recursiveFn( item, callback ) );
+  else recursiveFn( layerGroup, callback );
+
   return match;
 }
 
