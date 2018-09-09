@@ -102,12 +102,16 @@ const getPageLayers = function() {
 function loopThroughCommands(commandObj) {
   commandObj = JSON.parse(commandObj);
   
-  // coerces to true/false based on whether an expand selection command ('>>') is found
+  // if there's an expand selection command ('>>') the selection should expand.
+  // It will apply the commands to the selected layers AND the layers that are >selected.
+  
+  // coerces to true/false based, which is used as an argument for setLayerSelection()
   const expandSelection = commandObj.filter( item => {
     if ( item.expandSelection ) return true;
   }).length >= 1;
   
-  // first check if there's a selection set... ('>layername')
+  // first check if there's a selection set ('>layername').
+  // If so we use that to apply our commands to...
   const layerSelect = commandObj.filter( item => {
     if ( item.layerSelection ) return true;
   }).forEach( ( command, index ) => {
