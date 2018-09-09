@@ -217,10 +217,16 @@ listLayers.template = function( data ) {
     return unique;
   },[]);
   
+  // we wanna make sure that the arrows that get appended matches with what was put in.
+  // So if the user inserts '>>lay' and selects 'layername' from the list '>>layername'
+  // should be appended.
+  let appendedArrows = '';
+  if ( getCaretCommandNode() ) appendedArrows = getCaretCommandNode().textContent.match( /^(>*)/g).toString();
+  
   return `
     <ul class="c-list">
       ${uniqueLayerNames.map(item => `
-        <li class="c-list__item" data-item data-value=">${item.name}">
+        <li class="c-list__item" data-item data-value="${appendedArrows}${item.name}">
           <span class="c-list__notation">${item.type}</span>
           ${item.name}
         </li>

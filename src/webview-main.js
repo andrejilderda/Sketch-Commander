@@ -24,7 +24,7 @@ let prevInputLength = inputField.textContent.length;
 let inputArray = [];
 
 
-function setInputValue( value, append) {
+function setInputValue( value, append ) {
   if ( append ) {
     const node = getCaretCommandNode();
     // replace just the command node when there is one
