@@ -91,28 +91,3 @@ export function parentArtboardsFromSelection( selection ) {
   })
   return parentArtboards;
 }
-
-// function createNativeLayers( selection ) {
-//   let nativeLayers = selection.map( item => {
-//     switch ( item.type ) {
-//       case 'Group':
-//         return Group.fromNative( item );
-//       case 'Shape':
-//         return Shape.fromNative( item );
-//       case 'Text':
-//         return Text.fromNative( item );
-//       case 'SymbolInstance':
-//         return SymbolInstance.fromNative( item );
-//       case 'SymbolInstance':
-//         return Artboard.fromNative( item );
-//     }
-//   });
-//   return nativeLayers;
-// }
-// 
-// function createSketchObject( selection ) {
-//   let sketchObjects = selection.map( item => {
-//     return item.sketchObject;
-//   });
-//   return nativeLayers;
-// }
