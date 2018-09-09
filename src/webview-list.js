@@ -23,7 +23,6 @@ class List {
       listInstances.updateState( this.name );
       this._active = state;
     }
-    // console.log(listInstances);
   }
   
   get active() {
@@ -138,6 +137,7 @@ List.prototype.onEnterKey = function( e ) {
       setInputValue( ulNodes[i].dataset.value, !firstRun );
     }
   }
+  cyclingThroughOptions = false;
 }
 
 // called when a list item is clicked
