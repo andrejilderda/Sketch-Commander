@@ -209,9 +209,16 @@ listLayers.name = 'layerList';
 listLayers.data = window.pageLayers || [];
 listLayers.element = document.querySelector('[data-list="layers"]');
 listLayers.template = function( data ) {
+  const uniqueLayerNames = data.reduce( ( unique, o ) => {
+    if(!unique.some( obj => obj.name === o.name ) ) {
+      unique.push(o);
+    }
+    return unique;
+  },[]);
+  
   return `
     <ul class="c-list">
-      ${data.map(item => `
+      ${uniqueLayerNames.map(item => `
         <li class="c-list__item" data-item data-value=">${item.name}">
           <span class="c-list__notation">${item.type}</span>
           ${item.name}
