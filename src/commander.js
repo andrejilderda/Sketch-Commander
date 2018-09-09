@@ -15,14 +15,12 @@ var context,
   userInput,
   prevUserInput = "";
 
-export var selection = document.selectedLayers.layers;
+export let selection = document.selectedLayers.layers;
 
 export default function(context) {
   context = context;
   sketch = context.api(); // Load sketch API — http://developer.sketchapp.com/reference/api/
   doc = context.document;
-  selection = document.selectedLayers.layers;
-  
   
   // does a userInputSetting already exist?
   try {
@@ -104,15 +102,18 @@ const getPageLayers = function() {
 function loopThroughCommands(commandObj) {
   commandObj = JSON.parse(commandObj);
   
+  // coerces to true/false based on whether an expand selection command ('>>') is found
+  const expandSelection = commandObj.filter( item => {
+    if ( item.expandSelection ) return true;
+  }).length >= 1;
+  
   // first check if there's a selection set... ('>layername')
-  commandObj.forEach( function( command ) {
-    const layerSelection = command.layerSelection;
-    
-    if ( layerSelection ) {
-      const input = command.input.literal.replace( '>', '' );
-      setLayerSelection( input )
-    }
-  });
+  const layerSelect = commandObj.filter( item => {
+    if ( item.layerSelection ) return true;
+  }).forEach( ( command, index ) => {
+    const input = command.input.literal.replace( />/gi, '' );
+    setLayerSelection( input, index, expandSelection )
+  })
   
   // ...then continue going through all commands
   commandObj.forEach( function( command ) {
@@ -129,8 +130,13 @@ function loopThroughCommands(commandObj) {
   });
 }
 
-function setLayerSelection( layerName ) {
-  selection = select.searchLayers( layerName, 'artboard', selection );
+function setLayerSelection( layerName, index, expand ) {
+  let newSelection;
+  if ( !expand ) newSelection = []; // if expand is false (default), reset the current selection
+  else newSelection = selection;
+  
+  newSelection.push( select.searchLayers( layerName, 'artboard', selection )[0] );
+  selection = newSelection;
 }
  
 function executeCommand(commandType, operator, value) {

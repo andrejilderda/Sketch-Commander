@@ -242,7 +242,8 @@ const commands = function() {
       
       if ( input[0] === '>' ) { 
         obj.layerSelection = true;
-        if ( input[1] ) obj.isValid = true; // when the '>' is followed by a character we're good
+        if ( input[1] === '>' ) obj.expandSelection = true;
+        if ( input.replace( />/g, '' ).length > 0 ) obj.isValid = true; // when the '>' is followed by a character we're good
       };
       if ( noValidCommandType ) publicAddObj(obj);
       else {

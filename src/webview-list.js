@@ -162,7 +162,7 @@ function handleListsState() {
     // request pagelayers from Sketch, unless browser debug mode is active
     if ( !BROWSERDEBUG && !window.pageLayers ) returnToSketch('requestPageLayers');
     else setPageLayers();
-    let filterText = nodeText.replace('>', '');
+    let filterText = nodeText.replace( />/gi, '' );
     listLayers.render( filterText, 'name' );
   }
   else listLayers.active = false;
