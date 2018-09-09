@@ -45,7 +45,8 @@ export function searchLayers( name, scope, selection ) {
 export function replaceDangerousCharacters( match, layer ) {
   match.push({
     name: layer.name.replace(/"/g, 'charDoubleQuote').replace(/'/g, 'charSingleQuote').replace(/{/g, 'charAccoladeOpen').replace(/}/g, 'charAccoladeClose'),
-    type: layer.type
+    type: layer.type,
+    isSelected: layer.selected
   });
 }
 

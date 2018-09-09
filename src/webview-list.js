@@ -35,10 +35,7 @@ class List {
     else this.element.classList.remove( activeClass )
   }
   
-  filterList( wordToMatch, filterBy ) {
-    wordToMatch = wordToMatch || '';
-    // see if filter value was provided.
-    if ( !wordToMatch ) return this.data;
+  filterList( wordToMatch, filterBy, callback ) {
     // property to filter by, (name) by default
     const prop = filterBy || 'name';
     // filter and sort results
@@ -63,22 +60,23 @@ class List {
         let textB = b[filterBy[0]].toUpperCase();
       }
       
-
       if ( wordToMatch ) wordToMatch = wordToMatch.toUpperCase() || ''
       if ( wordToMatch === textB ) return 1; // exact match
+      
+      if ( callback ) return callback( a, b );
+      
       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
     })
     return filteredData;
   }
   
-  render( wordToMatch, filterBy ) {
+  render( wordToMatch, filterBy, callback ) {
     let data;
-    filterBy = filterBy || 'notation';
+    filterBy = filterBy || 'name';
+    wordToMatch = wordToMatch || '';
     
-    if ( wordToMatch ) {
-      data = this.filterList( wordToMatch, filterBy );
-    }
-    else data = this.data;
+    data = this.filterList( wordToMatch, filterBy, callback );
+
     // render markup into element
     this.element.innerHTML = `${this.template( data )}`;
     
@@ -145,6 +143,7 @@ List.prototype.onListItemClick = function( e ) {
   let notation = e.target.dataset.notation;
   let firstRun = inputField.classList.contains( 'previous-user-input' );
   setInputValue( notation, !firstRun );
+  cyclingThroughOptions = false;
 }
 
 function handleListsState() {
@@ -163,7 +162,9 @@ function handleListsState() {
     if ( !BROWSERDEBUG && !window.pageLayers ) returnToSketch('requestPageLayers');
     else setPageLayers();
     let filterText = nodeText.replace( />/gi, '' );
-    listLayers.render( filterText, 'name' );
+    listLayers.render( filterText, 'name', ( a, b ) => {
+      if ( a.isSelected ) return -1;
+    });
   }
   else listLayers.active = false;
   
