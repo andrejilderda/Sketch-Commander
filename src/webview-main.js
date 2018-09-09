@@ -144,22 +144,3 @@ function handleUndo() {
     setCaretPosToEnd();
   };
 }
-
-// lists the selected layers
-const listSelectedLayers = function() {
-  var selectedLayerList = document.querySelector('.c-selection-list');
-  // received array from Sketch is actually a string, lets convert it into a real array again
-  if (artboardLayerNameArray) {
-    // if (artboardLayerNameArray && selectedLayerNameArray) {
-    artboardLayerNameArray = artboardLayerNameArray.split(',');
-    selectedLayerNameArray = selectedLayerNameArray.split(',');
-
-    for (var i = 0; i < artboardLayerNameArray.length; i++) {
-      // create the list
-      var li = document.createElement('li');
-      li.classList.add('c-options-list__item');
-      li.innerHTML = artboardLayerNameArray[i];
-      selectedLayerList.append(li);
-    }
-  }
-};
