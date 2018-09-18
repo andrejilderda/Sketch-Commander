@@ -240,9 +240,10 @@ const commands = function() {
       // check if the command contains a valid commandtype. Else just add the object containing the input
       const noValidCommandType = !commandType || !commandType.match(individualCommandsRegex) && !commandType.match(groupedCommandsRegex);
       
-      if ( input[0] === '>' ) { 
-        obj.layerSelection = true;
-        if ( input[1] === '>' ) obj.expandSelection = true;
+      if ( input[0] === '>' ) {
+        obj.selector = true;
+        // when input is '>>' we want to expand the selection in stead of replacing it
+        if ( input[1] === '>' ) obj.expandSelection = true; 
         if ( input.replace( />/g, '' ).length > 0 ) obj.isValid = true; // when the '>' is followed by a character we're good
       };
       if ( noValidCommandType ) publicAddObj(obj);
