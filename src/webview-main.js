@@ -115,7 +115,7 @@ function renderInput() {
       element = singleLineString`
         <span class="c-command  
           ${item.isValid ? 'c-command--is-valid' : '' } 
-          ${item.layerSelection ? 'c-command--layer-select' : '' }" 
+          ${item.selector ? 'c-command--layer-select' : '' }" 
           ${item.isValid && item.operator === '#' ? `style="background-color: #${item.value}"` : '' }>
           ${input}
         </span>
