@@ -80,6 +80,11 @@ export function selectLayers( name, scope, selection ) {
 // 'selection.frame.height = 10' in stead of 'selection.frame().setHeight(10);'
 // More info: https://developer.sketchapp.com/reference/api/#sketch-components
 export function parentArtboardsFromSelection( selection ) {
+  if ( !selection ) {
+    returnToSketch('toast', 'No layers selected');
+    return;
+  }
+  
   let parentArtboards = [];
   
   selection.forEach( layer => {
@@ -89,6 +94,13 @@ export function parentArtboardsFromSelection( selection ) {
     if ( !parentArtboards.includes( parentArtboard ) ) {
       parentArtboards.push( Artboard.fromNative( parentArtboard ) );
     }
-  })
+  });
+  
+  // no parent artboards found?
+  if ( !parentArtboards ) {
+    returnToSketch('toast', 'No parent artboards found');
+    return;
+  }
+  
   return parentArtboards;
 }

@@ -55,10 +55,12 @@ export default function(context) {
     console.log('Page layers requested by webUI');
     webUI.webContents.executeJavaScript("setPageLayers('" + JSON.stringify( getPageLayers() ) + "')");
   });
-  webUI.webContents.on('nativeLog', (s) => {
+  webUI.webContents.on('toast', (s) => {
     // will log it to Sketch in a toast message
-    // sketch.UI.message(s)
-
+    sketch.UI.message(s)
+  });
+  
+  webUI.webContents.on('nativeLog', (s) => {
     // will log it to 'Plugin Output' in the Console
     console.log(s);
   });
