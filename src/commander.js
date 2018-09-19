@@ -107,23 +107,33 @@ function loopThroughCommands(commandObj) {
   // if there's an expand selection command ('>>') the selection should expand.
   // It will apply the commands to the selected layers AND the layers that are >selected.
   
-  // coerces to true/false based, which is used as an argument for setLayerSelection()
-  const expandSelection = commandObj.filter( item => {
+  // check whether a expandSelection ('>>') is found. Coerces to true/false, which is used 
+  // as an argument for setLayerSelection()
+  const expand = commandObj.filter( item => {
     if ( item.expandSelection ) return true;
   }).length >= 1;
   
+  // when only one or multiple selectors are passed (f.e. '>layername'), we assume the user wants to select
+  // these layers, so we deselect the currently selected layers to select the new ones.
+
+  // check if there are only selectors ('>') given. Coerces to true/false
+  const onlySelectors = commandObj.filter( item => {
+    if ( !item.selector ) return true;
+  }).length === 0;
+  if ( onlySelectors ) document.selectedLayers.clear();
+  
   // first check if there's a selection set ('>layername').
   // If so we use that to apply our commands to...
-  const layerSelect = commandObj.filter( item => {
-    if ( item.layerSelection ) return true;
+  commandObj.filter( item => {
+    if ( item.selector ) return true;
   }).forEach( ( command, index ) => {
     const input = command.input.literal.replace( />/gi, '' );
-    setLayerSelection( input, index, expandSelection )
+    setLayerSelection( input, index, expand, onlySelectors )
   })
   
   // ...then continue going through all commands
   commandObj.forEach( function( command ) {
-    if ( !command.layerSelection ) {
+    if ( !command.selector ) {
       const commandType = command.type;
       const operator = command.operator;
       const value = command.value;
@@ -136,12 +146,18 @@ function loopThroughCommands(commandObj) {
   });
 }
 
-function setLayerSelection( layerName, index, expand ) {
-  let newSelection;
+function setLayerSelection( layerName, index, expand, selectLayers ) {
+  let newSelection = [];
   if ( !expand ) newSelection = []; // if expand is false (default), reset the current selection
   else newSelection = selection;
   
   newSelection.push( select.searchLayers( layerName, 'artboard', selection )[0] );
+  
+  // select the layers when argument is given
+  if ( selectLayers ) {
+    newSelection.forEach( layer => layer.selected = true );
+  }
+  
   selection = newSelection;
 }
  
