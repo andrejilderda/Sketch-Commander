@@ -58,7 +58,6 @@ function onInput(e) {
 };
 
 function onKeydown(e) {
-  
   // when user presses cmd+z
   if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
     e.preventDefault();
@@ -74,6 +73,10 @@ function onKeydown(e) {
       returnToSketch('returnUserInput', getInputValue());
       returnToSketch('closeExecute', JSON.stringify(commands.get()));
     }
+  }
+  if (e.keyCode == 9) { // tab
+    e.preventDefault();
+    onTabPress(e);
   }
 };
 

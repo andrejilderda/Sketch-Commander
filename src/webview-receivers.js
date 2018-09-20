@@ -36,6 +36,16 @@
     listLayers.render();
     if (DEBUG) console.log(window.pageLayers);
   }
+  
+  // receive active context from Sketch
+  window.contextTabsInit = function(input) {
+    if (DEBUG) console.log('Received contextTabsInit:');
+    if (DEBUG) console.log(input);
+    if (input) {
+      const activeContext = Number(input);
+      switchContextAction(activeContext);
+    }
+  }
 })()
 
 if (BROWSERDEBUG) window.prevUserInput( prevUserInputMockData );

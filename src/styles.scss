@@ -74,6 +74,26 @@ body {
     }
 }
 
+.c-context-tab {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    padding: 4px 12px;
+    
+    &__item {
+        display: inline-block;
+        margin-left: 0
+    }
+    &__link {
+        text-decoration: none;
+        // color: #94989A;
+        color: lighten($backgroundColor, 50%);
+        .is-active & {
+            color: $activeColor;
+        }
+    }
+}
+
 .c-commands-list {
     @include bare-list;
     color: #fff;

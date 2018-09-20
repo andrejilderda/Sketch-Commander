@@ -14,6 +14,10 @@ var context,
   doc,
   userInput,
   prevUserInput = "";
+  
+let global = {
+  contextTabs: ""
+}
 
 export let selection = document.selectedLayers.layers;
 
@@ -25,8 +29,10 @@ export default function(context) {
   // does a userInputSetting already exist?
   try {
     prevUserInput = Settings.settingForKey("userInputSetting");
+    contextTabs = Settings.settingForKey("contextTabs");
   } catch (e) { // else reset history
     Settings.setSettingForKey("userInputSetting", "");
+    Settings.setSettingForKey("contextTabs", "");
   }
 
   // create BrowserWindow
@@ -50,6 +56,10 @@ export default function(context) {
     // if (DEBUG) console.log('USER INPUT:');
     // if (DEBUG) console.log(s);
     Settings.setSettingForKey('userInputSetting', s);
+  });
+  webUI.webContents.on('saveContext', (s) => {
+    console.log('received context: ' + s);
+    Settings.setSettingForKey('contextTabs', s);
   });
   webUI.webContents.on('requestPageLayers', () => {
     console.log('Page layers requested by webUI');
@@ -87,6 +97,7 @@ export default function(context) {
 
     // 💫 emitter: call a function in the webview
     webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
+    webUI.webContents.executeJavaScript('contextTabsInit("' + contextTabs + '")');
   })
 
   return webUI;
