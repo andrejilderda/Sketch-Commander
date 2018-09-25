@@ -29,7 +29,7 @@ export default function(context) {
   // does a userInputSetting already exist?
   try {
     prevUserInput = Settings.settingForKey("userInputSetting");
-    contextTabs = Settings.settingForKey("contextTabs");
+    global.contextTabs = Settings.settingForKey("contextTabs");
   } catch (e) { // else reset history
     Settings.setSettingForKey("userInputSetting", "");
     Settings.setSettingForKey("contextTabs", "");
@@ -97,7 +97,7 @@ export default function(context) {
 
     // 💫 emitter: call a function in the webview
     webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
-    webUI.webContents.executeJavaScript('contextTabsInit("' + contextTabs + '")');
+    webUI.webContents.executeJavaScript('contextTabsInit("' + global.contextTabs + '")');
   })
 
   return webUI;
