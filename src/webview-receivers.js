@@ -43,7 +43,7 @@
     if (DEBUG) console.log(input);
     if (input) {
       const activeContext = Number(input);
-      switchContextAction(activeContext);
+      contextTabs.switch( activeContext );
     }
   }
 })()

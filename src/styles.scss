@@ -82,14 +82,11 @@ body {
     
     &__item {
         display: inline-block;
-        margin-left: 0
-    }
-    &__link {
-        text-decoration: none;
+        margin-left: 0;
         // color: #94989A;
         color: lighten($backgroundColor, 50%);
-        .is-active & {
-            color: $activeColor;
+        &.is-active {
+          color: $activeColor;
         }
     }
 }

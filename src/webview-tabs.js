@@ -1,32 +1,53 @@
-const contextTabs = document.querySelectorAll(".c-context-tab__item");
-const contextList = document.querySelectorAll(".c-context-list");
-let currentContext = 0;
-let tabKeyPressed = false;
-
-function onTabPress(e) {
-  if (!cyclingThroughOptions) {
-    tabKeyPressed = true;
-    if (!e.shiftKey) switchContextAction('next');
+class ContextSelector {
+  constructor() {
+    this.context = 0;
+    this.tabDown = false;
+    this.active = false;
+    this.tabs = [ 'Artboard', 'Page', 'Document' ];
+    this.element = document.querySelector( '.c-context-tab' );
+    this.template = function() {
+      return `
+          ${this.tabs.map( (tab, index) => `
+            <li class="c-context-tab__item  ${index === this.context  ? `is-active` : ``}">
+              ${tab}
+            </li>
+          `).join('')}
+        `
+    }
+    this.render();
   }
-  else selectOption();
-  if (e.shiftKey && tabKeyPressed) {
-    e.preventDefault();
-    switchContextAction('prev');
+
+
+
+  render() {
+    if ( this.active ) this.element.classList.add( 'is-active' );
+    else this.element.classList.remove( 'is-active' );
+    this.element.innerHTML = `${ this.template() }`;
+  }
+
+  onTabPress( e ) {
+    if (!cyclingThroughOptions) {
+      this.tabDown = true;
+      if (!e.shiftKey) this.switch();
+    }
+    else selectOption();
+    if (e.shiftKey && this.tabDown) {
+      e.preventDefault();
+      this.switch( -1 );
+    }
+  }
+
+  // for switching task contexts
+  switch( value ) {
+    if ( !arguments.length ) value = +1;
+    let newContext = this.context + value;
+
+    const length = this.tabs.length;
+    this.context = mod(newContext, length);
+
+    if ( !BROWSERDEBUG ) returnToSketch('saveContext', this.context);
+    this.render();
   }
 }
 
-// for switching task contexts
-function switchContextAction(value) {
-  if (value == 'next') currentContext = currentContext + 1;
-  else if (value == 'prev') currentContext = currentContext - 1;
-  else currentContext = value;
-  
-  var length = contextTabs.length;
-  var index = mod(currentContext, length);
-  contextTabs.forEach(function(el) {
-    el.classList.remove('is-active');
-  })
-  // triggers visibility of both active tab as the list below
-  contextTabs[index].classList.toggle('is-active');
-  returnToSketch('saveContext', index);
-}
+const contextTabs = new ContextSelector();

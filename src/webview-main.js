@@ -76,7 +76,7 @@ function onKeydown(e) {
   }
   if (e.keyCode == 9) { // tab
     e.preventDefault();
-    onTabPress(e);
+    contextTabs.onTabPress(e);
   }
 };
 

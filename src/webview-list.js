@@ -155,9 +155,10 @@ function handleListsState() {
   // is caret at '>|'? Then open layer select list
   if ( nodeText && nodeText[0] === '>' ) {
     if (DEBUG) console.log('Command started with >, request page layers from Sketch');
-  
+
     listLayers.active = true;
-  
+    contextTabs.active = true;
+
     // request pagelayers from Sketch, unless browser debug mode is active
     if ( !BROWSERDEBUG && !window.pageLayers ) returnToSketch('requestPageLayers');
     else setPageLayers();
@@ -166,8 +167,11 @@ function handleListsState() {
       if ( a.isSelected ) return -1;
     });
   }
-  else listLayers.active = false;
-  
+  else {
+    listLayers.active = false;
+    contextTabs.active = false;
+  };
+
   // rules for when commandList is shown/hidden
   // grab the textContent from '.c-command', which we use to filter commands
   if ( !node || node.children[0] && node.children[0].classList.contains( 'c-command__type' ) ) {

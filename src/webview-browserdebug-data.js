@@ -2,7 +2,9 @@
 
 if (BROWSERDEBUG) {
   var prevUserInputMockData = "lr100, lr-100, tv=bla, x*200";
-  let contextTabs = 0;
+
+  contextTabs.switch( 0 );
+
   let artboardLayerNameArray = 'testlayer 1,testlayer 2';
   var pageLayersMockData = [
     {
