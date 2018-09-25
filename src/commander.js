@@ -1,5 +1,5 @@
 import BrowserWindow from 'sketch-module-web-view';
-import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from './shared';
+import { commandList, DEBUG, BROWSERDEBUG } from './shared';
 import { resizeObject, moveObject, setWidthHeightObject, resize, borderActions, textActions, layerActions, fillActions, mathOps, makeColor } from './layer-actions';
 import * as select from './select-actions';
 

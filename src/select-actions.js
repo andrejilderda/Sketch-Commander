@@ -1,5 +1,5 @@
 import selection from './commander'
-import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from './shared';
+import { commandList, DEBUG, BROWSERDEBUG } from './shared';
 
 //////////////////////////////////////////////////////////////////
 //  SELECT ACTIONS                                              //
