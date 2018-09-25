@@ -15,7 +15,7 @@ class List {
     listInstances.push(this);
     document.addEventListener( 'keydown', ( e ) => this.onKeydown( e ) );
   }
-  
+
   set active( state ) {
     if ( this._active !== state ) {
       this.changeState( state )
@@ -24,23 +24,23 @@ class List {
       this._active = state;
     }
   }
-  
+
   get active() {
     return this._active;
   }
-  
+
   changeState( active ) {
     const activeClass = 'is-active'
     if ( active === true ) this.element.classList.add( activeClass )
     else this.element.classList.remove( activeClass )
   }
-  
+
   filterList( wordToMatch, filterBy, callback ) {
     // property to filter by, (name) by default
     const prop = filterBy || 'name';
     // filter and sort results
     var filteredData = this.data.filter( item => {
-      const regex = new RegExp( wordToMatch, 'gi' ); 
+      const regex = new RegExp( wordToMatch, 'gi' );
 
       // add the ability to pass an array of 2 props to match by
       if ( trueTypeOf( prop ) === 'array' && prop.length === 2 ) {
@@ -54,35 +54,35 @@ class List {
       // }
       let textA = a.name;
       let textB = b.name;
-      
+
       if ( trueTypeOf( prop ) === 'array' && prop.length === 2 ) {
         let textA = a[filterBy[0]].toUpperCase();
         let textB = b[filterBy[0]].toUpperCase();
       }
-      
+
       if ( wordToMatch ) wordToMatch = wordToMatch.toUpperCase() || ''
       if ( wordToMatch === textB ) return 1; // exact match
-      
+
       if ( callback ) return callback( a, b );
-      
+
       return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
     })
     return filteredData;
   }
-  
+
   render( wordToMatch, filterBy, callback ) {
     let data;
     filterBy = filterBy || 'name';
     wordToMatch = wordToMatch || '';
-    
+
     data = this.filterList( wordToMatch, filterBy, callback );
 
     // render markup into element
     this.element.innerHTML = `${this.template( data )}`;
-    
+
     // create click event listeners for all the list items
     const listItems = this.element.querySelectorAll('li');
-    listItems.forEach( 
+    listItems.forEach(
       item => item.addEventListener('click', ( e ) => {
         this.onListItemClick( e );
       })
@@ -93,7 +93,7 @@ class List {
 // call relevant functions when ↑ & ↓ or enter key is pressed. Else return.
 List.prototype.onKeydown = function( e ) {
   if ( !this.active ) return false;
-  
+
   if ( e.keyCode === 40 || e.keyCode === 38 ) this.onUpDownKey( e );
   else if ( e.keyCode === 13 ) this.onEnterKey( e );
   else return false;
@@ -101,27 +101,27 @@ List.prototype.onKeydown = function( e ) {
 
 List.prototype.onUpDownKey = function( e ) {
   e.preventDefault();
-  
+
   let increment = -1; // have nothing selected by default
   const listItems = this.element.querySelectorAll( '[data-item]' );
   const length = listItems.length + 1; // so that it's possible to have nothing selected
-  
+
   // check if there already is an element selected, so that we can use its index;
   listItems.forEach( ( el, elIndex ) => {
     if ( el.classList.contains('is-active') === true ) increment = elIndex;
   });
   increment = e.keyCode === 40 ? increment += 1 : increment = increment - 1;
-  
+
   const index = mod( increment, length );
   cyclingThroughOptions = true;
-  
+
   listItems.forEach( el => el.classList.remove( 'is-active' ) );
-  
+
   if ( listItems[index] != undefined ) {
     listItems[index].classList.toggle('is-active');
     // this useful sucker surprisingly works in safari/webview. Keep it disabled when debugging in FF
     if ( !BROWSERDEBUG ) listItems[index].scrollIntoViewIfNeeded( false );
-  } 
+  }
   else cyclingThroughOptions = false;
 }
 
@@ -220,13 +220,13 @@ listLayers.template = function( data ) {
     }
     return unique;
   },[]);
-  
+
   // we wanna make sure that the arrows that get appended matches with what was put in.
   // So if the user inserts '>>lay' and selects 'layername' from the list '>>layername'
   // should be appended.
   let appendedArrows = '';
   if ( getCaretCommandNode() ) appendedArrows = getCaretCommandNode().textContent.match( /^(>*)/g).toString();
-  
+
   return `
     <ul class="c-list">
       ${uniqueLayerNames.map(item => `

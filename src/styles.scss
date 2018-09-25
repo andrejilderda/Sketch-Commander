@@ -44,16 +44,16 @@ body {
     padding: 18px 12px 0;
     white-space: pre;
     width: 100%;
-    
+
     // previous input is selected by default, so that it is easily overwritten
-    // with these rules we hide the selection background color so that you 
+    // with these rules we hide the selection background color so that you
     // can't visually see it's selected.
     // This class is removed when user is typing.
     &.previous-user-input::selection,
     &.previous-user-input *::selection {
       background: rgba(0,0,0,0);
     }
-    
+
 }
 
 .c-flex {
@@ -62,7 +62,7 @@ body {
     flex-direction: column;
     flex: auto;
     height: 100vh;
-    
+
     &__fixed {
         flex: 0;
     }
@@ -79,7 +79,7 @@ body {
     padding: 0;
     font-size: 14px;
     padding: 4px 12px;
-    
+
     &__item {
         display: inline-block;
         margin-left: 0;
@@ -105,13 +105,13 @@ body {
     color: #fff;
     font-size: 16px;
     font-weight: 200;
-    
+
     &__item {
         border-bottom: 1px solid darken($backgroundColor, 5%);
         padding: 12px 0;
         padding-left: 60px;
         position: relative;
-        
+
         &:hover, &.is-active {
             color: $activeColor;
             background-color: $activeBgColor;
@@ -159,7 +159,7 @@ body {
   }
   &__type {
     display: inline-block;
-    
+
     &:after {
       content: attr(data-default-operator);
       color: rgba($backgroundColor, 0.75);
@@ -169,7 +169,7 @@ body {
 
 [data-list] {
   display: none;
-  
+
   &.is-active {
     display: block;
   }
