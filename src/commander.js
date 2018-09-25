@@ -14,7 +14,7 @@ var context,
   doc,
   userInput,
   prevUserInput = "";
-  
+
 let global = {
   contextTabs: ""
 }
@@ -25,7 +25,7 @@ export default function(context) {
   context = context;
   sketch = context.api(); // Load sketch API — http://developer.sketchapp.com/reference/api/
   doc = context.document;
-  
+
   // does a userInputSetting already exist?
   try {
     prevUserInput = Settings.settingForKey("userInputSetting");
@@ -69,7 +69,7 @@ export default function(context) {
     // will log it to Sketch in a toast message
     sketch.UI.message(s)
   });
-  
+
   webUI.webContents.on('nativeLog', (s) => {
     // will log it to 'Plugin Output' in the Console
     console.log(s);
@@ -80,7 +80,7 @@ export default function(context) {
     doc.reloadInspector();
     webUI.close();
   });
-  
+
   webUI.webContents.on('closeModal', () => {
     webUI.close();
   });
@@ -114,16 +114,16 @@ const getPageLayers = function() {
 
 function loopThroughCommands(commandObj) {
   commandObj = JSON.parse(commandObj);
-  
+
   // if there's an expand selection command ('>>') the selection should expand.
   // It will apply the commands to the selected layers AND the layers that are >selected.
-  
-  // check whether a expandSelection ('>>') is found. Coerces to true/false, which is used 
+
+  // check whether a expandSelection ('>>') is found. Coerces to true/false, which is used
   // as an argument for setLayerSelection()
   const expand = commandObj.filter( item => {
     if ( item.expandSelection ) return true;
   }).length >= 1;
-  
+
   // when only one or multiple selectors are passed (f.e. '>layername'), we assume the user wants to select
   // these layers, so we deselect the currently selected layers to select the new ones.
 
@@ -132,7 +132,7 @@ function loopThroughCommands(commandObj) {
     if ( !item.selector ) return true;
   }).length === 0;
   if ( onlySelectors ) document.selectedLayers.clear();
-  
+
   // first check if there's a selection set ('>layername').
   // If so we use that to apply our commands to...
   commandObj.filter( item => {
@@ -141,14 +141,14 @@ function loopThroughCommands(commandObj) {
     const input = command.input.literal.replace( />/gi, '' );
     setLayerSelection( input, index, expand, onlySelectors )
   })
-  
+
   // ...then continue going through all commands
   commandObj.forEach( function( command ) {
     if ( !command.selector ) {
       const commandType = command.type;
       const operator = command.operator;
       const value = command.value;
-      
+
       // loop through commands when an array with multiple commands is passed (f.e. ['l','r'] from 'lr+100')
       if ( Array.isArray(commandType) ) commandType.forEach( item => executeCommand(item, operator, value) )
       else executeCommand(commandType, operator, value);
@@ -161,17 +161,17 @@ function setLayerSelection( layerName, index, expand, selectLayers ) {
   let newSelection = [];
   if ( !expand ) newSelection = []; // if expand is false (default), reset the current selection
   else newSelection = selection;
-  
+
   newSelection.push( select.searchLayers( layerName, 'artboard', selection )[0] );
-  
+
   // select the layers when argument is given
   if ( selectLayers ) {
     newSelection.forEach( layer => layer.selected = true );
   }
-  
+
   selection = newSelection;
 }
- 
+
 function executeCommand(commandType, operator, value) {
   switchStatement:
     switch (commandType) {
@@ -232,7 +232,7 @@ function executeCommand(commandType, operator, value) {
 
 // loop through layer selection
 function loopThroughSelection(callback) {
-  if (callback && typeof callback === 'function') {    
+  if (callback && typeof callback === 'function') {
     selection.forEach(layer => {
       // make a copy of the passed in arguments
       var args = Array.prototype.slice.call(arguments);
