@@ -5,7 +5,7 @@ function returnToSketch( name, args ) {
   if ( DEBUG ) pluginCall( 'nativeLog', 'CALLED: ' + name );
   if ( DEBUG && args ) pluginCall( 'nativeLog', 'ARGUMENTS: '+ args );
   if ( BROWSERDEBUG ) return;
-  
+
   // call function in Sketch
   pluginCall(name, args);
 }
@@ -33,7 +33,7 @@ function setInputValue( value, append ) {
     else inputField.innerHTML = inputField.innerHTML + value;
   }
   else inputField.innerHTML = value;
-  
+
   setCaretPosToEnd();
   parseInput();
 }
@@ -50,10 +50,10 @@ inputField.addEventListener('keydown', onKeydown, false);
 function onInput(e) {
   inputField.classList.remove('previous-user-input');
   inputFieldValue = this.innerText;
-  
+
   undoHistory.unshift(inputFieldValue); // add to history array
   if ( undoHistory.length >= 50 ) undoHistory.pop(); // limit history length
-  
+
   parseInput();
 };
 
@@ -63,7 +63,7 @@ function onKeydown(e) {
     e.preventDefault();
     handleUndo();
   }
-  
+
   // close on keydown enter or escape key
   if (e.keyCode === 27) {
     returnToSketch('closeModal');
@@ -90,9 +90,9 @@ function parseInput() {
 
 function renderInput() {
   var caretPos = getCaretPos(inputField);
-  
+
   const commandsLength = commands.get().length;
-  
+
   let html = '';
   commands.get().forEach( function(item, index) {
     let inputLiteral = item.input.literal;
@@ -102,7 +102,7 @@ function renderInput() {
 
     // * ⚠️ BEWARE: when formatting the elements below nicely, normally the extra whitespace will be interpreted
     // as text and mess up the caret positioning. 'singleLineString' prevents this by stripping this
-    
+
     // by default just output the users' literal input
     let input = item.input.literal;
     // format the input differently when the default operator is applied
@@ -116,23 +116,23 @@ function renderInput() {
     }
     if ( inputLiteral ) {
       element = singleLineString`
-        <span class="c-command  
-          ${item.isValid ? 'c-command--is-valid' : '' } 
-          ${item.selector ? 'c-command--layer-select' : '' }" 
+        <span class="c-command
+          ${item.isValid ? 'c-command--is-valid' : '' }
+          ${item.selector ? 'c-command--layer-select' : '' }"
           ${item.isValid && item.operator === '#' ? `style="background-color: #${item.value}"` : '' }>
           ${input}
         </span>
       `
     }
     html += element;
-    
+
     // we append the , comma again when it's not the last and only command
     const notLastNotOnly = commandsLength > 0 && commandsLength - 1 !== index;
     if ( notLastNotOnly ) html += '<span class=c-command__seperator>,</span>';
   })
-  
+
   inputField.innerHTML = html.trim().replace(/\n/g,'');
-  
+
   caret.position = caretPos;
 }
 

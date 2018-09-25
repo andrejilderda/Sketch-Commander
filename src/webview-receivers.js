@@ -19,7 +19,7 @@
     // don't send any arguments (ignore input field value) when rendering
     // listCommands after setting the prevUserInput
     listCommands.active = true;
-    listCommands.render(); 
+    listCommands.render();
   }
 
   // receive selected layer names
@@ -36,7 +36,7 @@
     listLayers.render();
     if (DEBUG) console.log(window.pageLayers);
   }
-  
+
   // receive active context from Sketch
   window.contextTabsInit = function(input) {
     if (DEBUG) console.log('Received contextTabsInit:');
