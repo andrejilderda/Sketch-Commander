@@ -83,6 +83,8 @@ function onKeydown(e) {
 function parseInput() {
   inputFieldValue = getInputValue();
   if ( !inputFieldValue ) listCommands.active = true;
+  
+  
   commands.clear();
   commands.parse( getInputValue() );
   renderInput();
@@ -134,6 +136,13 @@ function renderInput() {
   inputField.innerHTML = html.trim().replace(/\n/g,'');
 
   caret.position = caretPos;
+  updateUI();
+}
+
+function updateUI() {
+  // rerender contextTabs when a selector is found
+  if ( commands.hasSelector() ) contextTabs.active = true;
+  contextTabs.render();
 }
 
 

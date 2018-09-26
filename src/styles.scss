@@ -74,11 +74,19 @@ body {
     }
 }
 
-.c-context-tab {
+.c-context-tabs {
+    height: 0;
     margin: 0;
-    padding: 0;
+    padding: 0 12px;
     font-size: 14px;
-    padding: 4px 12px;
+    transition: all .3s ease;
+    overflow: hidden;
+
+    &.is-active {
+      display: block;
+      height: 25px;
+      padding: 4px 12px;
+    }
 
     &__item {
         display: inline-block;

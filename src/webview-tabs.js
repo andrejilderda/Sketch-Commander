@@ -4,11 +4,11 @@ class ContextSelector {
     this.tabDown = false;
     this.active = false;
     this.tabs = [ 'Artboard', 'Page', 'Document' ];
-    this.element = document.querySelector( '.c-context-tab' );
+    this.element = document.querySelector( '.c-context-tabs' );
     this.template = function() {
       return `
           ${this.tabs.map( (tab, index) => `
-            <li class="c-context-tab__item  ${index === this.context  ? `is-active` : ``}">
+            <li class="c-context-tabs__item  ${index === this.context  ? `is-active` : ``}">
               ${tab}
             </li>
           `).join('')}
@@ -26,12 +26,8 @@ class ContextSelector {
   }
 
   onTabPress( e ) {
-    if (!cyclingThroughOptions) {
-      this.tabDown = true;
-      if (!e.shiftKey) this.switch();
-    }
-    else selectOption();
-    if (e.shiftKey && this.tabDown) {
+    if (!e.shiftKey) this.switch();
+    else {
       e.preventDefault();
       this.switch( -1 );
     }

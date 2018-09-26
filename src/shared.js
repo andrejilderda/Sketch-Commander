@@ -195,6 +195,12 @@ const commands = function() {
   function publicClearObj() {
     obj = [];
   }
+  
+  function publicHasSelector() {
+    return commands.get().filter( item => {
+      if ( item.selector ) return true;
+    }).length !== 0;
+  }
 
 
   function stripSpace(str) {
@@ -345,6 +351,7 @@ const commands = function() {
     add: publicAddObj,
     get: publicGetObj,
     clear: publicClearObj,
-    parse: publicParse
+    parse: publicParse,
+    hasSelector: publicHasSelector
   }
 }();

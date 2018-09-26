@@ -111,7 +111,6 @@ const getPageLayers = function() {
 };
 
 
-
 function loopThroughCommands(commandObj) {
   commandObj = JSON.parse(commandObj);
 
