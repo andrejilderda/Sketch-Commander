@@ -20,7 +20,8 @@
     "build": "skpm-build",
     "watch": "skpm-build --watch",
     "start": "skpm-build --watch --run",
-    "postinstall": "npm run build && skpm-link"
+    "postinstall": "npm run build && skpm-link",
+    "test": "skpm-test"
   },
   "resources": [
     "Resources/webview.js"
@@ -35,6 +36,7 @@
   },
   "devDependencies": {
     "@skpm/builder": "^0.5.2",
+    "@skpm/test-runner": "^0.3.9",
     "browser-sync": "*",
     "del": "*",
     "gulp": "^4.0.0",
