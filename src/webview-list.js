@@ -3,6 +3,7 @@ let listInstances = [];
 listInstances.updateState = function( listName ) {
   if ( !listInstances ) return;
   listInstances.forEach( item => {
+    // only one list at a time may be active
     if ( item.name !== listName ) item.active = false;
   })
 }
@@ -48,10 +49,6 @@ class List {
       }
       return item[prop].match(regex);
     }).sort( function( a, b ) {
-      // TODO: exact match = highest score
-      // if (inputFieldValue === a[prop]) {
-      //   return a[prop] - b[prop];
-      // }
       let textA = a.name;
       let textB = b.name;
 
@@ -94,17 +91,17 @@ class List {
 List.prototype.onKeydown = function( e ) {
   if ( !this.active ) return false;
 
-  if ( e.keyCode === 40 || e.keyCode === 38 ) this.onUpDownKey( e );
+  if ( e.keyCode === 40 || e.keyCode === 38 ) this.highlightOption( e );
   else if ( e.keyCode === 13 ) this.onEnterKey( e );
   else return false;
 }
 
-List.prototype.onUpDownKey = function( e ) {
+List.prototype.highlightOption = function( e ) {
   e.preventDefault();
 
-  let increment = -1; // have nothing selected by default
-  const listItems = this.element.querySelectorAll( '[data-item]' );
-  const length = listItems.length + 1; // so that it's possible to have nothing selected
+  let increment = 0;
+  const listItems = document.querySelectorAll( '[data-item]' );
+  const length = listItems.length;
 
   // check if there already is an element selected, so that we can use its index;
   listItems.forEach( ( el, elIndex ) => {
@@ -238,3 +235,53 @@ listLayers.template = function( data ) {
     </ul>
   `
 };
+
+//////////////////////////////////////////////////////////////////
+//  SUBMITBUTTON                                                //
+//////////////////////////////////////////////////////////////////
+
+class SubmitButton {
+  constructor() {
+    this.states = {
+      default: {
+        text: 'Apply command to selected layers'
+      },
+      selection: {
+        text: 'Select layers named'
+      },
+      commandSelection: {
+        text: 'Apply command to selection'
+      }
+    };
+    this.state = 'default';
+    this.element = document.querySelector('[data-list="submit"]');
+    this.selected = true;
+    this.template = function() {      
+      return `
+      <ul class="c-list">
+        <li class="c-list__item  ${this.selected === true ? `is-active` : ``}" data-item>
+          ${this.states[this.state].text}
+        </li>
+      </ul>
+      `
+    };
+    this.render();
+  }
+  
+  setState() {
+    getSelectorNames();
+    // only selectors (e.g. '>layername')
+    if ( onlySelectors() ) this.state = 'selection';
+    // has selectors and commands (e.g '>layername, lr+20')
+    else if ( !onlySelectors() && getSelectors().length ) this.state = 'commandSelection';
+    // has commands (e.g. 'lr+20')
+    else this.state = 'default';
+  }
+  
+  render() {
+    this.setState();
+    
+    this.element.innerHTML = `${this.template()}`;
+  }
+}
+const submit = new SubmitButton();

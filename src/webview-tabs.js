@@ -27,10 +27,7 @@ class ContextSelector {
 
   onTabPress( e ) {
     if (!e.shiftKey) this.switch();
-    else {
-      e.preventDefault();
-      this.switch( -1 );
-    }
+    else this.switch( -1 );
   }
 
   // for switching task contexts

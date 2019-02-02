@@ -58,6 +58,8 @@ function onInput(e) {
 };
 
 function onKeydown(e) {
+  if( e.key === 'Meta' ) updateUI();
+  
   // when user presses cmd+z
   if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
     e.preventDefault();
@@ -143,6 +145,7 @@ function updateUI() {
   // rerender contextTabs when a selector is found
   if ( commands.hasSelector() ) contextTabs.active = true;
   contextTabs.render();
+  submit.render();
 }
 
 

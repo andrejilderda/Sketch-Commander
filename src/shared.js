@@ -339,14 +339,6 @@ const commands = function() {
     publicAddObj(obj);
   }
 
-  // function stripInput(input) {
-  //   userInput = userInput.toString();
-  //   userInput = userInput.toLowerCase();
-  //   userInput = userInput.replace(/(px)/g, "");
-  //   userInput = userInput.replace(/ /g, "");
-  //   userInput = userInput.replace(/ /g, ",");
-  // }
-
   return {
     add: publicAddObj,
     get: publicGetObj,
@@ -355,3 +347,32 @@ const commands = function() {
     hasSelector: publicHasSelector
   }
 }();
+
+export const getSelectors = () => {
+  return commands.get().filter( item => {
+    if ( item.selector ) return true;
+  })
+}
+
+export const getSelectorNames = () => {  
+  if ( getSelectors().length ) {
+    getSelectors().forEach( item => {
+      console.log( item.input.literal );
+      console.log( ['tom'].join(', ').replace(/, ([^,]*)$/, ' and $1') );
+    } )
+  };
+}
+
+
+// check if there are only selectors ('>') given. Coerces to true/false
+export const onlySelectors = () => {
+  // return false when there is no input
+  if ( !commands.get().length ) return false;
+  // return false when there are no selectors
+  if ( !getSelectors().length ) return false;
+  
+  return commands.get().filter( item => {
+    // check if item is a selector and input is not empty
+    if ( !item.selector && item.input.literal ) return true;
+  }).length === 0;
+}

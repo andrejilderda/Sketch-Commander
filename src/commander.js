@@ -110,7 +110,6 @@ const getPageLayers = function() {
   return pageLayers;
 };
 
-
 function loopThroughCommands(commandObj) {
   commandObj = JSON.parse(commandObj);
 
@@ -125,18 +124,11 @@ function loopThroughCommands(commandObj) {
 
   // when only one or multiple selectors are passed (f.e. '>layername'), we assume the user wants to select
   // these layers, so we deselect the currently selected layers to select the new ones.
-
-  // check if there are only selectors ('>') given. Coerces to true/false
-  const onlySelectors = commandObj.filter( item => {
-    if ( !item.selector ) return true;
-  }).length === 0;
-  if ( onlySelectors ) document.selectedLayers.clear();
+  if ( onlySelectors() ) document.selectedLayers.clear();
 
   // first check if there's a selection set ('>layername').
   // If so we use that to apply our commands to...
-  commandObj.filter( item => {
-    if ( item.selector ) return true;
-  }).forEach( ( command, index ) => {
+  getSelectors().forEach( ( command, index ) => {
     const input = command.input.literal.replace( />/gi, '' );
     setLayerSelection( input, index, expand, onlySelectors )
   })
