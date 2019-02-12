@@ -60,16 +60,17 @@ export default function(context) {
 
   // 💫 Listeners: receive messages from the webview (listener)
   webUI.webContents.on('returnUserInput', (s) => {
-    // if (DEBUG) console.log('USER INPUT:');
-    // if (DEBUG) console.log(s);
+    if (DEBUG) console.log('USER INPUT:');
+    if (DEBUG) console.log(s);
+
     Settings.setSettingForKey('userInputSetting', s);
   });
   webUI.webContents.on('saveContext', (s) => {
-    console.log('received context: ' + s);
+    if (DEBUG) console.log('received context: ' + s);
     Settings.setSettingForKey('contextTabs', s);
   });
   webUI.webContents.on('requestPageLayers', () => {
-    console.log('Page layers requested by webUI');
+    if (DEBUG) console.log('Page layers requested by webUI');
     webUI.webContents.executeJavaScript("setPageLayers('" + JSON.stringify( getPageLayers() ) + "')");
   });
   webUI.webContents.on('toast', (s) => {
@@ -79,10 +80,11 @@ export default function(context) {
 
   webUI.webContents.on('nativeLog', (s) => {
     // will log it to 'Plugin Output' in the Console
-    console.log(s);
+    if (DEBUG) console.log(s);
   });
 
   webUI.webContents.on('closeExecute', (s) => {
+    if (DEBUG) console.log(s);
     loopThroughCommands(s);
     doc.reloadInspector();
     webUI.close();
