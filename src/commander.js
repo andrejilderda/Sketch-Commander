@@ -1,5 +1,12 @@
 import BrowserWindow from 'sketch-module-web-view';
-import { commandList, DEBUG, BROWSERDEBUG } from './shared';
+import {
+    commandList,
+    DEBUG,
+    BROWSERDEBUG,
+    onlySelectors,
+    getSelectorNames,
+    getSelectors
+} from './shared';
 import { resizeObject, moveObject, setWidthHeightObject, resize, borderActions, textActions, layerActions, fillActions, mathOps, makeColor } from './layer-actions';
 import * as select from './select-actions';
 
@@ -131,7 +138,7 @@ function loopThroughCommands(commandObj) {
   getSelectors().forEach( ( command, index ) => {
     const input = command.input.literal.replace( />/gi, '' );
     setLayerSelection( input, index, expand, onlySelectors )
-  })
+  });
 
   // ...then continue going through all commands
   commandObj.forEach( function( command ) {
