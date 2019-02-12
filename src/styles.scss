@@ -44,16 +44,16 @@ body {
     padding: 18px 12px 0;
     white-space: pre;
     width: 100%;
-
+    
     // previous input is selected by default, so that it is easily overwritten
     // with these rules we hide the selection background color so that you
     // can't visually see it's selected.
     // This class is removed when user is typing.
     &.previous-user-input::selection,
     &.previous-user-input *::selection {
-      background: rgba(0,0,0,0);
+        background: rgba(0,0,0,0);
     }
-
+    
 }
 
 .c-flex {
@@ -62,7 +62,7 @@ body {
     flex-direction: column;
     flex: auto;
     height: 100vh;
-
+    
     &__fixed {
         flex: 0;
     }
@@ -81,20 +81,20 @@ body {
     font-size: 14px;
     transition: all .3s ease;
     overflow: hidden;
-
+    
     &.is-active {
-      display: block;
-      height: 25px;
-      padding: 4px 12px;
+        display: block;
+        height: 25px;
+        padding: 4px 12px;
     }
-
+    
     &__item {
         display: inline-block;
         margin-left: 0;
         // color: #94989A;
         color: lighten($backgroundColor, 50%);
         &.is-active {
-          color: $activeColor;
+            color: $activeColor;
         }
     }
 }
@@ -113,13 +113,13 @@ body {
     color: #fff;
     font-size: 16px;
     font-weight: 200;
-
+    
     &__item {
         border-bottom: 1px solid darken($backgroundColor, 5%);
         padding: 12px 0;
         padding-left: 60px;
         position: relative;
-
+        
         &:hover, &.is-active {
             color: $activeColor;
             background-color: $activeBgColor;
@@ -152,40 +152,40 @@ body {
 }
 
 .c-command {
-  $el: '.c-command';
-  display: inline-block;
-  margin-top: -4px;
-  &--is-valid {
-    background: #455d7a;
-    border-radius: 5px;
+    $el: '.c-command';
     display: inline-block;
     margin-top: -4px;
-    padding: 4px;
-    &#{$el}--layer-select {
-      color: $activeColor;
+    &--is-valid {
+        background: #455d7a;
+        border-radius: 5px;
+        display: inline-block;
+        margin-top: -4px;
+        padding: 4px;
+        &#{$el}--layer-select {
+            color: $activeColor;
+        }
     }
-  }
-  &__type {
-    display: inline-block;
-
-    &:after {
-      content: attr(data-default-operator);
-      color: rgba($backgroundColor, 0.75);
+    &__type {
+        display: inline-block;
+        
+        &:after {
+            content: attr(data-default-operator);
+            color: rgba($backgroundColor, 0.75);
+        }
     }
-  }
 }
 
 [data-list] {
-  display: none;
-
-  &.is-active {
-    display: block;
-  }
+    display: none;
+    
+    &.is-active {
+        display: block;
+    }
 }
 
 [contenteditable=true]:empty:before {
-  color: lighten($backgroundColor, 15%);
-  content: attr(placeholder);
-  display: block; /* For Firefox */
-
+    color: lighten($backgroundColor, 15%);
+    content: attr(placeholder);
+    display: block; /* For Firefox */
+    
 }

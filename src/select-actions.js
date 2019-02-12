@@ -18,60 +18,60 @@ const currentPage =  document.selectedPage;
 // selection argument is only required for determining current artboard
 // scope is either 'document', 'page' or 'artboard'
 export function searchLayers( name, scope, selection ) {
-  
-  if ( scope === 'page' ) {  
-    return loopThroughChildLayers( currentPage, function( match, layer ) {
-      if ( name && layer.name === name ) match.push()
-      else if ( !name ) match.push( layer ) // add all layers when no filter is given
-    } );
-  }
-  else if ( scope === 'artboard' ) {
-    const searchScope = parentArtboardsFromSelection( selection );
-
-    return loopThroughChildLayers( searchScope, function( match, layer ) {
-      if ( name && layer.name === name ) match.push( layer )
-      else if ( !name ) match.push( layer ) // add all layers when no filter is given
-    });
-  }
-  else if ( scope === 'document' ) {
-    return document.getLayersNamed( name );
-  }
-  else {
-    if (DEBUG) console.log('Invalid scope passed to searchLayers');
-  }
+    
+    if ( scope === 'page' ) {  
+        return loopThroughChildLayers( currentPage, function( match, layer ) {
+            if ( name && layer.name === name ) match.push()
+            else if ( !name ) match.push( layer ) // add all layers when no filter is given
+        } );
+    }
+    else if ( scope === 'artboard' ) {
+        const searchScope = parentArtboardsFromSelection( selection );
+        
+        return loopThroughChildLayers( searchScope, function( match, layer ) {
+            if ( name && layer.name === name ) match.push( layer )
+            else if ( !name ) match.push( layer ) // add all layers when no filter is given
+        });
+    }
+    else if ( scope === 'document' ) {
+        return document.getLayersNamed( name );
+    }
+    else {
+        if (DEBUG) console.log('Invalid scope passed to searchLayers');
+    }
 }
 
 // woah, replace all characters that could break the webview (like: "'{}).
 export function replaceDangerousCharacters( match, layer ) {
-  match.push({
-    name: layer.name.replace(/"/g, 'charDoubleQuote').replace(/'/g, 'charSingleQuote').replace(/{/g, 'charAccoladeOpen').replace(/}/g, 'charAccoladeClose'),
-    type: layer.type,
-    isSelected: layer.selected
-  });
+    match.push({
+        name: layer.name.replace(/"/g, 'charDoubleQuote').replace(/'/g, 'charSingleQuote').replace(/{/g, 'charAccoladeOpen').replace(/}/g, 'charAccoladeClose'),
+        type: layer.type,
+        isSelected: layer.selected
+    });
 }
 
 // loop through child layers and optionally filter by layer name
 export function loopThroughChildLayers( layerGroup, callback ) {
-  let match = [];
-  
-  function recursiveFn( layerGroup, callback ) {
-    layerGroup.layers.forEach( layer => {
-      callback(match, layer);
-      
-      // does the layerGroup contain child layers? If so, perform a (recursive) loop
-      if ( layer.layers ) recursiveFn( layer, callback );
-    })
-  }
-  // if layerGroup that's passed is an array (f.e. 2 artboards), loop through all of them
-  if ( Array.isArray( layerGroup ) ) layerGroup.forEach( item => recursiveFn( item, callback ) );
-  else recursiveFn( layerGroup, callback );
-
-  return match;
+    let match = [];
+    
+    function recursiveFn( layerGroup, callback ) {
+        layerGroup.layers.forEach( layer => {
+            callback(match, layer);
+            
+            // does the layerGroup contain child layers? If so, perform a (recursive) loop
+            if ( layer.layers ) recursiveFn( layer, callback );
+        })
+    }
+    // if layerGroup that's passed is an array (f.e. 2 artboards), loop through all of them
+    if ( Array.isArray( layerGroup ) ) layerGroup.forEach( item => recursiveFn( item, callback ) );
+    else recursiveFn( layerGroup, callback );
+    
+    return match;
 }
 
 
 export function selectLayers( name, scope, selection ) {
-  // currentPage.changeSelectionBySelectingLayers( searchLayers( name, scope, selection ) )
+    // currentPage.changeSelectionBySelectingLayers( searchLayers( name, scope, selection ) )
 }
 
 // hacky method to use the parentArtboard()-method that is not present in the Javascript API yet
@@ -80,27 +80,27 @@ export function selectLayers( name, scope, selection ) {
 // 'selection.frame.height = 10' in stead of 'selection.frame().setHeight(10);'
 // More info: https://developer.sketchapp.com/reference/api/#sketch-components
 export function parentArtboardsFromSelection( selection ) {
-  if ( !selection ) {
-    returnToSketch('toast', 'No layers selected');
-    return;
-  }
-  
-  let parentArtboards = [];
-  
-  selection.forEach( layer => {
-    const parentArtboard = layer.sketchObject.parentArtboard();
-    
-    // check if this artboard was already added
-    if ( !parentArtboards.includes( parentArtboard ) ) {
-      parentArtboards.push( Artboard.fromNative( parentArtboard ) );
+    if ( !selection ) {
+        returnToSketch('toast', 'No layers selected');
+        return;
     }
-  });
-  
-  // no parent artboards found?
-  if ( !parentArtboards ) {
-    returnToSketch('toast', 'No parent artboards found');
-    return;
-  }
-  
-  return parentArtboards;
+    
+    let parentArtboards = [];
+    
+    selection.forEach( layer => {
+        const parentArtboard = layer.sketchObject.parentArtboard();
+        
+        // check if this artboard was already added
+        if ( !parentArtboards.includes( parentArtboard ) ) {
+            parentArtboards.push( Artboard.fromNative( parentArtboard ) );
+        }
+    });
+    
+    // no parent artboards found?
+    if ( !parentArtboards ) {
+        returnToSketch('toast', 'No parent artboards found');
+        return;
+    }
+    
+    return parentArtboards;
 }
