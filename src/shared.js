@@ -348,10 +348,9 @@ const commands = function() {
     }
 }();
 
-export const getSelectors = () => {
-    return commands.get().filter( item => {
-        if ( item.selector ) return true;
-    })
+export const getSelectors = (commandObj) => {
+    const items = commandObj || commands.get();
+    return items.filter(item => item.selector);
 }
 
 export const getSelectorNames = () => {  
@@ -365,13 +364,15 @@ export const getSelectorNames = () => {
 
 
 // check if there are only selectors ('>') given. Coerces to true/false
-export const onlySelectors = () => {
+export const onlySelectors = (commandObj) => {
+    const items = commandObj || commands.get();
     // return false when there is no input
-    if ( !commands.get().length ) return false;
-    // return false when there are no selectors
-    if ( !getSelectors().length ) return false;
+    // if ( !commands.length ) return false;
     
-    return commands.get().filter( item => {
+    // return false when there are no selectors
+    if ( !items.length ) return false;
+    
+    return items.filter( item => {
         // check if item is a selector and input is not empty
         if ( !item.selector && item.input.literal ) return true;
     }).length === 0;
