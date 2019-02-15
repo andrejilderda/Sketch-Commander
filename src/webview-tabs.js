@@ -7,18 +7,16 @@ class ContextSelector {
         this.element = document.querySelector( '.c-context-tabs' );
         this.template = function() {
             return `
-            ${this.tabs.map( (tab, index) => `
-            <li class="c-context-tabs__item  ${index === this.context  ? `is-active` : ``}">
-            ${tab}
-            </li>
-            `).join('')}
+                ${this.tabs.map( (tab, index) => `
+                <li class="c-context-tabs__item  ${index === this.context  ? `is-active` : ``}">
+                    ${tab}
+                </li>
+                `).join('')}
             `
         }
         this.render();
     }
-    
-    
-    
+
     render() {
         if ( this.active ) this.element.classList.add( 'is-active' );
         else this.element.classList.remove( 'is-active' );
@@ -29,7 +27,7 @@ class ContextSelector {
         if (!e.shiftKey) this.switch();
         else this.switch( -1 );
     }
-    
+
     // for switching task contexts
     switch( value ) {
         if ( !arguments.length ) value = +1;
