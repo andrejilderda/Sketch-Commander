@@ -55,7 +55,8 @@ export default function(context) {
         backgroundColor: '#222831'
     };
     const webUI = new BrowserWindow(options);
-    webUI.loadURL('index.html');
+    const url = DEBUG ? 'http://localhost:3000' : 'index.html';
+    webUI.loadURL(url);
     
     
     // 💫 Listeners: receive messages from the webview (listener)
