@@ -1,6 +1,5 @@
 import BrowserWindow from 'sketch-module-web-view';
 import {
-    data,
     commandList,
     DEBUG,
     BROWSERDEBUG,
@@ -22,6 +21,10 @@ var context,
 doc,
 userInput,
 prevUserInput = "";
+
+const data = {
+    contextTabs: ""
+}
 
 export let selection = document.selectedLayers ? document.selectedLayers.layers : [];
 
@@ -65,6 +68,9 @@ export default function(context) {
     });
     webUI.webContents.on('saveContext', (s) => {
         if (DEBUG) console.log('received context: ' + s);
+        // make sure the contextTabs are updated when executing Sketch functions also
+        data.contextTabs = s;
+        
         Settings.setSettingForKey('contextTabs', s);
     });
     webUI.webContents.on('requestPageLayers', () => {

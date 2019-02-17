@@ -1,3 +1,4 @@
+
 class ContextSelector {
     constructor() {
         this.context = 0;
@@ -35,7 +36,6 @@ class ContextSelector {
         
         const length = this.tabs.length;
         this.context = mod(newContext, length);
-        data.contextTabs = this.context;
         
         if ( !BROWSERDEBUG ) returnToSketch('saveContext', this.context);
         this.render();

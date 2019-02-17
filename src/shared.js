@@ -10,10 +10,6 @@ export {
 const DEBUG = false;
 const BROWSERDEBUG = false; // sets a few variables that are normally received from Sketch
 
-export const data = {
-    contextTabs: ""
-}
-
 /*
 Regex (this is madness ;))
 1. check if there's a match with one of the commands that CAN NOT be combined (bdc, o, etc.)
