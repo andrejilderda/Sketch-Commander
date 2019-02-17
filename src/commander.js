@@ -1,5 +1,6 @@
 import BrowserWindow from 'sketch-module-web-view';
 import {
+    data,
     commandList,
     DEBUG,
     BROWSERDEBUG,
@@ -22,10 +23,6 @@ doc,
 userInput,
 prevUserInput = "";
 
-let global = {
-    contextTabs: ""
-}
-
 export let selection = document.selectedLayers.layers;
 
 export default function(context) {
@@ -36,7 +33,7 @@ export default function(context) {
     // does a userInputSetting already exist?
     try {
         prevUserInput = Settings.settingForKey("userInputSetting");
-        global.contextTabs = Settings.settingForKey("contextTabs");
+        data.contextTabs = Settings.settingForKey("contextTabs");
     } catch (e) { // else reset history
         Settings.setSettingForKey("userInputSetting", "");
         Settings.setSettingForKey("contextTabs", "");
@@ -107,7 +104,7 @@ export default function(context) {
         
         // 💫 emitter: call a function in the webview
         webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
-        webUI.webContents.executeJavaScript('contextTabsInit("' + global.contextTabs + '")');
+        webUI.webContents.executeJavaScript('contextTabsInit("' + data.contextTabs + '")');
     })
     
     return webUI;
