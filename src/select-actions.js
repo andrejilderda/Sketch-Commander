@@ -18,14 +18,8 @@ const currentPage =  document.selectedPage;
 // selection argument is only required for determining current artboard
 // scope is either 'document', 'page' or 'artboard'
 export function searchLayers( name, scope, selection ) {
-    
-    if ( scope === 'page' ) {  
-        return loopThroughChildLayers( currentPage, function( match, layer ) {
-            if ( name && layer.name === name ) match.push()
-            else if ( !name ) match.push( layer ) // add all layers when no filter is given
-        } );
-    }
-    else if ( scope === 'artboard' ) {
+    // artboard
+    if ( scope === 0 ) {
         const searchScope = parentArtboardsFromSelection( selection );
         
         return loopThroughChildLayers( searchScope, function( match, layer ) {
@@ -33,7 +27,15 @@ export function searchLayers( name, scope, selection ) {
             else if ( !name ) match.push( layer ) // add all layers when no filter is given
         });
     }
-    else if ( scope === 'document' ) {
+    // page
+    else if ( scope === 1 ) {
+        return loopThroughChildLayers( currentPage, function( match, layer ) {
+            if ( name && layer.name === name ) match.push( layer )
+            else if ( !name ) match.push( layer ) // add all layers when no filter is given
+        } );
+    }
+    // document
+    else if ( scope === 2 ) {
         return document.getLayersNamed( name );
     }
     else {
@@ -69,11 +71,6 @@ export function loopThroughChildLayers( layerGroup, callback ) {
     return match;
 }
 
-
-export function selectLayers( name, scope, selection ) {
-    // currentPage.changeSelectionBySelectingLayers( searchLayers( name, scope, selection ) )
-}
-
 // hacky method to use the parentArtboard()-method that is not present in the Javascript API yet
 // After the method is called we turn it into a wrapped object again.
 // Difference is we can use the Javascript API again: 
@@ -88,11 +85,11 @@ export function parentArtboardsFromSelection( selection ) {
     let parentArtboards = [];
     
     selection.forEach( layer => {
-        const parentArtboard = layer.sketchObject.parentArtboard();
+        const parentArtboard = layer.getParentArtboard();
         
         // check if this artboard was already added
         if ( !parentArtboards.includes( parentArtboard ) ) {
-            parentArtboards.push( Artboard.fromNative( parentArtboard ) );
+            parentArtboards.push( parentArtboard );
         }
     });
     

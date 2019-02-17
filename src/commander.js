@@ -23,7 +23,7 @@ doc,
 userInput,
 prevUserInput = "";
 
-export let selection = document.selectedLayers.layers;
+export let selection = document.selectedLayers ? document.selectedLayers.layers : [];
 
 export default function(context) {
     context = context;
@@ -160,9 +160,11 @@ function setLayerSelection( layerName, index, expand, selectLayers ) {
     const currentSelection = selection || [];
     if ( !expand ) newSelection = []; // if expand is false (default), reset the current selection
     else newSelection = currentSelection;
-    
-    newSelection.push( select.searchLayers( layerName, 'artboard', currentSelection )[0] );
-    
+
+    select.searchLayers( layerName, data.contextTabs, currentSelection ).map(item => {
+        newSelection.push(item);
+    });
+
     // select the layers when argument is given
     if ( selectLayers ) {
         newSelection.forEach( layer => layer.selected = true );
