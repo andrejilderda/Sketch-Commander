@@ -85,7 +85,8 @@ export function parentArtboardsFromSelection( selection ) {
     let parentArtboards = [];
     
     selection.forEach( layer => {
-        const parentArtboard = layer.getParentArtboard();
+        const isArtboard = (layer.type === 'Artboard');
+        const parentArtboard = !isArtboard ? layer.getParentArtboard() : layer;
         
         // check if this artboard was already added
         if ( !parentArtboards.includes( parentArtboard ) ) {
