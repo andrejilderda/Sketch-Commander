@@ -9,7 +9,7 @@ if (BROWSERDEBUG) {
     var pageLayersMockData = [
         {
             name: "Layername 1",
-            type: "Shape"
+            type: "ShapePath"
         },
         {
             name: "Textname 1",

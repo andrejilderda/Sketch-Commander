@@ -320,7 +320,7 @@ export var fillActions = {
             layer.sketchObject.setTextColor(color);
         }
         
-        if (layer.type === "Shape") {
+        if (layer.type === "ShapePath") {
             let layerColors = layer.style.fills;
             
             // unfortunately Sketch resets the fill type of gradients to 'Color'.
