@@ -1,6 +1,8 @@
 import selection from './commander'
 import { commandList, DEBUG, BROWSERDEBUG } from './shared';
 
+var sketchUI = require('sketch/ui');
+
 //////////////////////////////////////////////////////////////////
 //  SELECT ACTIONS                                              //
 //////////////////////////////////////////////////////////////////
@@ -77,8 +79,8 @@ export function loopThroughChildLayers( layerGroup, callback ) {
 // 'selection.frame.height = 10' in stead of 'selection.frame().setHeight(10);'
 // More info: https://developer.sketchapp.com/reference/api/#sketch-components
 export function parentArtboardsFromSelection( selection ) {
-    if ( !selection ) {
-        returnToSketch('toast', 'No layers selected');
+    if (!selection.length) {
+        sketchUI.message('No artboard or layers on artboard selected');
         return;
     }
     
@@ -96,7 +98,7 @@ export function parentArtboardsFromSelection( selection ) {
     
     // no parent artboards found?
     if ( !parentArtboards ) {
-        returnToSketch('toast', 'No parent artboards found');
+        sketchUI.message('No parent artboards found');
         return;
     }
     

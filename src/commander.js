@@ -12,6 +12,7 @@ import * as select from './select-actions';
 
 var sketch = require('sketch');
 var Settings = require('sketch/settings');
+var sketchUI = require('sketch/ui');
 var document = require('sketch/dom').getSelectedDocument();
 var Artboard = require('sketch/dom').Artboard;
 var Page =  require('sketch/dom').Page;
@@ -66,6 +67,7 @@ export default function(context) {
         
         Settings.setSettingForKey('userInputSetting', s);
     });
+
     webUI.webContents.on('saveContext', (s) => {
         if (DEBUG) console.log('received context: ' + s);
         // make sure the contextTabs are updated when executing Sketch functions also
@@ -73,13 +75,15 @@ export default function(context) {
         
         Settings.setSettingForKey('contextTabs', s);
     });
+
     webUI.webContents.on('requestPageLayers', () => {
         if (DEBUG) console.log('Page layers requested by webUI');
         webUI.webContents.executeJavaScript("setPageLayers('" + JSON.stringify( getPageLayers() ) + "')");
     });
+
     webUI.webContents.on('toast', (s) => {
         // will log it to Sketch in a toast message
-        sketch.UI.message(s)
+        sketchUI.message(s);
     });
     
     webUI.webContents.on('nativeLog', (s) => {
