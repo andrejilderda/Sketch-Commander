@@ -214,9 +214,11 @@ export var borderActions = {
     thickness: function(layer, thickness, operator) {
         thickness = Number(thickness);
         // are there any borders?
-        let border = layer.sketchObject.style().borders().lastObject();
-        if (border !== null) {
-            var borderThickness = layer.sketchObject.style().borders().lastObject().thickness();
+        const borders = layer.style.borders;
+        if (borders.length) {
+            const border = borders[borders.length - 1];
+            const borderThickness = border.thickness;
+            
             border.thickness = mathOps(borderThickness, thickness, operator);
         } else {
             this.add(layer, thickness);

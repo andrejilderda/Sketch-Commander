@@ -27,7 +27,6 @@ function getCaretPos( el ) {
     return caretOffset;
 }
 
-
 function getAllTextnodes( el ) {
     var el = el || caret.input;
     var n, a=[], walk=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false);
@@ -52,7 +51,6 @@ function getCaretNode( el, position ){
     // you'll need the node and the position (offset) to set the caret
     return { node: node, position: position };
 }
-
 
 function handleCaretPos( caretPos ) {
     try {

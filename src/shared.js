@@ -357,7 +357,6 @@ export const getSelectorNames = () => {
     if ( getSelectors().length ) {
         getSelectors().forEach( item => {
             console.log( item.input.literal );
-            console.log( ['tom'].join(', ').replace(/, ([^,]*)$/, ' and $1') );
         } )
     };
 }

@@ -181,59 +181,59 @@ function setLayerSelection( layerName, index, expand, selectLayers ) {
 
 function executeCommand(commandType, operator, value) {
     switchStatement:
-    switch (commandType) {
-        case "l":
-        case "r":
-        case "t":
-        case "b":
-        case "a":
-        loopThroughSelection(resizeObject, commandType, value, operator);
-        break switchStatement;
-        case "w":
-        case "h":
-        loopThroughSelection(setWidthHeightObject, commandType, value, operator);
-        break switchStatement;
-        case "x":
-        case "y":
-        loopThroughSelection(moveObject, commandType, value, operator);
-        break switchStatement;
-        case "fs":
-        loopThroughSelection(textActions.setSize, value, operator);
-        break switchStatement;
-        case "ttl":
-        loopThroughSelection(textActions.convertLowerCase);
-        break switchStatement;
-        case "ttu":
-        loopThroughSelection(textActions.convertUpperCase);
-        break switchStatement;
-        case "lh":
-        loopThroughSelection(textActions.setLineheight, value, operator);
-        break switchStatement;
-        case "v":
-        loopThroughSelection(textActions.setValue, value, operator);
-        break switchStatement;
-        case "n":
-        loopThroughSelection(layerActions.rename, value, operator);
-        break switchStatement;
-        case "bdc":
-        loopThroughSelection(borderActions.setColor, value, operator);
-        break switchStatement;
-        case "bdr":
-        loopThroughSelection(borderActions.radius, value, operator);
-        break switchStatement;
-        case "bdw":
-        loopThroughSelection(borderActions.thickness, value, operator);
-        break switchStatement;
-        case "bd":
-        loopThroughSelection(borderActions.checkOperator, value, operator);
-        break switchStatement;
-        case "f":
-        loopThroughSelection(fillActions.setColor, value, operator);
-        break switchStatement;
-        case "o":
-        loopThroughSelection(fillActions.setOpacity, value, operator);
-        break switchStatement;
-    }
+        switch (commandType) {
+            case "l":
+            case "r":
+            case "t":
+            case "b":
+            case "a":
+                loopThroughSelection(resizeObject, commandType, value, operator);
+                break switchStatement;
+            case "w":
+            case "h":
+                loopThroughSelection(setWidthHeightObject, commandType, value, operator);
+                break switchStatement;
+            case "x":
+            case "y":
+                loopThroughSelection(moveObject, commandType, value, operator);
+                break switchStatement;
+            case "fs":
+                loopThroughSelection(textActions.setSize, value, operator);
+                break switchStatement;
+            case "ttl":
+                loopThroughSelection(textActions.convertLowerCase);
+                break switchStatement;
+            case "ttu":
+                loopThroughSelection(textActions.convertUpperCase);
+                break switchStatement;
+            case "lh":
+                loopThroughSelection(textActions.setLineheight, value, operator);
+                break switchStatement;
+            case "v":
+                loopThroughSelection(textActions.setValue, value, operator);
+                break switchStatement;
+            case "n":
+                loopThroughSelection(layerActions.rename, value, operator);
+                break switchStatement;
+            case "bdc":
+                loopThroughSelection(borderActions.setColor, value, operator);
+                break switchStatement;
+            case "bdr":
+                loopThroughSelection(borderActions.radius, value, operator);
+                break switchStatement;
+            case "bdw":
+                loopThroughSelection(borderActions.thickness, value, operator);
+                break switchStatement;
+            case "bd":
+                loopThroughSelection(borderActions.checkOperator, value, operator);
+                break switchStatement;
+            case "f":
+                loopThroughSelection(fillActions.setColor, value, operator);
+                break switchStatement;
+            case "o":
+                loopThroughSelection(fillActions.setOpacity, value, operator);
+                break switchStatement;
+        }
 }
 
 
