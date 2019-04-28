@@ -1,5 +1,5 @@
-# build artefacts
-Sketch Commander.sketchplugin/Contents/Sketch
+# build artifacts
+Sketch Commander.sketchplugin
 
 # npm
 node_modules
@@ -8,3 +8,5 @@ npm-debug.log
 
 # mac
 .DS_Store
+*.map
+Resources/webview.js

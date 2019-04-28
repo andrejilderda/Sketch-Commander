@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <!-- 
+    BEWARE! Don't try to format the code below nicely, because the added spaces
+    will be added to the calculation that determines the caret position.
+  -->
+  <div class="inputfield" style="white-space: pre;" contenteditable="true">niet in span,<span>lr100</span>,<span>lr-100</span>,<span>tv=bla</span>,<span>x*200</span></div>
+  
+  <script type="text/javascript">
+  const inputField = document.querySelector('.inputfield');
+  const commandRegex = /(bdc)|(bdr)|(bdw)|(bd)|(fs)|(f)|(lh)|(ttu)|(ttl)|(o)|[lrtbwhaxynv]/g,
+    operatorRegex = /[\/+\-*%\=]/g;
+  
+  let prevInputLength = inputField.textContent.length,
+    inputValue = [],
+    valueHistory = [],
+    inputArray = [];
+  
+  // Code below is based on/copied from Donnie D'Amato's helpful Medium post:
+  // https://medium.com/compass-true-north/a-dancing-caret-the-unknown-perils-of-adjusting-cursor-position-f252734f595e
+  
+  function getCaretPosition(el){
+    var caretOffset = 0, sel;
+    if (typeof window.getSelection !== "undefined") {
+      var range = window.getSelection().getRangeAt(0);
+      var selected = range.toString().length;
+      var preCaretRange = range.cloneRange();
+      console.error(el);
+      preCaretRange.selectNodeContents(el);
+      preCaretRange.setEnd(range.endContainer, range.endOffset);
+      caretOffset = preCaretRange.toString().length - selected;
+    }
+    return caretOffset;
+  }
+
+  
+  function getAllTextnodes(el){
+    var n, a=[], walk=document.createTreeWalker(el,NodeFilter.SHOW_TEXT,null,false);
+    while(n=walk.nextNode()) a.push(n);
+    return a;
+  }
+
+  function getCaretData(el, position){
+    var node; 
+    var nodes = getAllTextnodes(el);
+    for(var n = 0; n < nodes.length; n++) {
+      if (position > nodes[n].nodeValue.length && nodes[n+1]) {
+        // remove amount from the position, go to next node
+        position -= nodes[n].nodeValue.length;
+      } else {
+        node = nodes[n];
+        break;
+      }
+    }
+    // you'll need the node and the position (offset) to set the caret
+    return { node: node, position: position };
+  }
+
+  // setting the caret with this info  is also standard
+  function setCaretPosition(d) {
+    var sel = window.getSelection(),
+    range = document.createRange();
+    range.setStart(d.node, d.position);
+    range.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+  
+  
+  
+  
+  // ///////////////////////////////////////
+
+    
+    inputField.addEventListener('keydown', onKeyDown);
+    inputField.addEventListener('input', onInput);
+    inputField.focus();
+
+    function onKeyDown(e) {
+      // when user presses cmd+z
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+        e.preventDefault();
+        handleUndo();
+      }
+    }
+    
+    function onInput(e) {
+      inputValue = this.innerText;
+      // add to history array
+      valueHistory.unshift(inputValue);
+      // history will be max this long
+      if ( valueHistory.length >= 20 ) valueHistory.pop();
+      
+      parseInput();
+    }
+
+    function parseInput() {
+      // create an array of all commands, e.g. ['lr-100', 'x*200']
+      if ( !inputValue ) return;
+      inputArray = inputValue.split(',');
+      
+      for (command of inputArray) {
+        const operatorRegex = /([\/+\-*%\=])/g;
+        var commands = command.split(operatorRegex);
+      }
+      populateInput();
+    }
+    
+    function populateInput() {
+            
+      var currentCaretPosition = getCaretPosition(inputField);
+
+      let html = '';
+      inputArray.forEach( function(item, index) {
+        var input = item;
+        html = html + `<span class="">${input}</span>`
+        if ( inputArray.length > 1 && inputArray.length - 1 !== index) {
+          html = html + ',';
+        } 
+      })
+      
+      inputField.innerHTML = html.trim().replace(/\n/g,'');
+      
+      var data = getCaretData(inputField, currentCaretPosition);
+      setCaretPosition(data);
+    }
+
+    // triggered whenever the user presses cmd + z
+    function handleUndo() {
+      if ( valueHistory[0] ) {
+        inputValue = valueHistory[1];
+        valueHistory.shift();
+        parseInput();
+      };
+    }
+  </script>
+
+
+</body></html>

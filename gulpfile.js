@@ -3,6 +3,7 @@ var browserSync     = require('browser-sync'),
     gulp            = require('gulp'),
     autoprefixer    = require('gulp-autoprefixer'),
     cleancss        = require('gulp-clean-css'),
+    concat          = require('gulp-concat'),
     notify          = require('gulp-notify'),
     plumber         = require('gulp-plumber'),
     sass            = require('gulp-sass'),
@@ -16,10 +17,20 @@ var browserSync     = require('browser-sync'),
       'html':        'src/*.html',
       'base_html':   ['src/*.html', '!src/_*.html'],
       'styles':      'src/*.scss',
+      'scripts':     [
+                './src/shared.js',
+                './src/utils.js',
+                './src/webview-main.js',
+                './src/webview-browserdebug-data.js',
+                './src/webview-caret.js',
+                './src/webview-list.js',
+                './src/webview-receivers.js'
+              ]
     },
     output = {
       'html':        'Sketch\ Commander.sketchplugin/Contents/Resources',
       'styles':      'Sketch\ Commander.sketchplugin/Contents/Resources',
+      'scripts':     'Resources'
     }
 ;
 
@@ -32,7 +43,7 @@ var onError = function (err) {
 };
 
 // BrowserSync proxy
-gulp.task('browser-sync', function() {
+gulp.task('browser-sync', function(done) {
   browserSync.init({
       server: {
         baseDir: output.html
@@ -40,6 +51,7 @@ gulp.task('browser-sync', function() {
       online: false,
       open: false //true: opens in browser each time you run gulp
   });
+  done()
 });
 
 
@@ -47,40 +59,51 @@ gulp.task('browser-sync', function() {
 gulp.task('site:css', function(){
   return gulp.src(input.styles)
     .pipe(plumber({ errorHandler: onError }))
-    .pipe(sourcemaps.init())
+    // .pipe(sourcemaps.init())
     .pipe(sass())
     .pipe(autoprefixer(['last 2 versions'], { cascade: true }))
     .pipe(cleancss())
-    .pipe(sourcemaps.write())
+    // .pipe(sourcemaps.write())
     .pipe(gulp.dest(output.styles))
     .pipe(browserSync.reload({ stream: true }))
 });
+
 // sync html 
-gulp.task('sync:html', function() {
+gulp.task('sync:html', function(done) {
   return gulp.src(input.base_html)
     .pipe(gulp.dest(output.html))
+    done()
 });
 
+gulp.task('scripts', function(done) {
+  return gulp.src(input.scripts)
+    .pipe(sourcemaps.init())
+    .pipe(concat('webview.js'))
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest('./Resources/'));
+    done()
+});
 
 //reload html task
-gulp.task('reload', ['sync:html'], browserSync.reload);
+gulp.task('reload', function(done){
+    browserSync.reload()
+    done()
+})
 
 // Server + watching files
 gulp.task('watch', function() {
-    gulp.watch(input.html, ['reload']).on('change', function(event) {
+    gulp.watch(input.html, gulp.parallel( 'sync:html' ));
+    gulp.watch(input.html, gulp.parallel( 'reload' )).on('change', function(event) {
         if(event.type === 'deleted') {
             del.sync(path.resolve(output.html, path.relative(path.resolve('source'), event.path)));
         }
     });
-    
-    gulp.watch(input.styles, ['site:css']);
+    gulp.watch(input.styles, gulp.parallel('site:css' ));
+    gulp.watch(input.scripts, gulp.parallel('scripts' ));
 });
 
 //build all task
-gulp.task('build:all', [ 
-  'site:css', 
-  'sync:html'
-]);
+gulp.task('build:all', gulp.parallel( 'site:css', 'sync:html', 'scripts' ));
 
 //this task will run on default 'gulp' without arguments
-gulp.task('default', ['build:all', 'browser-sync', 'watch']);
+gulp.task('default', gulp.series( 'build:all', 'browser-sync', 'watch' ));

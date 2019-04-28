@@ -1,535 +1,234 @@
-import WebUI from 'sketch-module-web-view'
-import { getCommandsObj, splitCommands } from '../Resources/shared'
+import BrowserWindow from 'sketch-module-web-view';
+import { commandList, DEBUG, DEVMODE, BROWSERDEBUG } from './shared';
+import { resizeObject, moveObject, setWidthHeightObject, resize, borderActions, textActions, layerActions, fillActions, mathOps, makeColor } from './layer-actions';
+import * as select from './select-actions';
 
-var sketch,
-context,
-doc,
-selection,
-userInput,
-prevUserInput  = "",
-contextTabs  = "";
+var sketch = require('sketch');
+var Settings = require('sketch/settings');
+var document = require('sketch/dom').getSelectedDocument();
+var Artboard = require('sketch/dom').Artboard;
+var Page =  require('sketch/dom').Page;
+var Document = require('sketch/dom').Document;
 
-export default function (context) {
-    context = context;
-	sketch = context.api(); // Load sketch API — http://developer.sketchapp.com/reference/api/
-	doc = context.document;
-	selection = context.selection;
-    
-    // does a userInputSetting already exist?
-	try {
-		prevUserInput = sketch.settingForKey("userInputSetting");
-        contextTabs = sketch.settingForKey("contextTabs");
-	}
-	catch (e) { // else reset history
-		sketch.setSettingForKey("userInputSetting", "");
-        sketch.setSettingForKey("contextTabs", "");
-	}
-    
-    // create webview
-    const options = {
-        identifier: 'unique.id', // to reuse the UI
-        x: 0,
-        y: 0,
-        width: 520,
-        height: 280,
-        background: NSColor.blackColor(),
-        titlebarAppearsTransparent: true,
-        onlyShowCloseButton: true,
-        title: 'Sketch Commander',
-        hideTitleBar: false,
-        setTitlebarAppearsTransparent : true,
-        shouldKeepAround: true,
-        handlers: {
-            returnUserInput: function (s) {
-                userInput = s;
-                // store previous value for later use
-                sketch.setSettingForKey("userInputSetting", userInput);
-            },
-            saveContext: function (s) {
-                context = s;
-                // store previous value for later use
-                sketch.setSettingForKey("contextTabs", context);
-            },
-            nativeLog: function (s) {
-                webUI.panel.close();
-                WebUI.clean()
-                executeCommand(s);
-                doc.reloadInspector();
-            },
-            closeModal: function () {
-                webUI.panel.close();
-                WebUI.clean()
-            }
-        },
-        frameLoadDelegate: { // https://developer.apple.com/reference/webkit/webframeloaddelegate?language=objc
-            'webView:didFinishLoadForFrame:': function (webView, webFrame) {
-                // triggers when webview is loaded
-                webUI.eval('prevUserInput ="' + prevUserInput + '"')
-                webUI.eval('contextTabs ="' + contextTabs + '"')
-                
-                // create array with selected layers
-                var selectedLayerNameArray = [];
-                for (var i=0; i < selection.count(); i++) {
-                    var layer = selection.objectAtIndex(i);
-                    // selectedLayerNameArray.push(layer.name());
-					selectedLayerNameArray.push(layer.objectID());
-                }
-                webUI.eval('selectedLayerNameArray ="' + selectedLayerNameArray + '"')
-				
-				// create array with artboard layers
-                var artboardLayerNameArray = [];
-				var selectedArtboard = doc.currentPage().currentArtboard()
-				var artboardLayers = selectedArtboard.layers();
-				 
-                for (var i=0; i < artboardLayers.count(); i++) {
-                    var layer = artboardLayers.objectAtIndex(i);
-                    // artboardLayerNameArray.push(layer.name());
-					artboardLayerNameArray.push(layer.objectID());
-                }
-                webUI.eval('artboardLayerNameArray ="' + artboardLayerNameArray + '"')
-                // webUI.eval('someJSFunction(' + prevCommand + ')');
-            }
-        }
+var context,
+  doc,
+  userInput,
+  prevUserInput = "";
+
+export let selection = document.selectedLayers.layers;
+
+export default function(context) {
+  context = context;
+  sketch = context.api(); // Load sketch API — http://developer.sketchapp.com/reference/api/
+  doc = context.document;
+  
+  // does a userInputSetting already exist?
+  try {
+    prevUserInput = Settings.settingForKey("userInputSetting");
+  } catch (e) { // else reset history
+    Settings.setSettingForKey("userInputSetting", "");
+  }
+
+  // create BrowserWindow
+  const options = {
+    title: 'Sketch Commander',
+    identifier: 'com.sketchapp.commander', // to reuse the UI
+    width: 520,
+    height: 280,
+    frame: false,
+    useContentSize: true,
+    center: true,
+    resizable: false,
+    backgroundColor: '#222831'
+  };
+  const webUI = new BrowserWindow(options);
+  webUI.loadURL('index.html');
+
+
+  // 💫 Listeners: receive messages from the webview (listener)
+  webUI.webContents.on('returnUserInput', (s) => {
+    // if (DEBUG) console.log('USER INPUT:');
+    // if (DEBUG) console.log(s);
+    Settings.setSettingForKey('userInputSetting', s);
+  });
+  webUI.webContents.on('requestPageLayers', () => {
+    console.log('Page layers requested by webUI');
+    webUI.webContents.executeJavaScript("setPageLayers('" + JSON.stringify( getPageLayers() ) + "')");
+  });
+  webUI.webContents.on('toast', (s) => {
+    // will log it to Sketch in a toast message
+    sketch.UI.message(s)
+  });
+  
+  webUI.webContents.on('nativeLog', (s) => {
+    // will log it to 'Plugin Output' in the Console
+    console.log(s);
+  });
+
+  webUI.webContents.on('closeExecute', (s) => {
+    loopThroughCommands(s);
+    doc.reloadInspector();
+    webUI.close();
+  });
+  
+  webUI.webContents.on('closeModal', () => {
+    webUI.close();
+  });
+
+  // close webview when loosing focus
+  webUI.on('blur', () => {
+    webUI.close();
+  });
+
+  // wait for the webview to be 'ready-to-show' to prevent flickering
+  webUI.once('ready-to-show', () => {
+    if (DEBUG) console.log('ready-to-show');
+    webUI.show();
+
+    // 💫 emitter: call a function in the webview
+    webUI.webContents.executeJavaScript('prevUserInput("' + prevUserInput + '")');
+  })
+
+  return webUI;
+}
+
+// create array with selected layers
+const getPageLayers = function() {
+  const pageLayersData = document.selectedPage.layers;
+  const pageLayers = select.loopThroughChildLayers( pageLayersData, select.replaceDangerousCharacters );
+  return pageLayers;
+};
+
+
+
+function loopThroughCommands(commandObj) {
+  commandObj = JSON.parse(commandObj);
+  
+  // if there's an expand selection command ('>>') the selection should expand.
+  // It will apply the commands to the selected layers AND the layers that are >selected.
+  
+  // check whether a expandSelection ('>>') is found. Coerces to true/false, which is used 
+  // as an argument for setLayerSelection()
+  const expand = commandObj.filter( item => {
+    if ( item.expandSelection ) return true;
+  }).length >= 1;
+  
+  // when only one or multiple selectors are passed (f.e. '>layername'), we assume the user wants to select
+  // these layers, so we deselect the currently selected layers to select the new ones.
+
+  // check if there are only selectors ('>') given. Coerces to true/false
+  const onlySelectors = commandObj.filter( item => {
+    if ( !item.selector ) return true;
+  }).length === 0;
+  if ( onlySelectors ) document.selectedLayers.clear();
+  
+  // first check if there's a selection set ('>layername').
+  // If so we use that to apply our commands to...
+  commandObj.filter( item => {
+    if ( item.selector ) return true;
+  }).forEach( ( command, index ) => {
+    const input = command.input.literal.replace( />/gi, '' );
+    setLayerSelection( input, index, expand, onlySelectors )
+  })
+  
+  // ...then continue going through all commands
+  commandObj.forEach( function( command ) {
+    if ( !command.selector ) {
+      const commandType = command.type;
+      const operator = command.operator;
+      const value = command.value;
+      
+      // loop through commands when an array with multiple commands is passed (f.e. ['l','r'] from 'lr+100')
+      if ( Array.isArray(commandType) ) commandType.forEach( item => executeCommand(item, operator, value) )
+      else executeCommand(commandType, operator, value);
+      if (DEBUG) console.log(`executeCommand: ${commandType}  ${operator}  ${value}` )
     }
-    const webUI = new WebUI(context, 'index.html', options);
+  });
 }
 
-
-function executeCommand(commandObj) {
-    for (var k=0; k < commandObj.length; k++) {
-        commandType = commandObj[k].type;
-        operator = commandObj[k].operator;
-        amount = commandObj[k].amount;
-		
-		function loopThroughSelection(callback) {
-			if (callback && typeof callback === 'function') {
-				for (var i=0; i < selection.count(); i++) {
-					var layer = selection.objectAtIndex(i);
-					// make a copy of the passed in arguments
-					var args = Array.prototype.slice.call(arguments);
-					// overwrite the passed in function name with the layer
-					args[0] = layer;
-					// run the callback function with the function name and use the arguments
-					callback.apply(callback[0], args);
-				};
-			}
-		}
-        
-        switchStatement:
-            switch (commandType) {
-                case "l":
-                case "r":
-                case "t":
-                case "b":
-                case "a":
-					loopThroughSelection( resizeObject, commandType, amount, operator );
-                    break switchStatement;
-                case "w":
-                case "h":
-					loopThroughSelection( setWidthHeightObject, commandType, amount, operator );
-                    break switchStatement;
-                case "x":
-                case "y":
-					loopThroughSelection( moveObject, commandType, amount, operator );
-                    break switchStatement;
-                case "fs":
-					loopThroughSelection( textActions.setSize, amount, operator );
-                    break switchStatement;
-                case "ttl":
-                    loopThroughSelection( textActions.convertLowerCase );
-                    break switchStatement;
-                case "ttu":
-                    loopThroughSelection( textActions.convertUpperCase );
-                    break switchStatement;
-                case "lh":
-                    loopThroughSelection( textActions.setLineheight, amount, operator );
-                    break switchStatement;
-                case "v":
-                    loopThroughSelection( textActions.setValue, amount, operator );
-                    break switchStatement;
-                case "n":
-                    loopThroughSelection( layerActions.rename, amount, operator );
-                    break switchStatement;
-                case "bdc":
-                    loopThroughSelection( borderActions.setColor, amount, operator );
-                    break switchStatement;
-                case "bdr":
-                    loopThroughSelection( borderActions.radius, amount, operator );
-                    break switchStatement;
-                case "bdw":
-                    loopThroughSelection( borderActions.thickness, amount, operator );
-                    break switchStatement;
-                case "bd":
-                    loopThroughSelection( borderActions.checkOperator, amount, operator );
-                    break switchStatement;
-                case "f":
-                    loopThroughSelection( fillActions.setColor, amount, operator );
-                    break switchStatement;
-                case "o":
-                    loopThroughSelection( fillActions.setOpacity, amount, operator );
-                    break switchStatement;
-            }
-    }
+function setLayerSelection( layerName, index, expand, selectLayers ) {
+  let newSelection = [];
+  if ( !expand ) newSelection = []; // if expand is false (default), reset the current selection
+  else newSelection = selection;
+  
+  newSelection.push( select.searchLayers( layerName, 'artboard', selection )[0] );
+  
+  // select the layers when argument is given
+  if ( selectLayers ) {
+    newSelection.forEach( layer => layer.selected = true );
+  }
+  
+  selection = newSelection;
 }
-
-//////////////////////////////////////////////////////////////////
-//  LAYER ACTIONS                                               //
-//////////////////////////////////////////////////////////////////
-
-function resizeObject(layer, command, amount, operator) {
-	
-	var calcAmount = Math.round(amount);
-	if(operator == "-")
-		calcAmount *= -1;
-
-	switch (command) {
-		case "a":
-			resize(layer, calcAmount,calcAmount,calcAmount,calcAmount);
-			break;
-		case "l":
-			resize(layer, 0,0,0,calcAmount);
-			break;
-		case "r":
-			resize(layer, 0,calcAmount,0,0);
-			break;
-		case "t":
-			resize(layer, calcAmount,0,0,0);
-			break;
-		case "b":
-			resize(layer, 0,0,calcAmount,0);
-			break;
-	}
-}
-
-function moveObject(layer, command, amount, operator) {
-	var xAmount = Number(amount);
-	var yAmount = Number(amount);
-	var frame = layer.frame();
-	var xCurrent = layer.absoluteRect().rulerX();
-	var yCurrent = layer.absoluteRect().rulerY();
-	
-	if(operator == "-" || operator == "+") {	
-		if(operator == "-") {
-			xAmount *= -1;
-			yAmount *= -1;
-		}
-		if(command === "x") {
-			layer.absoluteRect().setRulerX( xCurrent + xAmount );
-		} else if (command === "y") {
-			layer.absoluteRect().setRulerY( yCurrent + yAmount );
-		}
-	}
-	if (operator == "=") {
-		if(command === "x") {
-			layer.absoluteRect().setRulerX( xAmount );
-		} else if (command === "y") {
-			layer.absoluteRect().setRulerY( yAmount );
-		}
-	}
-}
-
-// function is triggered when using operators = / * %
-function setWidthHeightObject(layer, command, amount, operator) {
-	var calcAmount = Math.round(amount);
-	var frame = layer.frame();
-    
-	calcAmountPercentage = calcAmount / 100;
-
-	frameHeight = frame.height();
-	frameWidth = frame.width();
-	
-	// Set width or height =
-	if (operator == "=") {
-		if (command === "w")
-			frame.setWidth(amount);
-		else if (command === "h")
-			frame.setHeight(amount);
-	}
-    // add or subtract width/height
-	if (operator == "+" || operator == "-") {
-        if (operator == "-") {
-            calcAmount = calcAmount *= -1;
-        }
-		if (command === "w")
-            resize(layer, 0,calcAmount,0,0);
-		else if (command === "h")
-            resize(layer, 0,0,calcAmount,0);
-	}
-	// Set percentage %
-	else if (operator == "%") {
-		if(command == 'h')
-			frame.setHeight( Math.round(calcAmountPercentage * frameHeight) );
-		else
-			frame.setWidth( Math.round(calcAmountPercentage * frameWidth) );
-	}
-	// Divide /
-	else if (operator == "/") {
-		if(command == 'h')
-			frame.setHeight( Math.round(frameHeight/amount) );
-		else
-			frame.setWidth( Math.round(frameWidth/amount) );
-	}
-	// Multiply *
-	else if (operator == "*") {
-		if(command == 'h')
-			frame.setHeight(Math.round(frameHeight*amount) );
-		else {
-			frame.setWidth(Math.round(frameWidth*amount) );
-		}
-	}
-}
-
-// Function below is exactly the same as in Keyboard Resize
-function resize(layer,t,r,b,l) {
-	var frame = layer.frame();
-	
-	//if layer is a textlayer, set width to fixed
-	if (layer.className() == "MSTextLayer") {
-		layer.setTextBehaviour(1);
-	}
-
-	// Top
-	if(t != 0) {
-		if (frame.height() + t < 0) {
-			var oldHeight = frame.height();
-			frame.setHeight(1); // When contracting size prevent object to get a negative height (e.g. -45px).
-			frame.setY(frame.y() + oldHeight - 1); // reposition the object
-		} else {
-			frame.setY(frame.y() - t); // push/pull object to correct position
-			frame.setHeight(frame.height() + t);
-		}
-	}
-
-	// Right
-	if(r != 0) {
-		frame.setWidth(frame.width() + r);
-		if(frame.width() <= 1) { frame.setWidth(1); }
-	}
-
-	// Bottom
-	if(b != 0) {
-		frame.setHeight(frame.height() + b);
-		if(frame.height() <= 1) { frame.setHeight(1); }
-	}
-
-	// Left
-	if(l != 0) {
-		if (frame.width() + l < 0) {
-			var oldWidth = frame.width();
-			frame.setWidth(1);
-			frame.setX(frame.x() + oldWidth - 1);
-		} else {
-			frame.setX(frame.x() - l); // push/pull object to correct position
-			frame.setWidth(frame.width() + l);
-		}
-	}
-}
-
-//////////////////////////////////////////////////////////////////
-//  BORDER ACTIONS                                              //
-//////////////////////////////////////////////////////////////////
-
-var borderActions = {
-	checkOperator : function(layer, color, operator) {
-		switch(operator) {
-			case '-':
-				borderActions.remove(layer);
-				break;
-			case '+':
-				borderActions.add(layer, color);
-				break;
-			case '#':
-			case '=':
-				borderActions.setColor(layer, color);
-				break;
-		}
-	},
-	setColor : function(layer, color) {
-		var style = new sketch.Style(); // requires access to the Sketch js API
-        var borders = layer.style().borders();
-		
-		// check if there's a border, if not add a new one
-        if (borders.count() <= 0){
-            layer.style().addStylePartOfType(1);
-        }
-        
-        var border = borders.lastObject();
-        color = color.replace("#", "");
-
-		border.color = style.colorFromString("#" + color);
-	},
-	add : function(layer, color) {
-        var style = new sketch.Style();
-        var border = layer.style().addStylePartOfType(1);
-        
-		// if no color is given (like bd+) set the color to black
-		color = (color !== "") ? color : "000000";
-		// basic check to find out if the user tries to add a width in stead of a color
-		if (color.length > 2) {
-            color = color.replace("#", "");
-			border.color = style.colorFromString("#" + color);
-		}
-		else {
-			var thickness = color;
-            border.thickness = thickness;
-		}
-	},
-	remove : function(layer) {
-		var style = new sketch.Style();
-		var borderCount = layer.style().borders().length - 1;
-		var border = layer.style().removeStyleBorderAtIndex(borderCount);
-	},
-	radius : function (layer, value, operator) {
-		if(layer && layer.isKindOfClass(MSShapeGroup)) {
-			var shape=layer.layers().firstObject();
-			if(shape && shape.isKindOfClass(MSRectangleShape)) {
-                var radius = shape.cornerRadiusFloat();
-                shape.cornerRadiusFloat = mathOps(radius, value, operator);
-			}
-		}
-	},
-	thickness : function (layer, thickness, operator) {
-		thickness = Number(thickness);
-        // are there any borders?
-        var border = layer.style().borders().lastObject();
-        if (border != null) {
-    		var borderThickness = layer.style().borders().lastObject().thickness();
-            border.thickness = mathOps(borderThickness, thickness, operator);
-        }
-        else {
-            this.add(layer, thickness);
-        }
-	}
-}
-
-//////////////////////////////////////////////////////////////////
-//  TEXT ACTIONS                                                //
-//////////////////////////////////////////////////////////////////
-
-var textActions = {
-    setSize : function(layer, value, operator) {
-        value = Number(value);
-        if (layer.className() == "MSTextLayer") {
-            var fontSize = layer.fontSize();
-            layer.fontSize = mathOps(fontSize, value, operator);
-        }
-    },
-    setLineheight : function(layer, value, operator) {
-        value = Number(value);
-        if (layer.className() == "MSTextLayer") {
-            var prevLineHeight = layer.lineHeight();
-            layer.lineHeight = mathOps(prevLineHeight, value, operator);
-        }
-    },
-    setValue : function(layer, value, operator) {
-        if (layer.className() == "MSTextLayer") {
-            var prevTextValue = layer.stringValue();
-            
-            if (operator == "+") {
-                layer.stringValue = prevTextValue + value;
-            }
-            else if (operator == "-") {
-                prevTextValue = prevTextValue.replace(value, "");
-                layer.stringValue = textValue;
-            }
-            else {
-                layer.stringValue = value;
-            }
-        }
-    },
-    convertLowerCase : function (layer) {
-        if (layer.className() == "MSTextLayer") {
-            var textValue = layer.stringValue();
-            var newValue = textValue.toLowerCase();
-            layer.stringValue = newValue;
-        }
-    },
-    convertUpperCase : function (layer) {
-        if (layer.className() == "MSTextLayer") {
-            var textValue = layer.stringValue();
-            var newValue = textValue.toUpperCase();
-            layer.stringValue = newValue;
-        }
-    }
-}
-var layerActions = {
-    rename : function(layer, value, operator) {
-        layerName = layer.name();
-        layer.nameIsFixed = 1;
-        
-        if (operator == "+") {
-            layer.name = layerName + value;
-        }
-        else if (operator == "-") {
-            layerName = layerName.replace(value, "");
-            layer.name = layerName;
-        }
-        else {
-            layer.name = value;
-        }
+ 
+function executeCommand(commandType, operator, value) {
+  switchStatement:
+    switch (commandType) {
+      case "l":
+      case "r":
+      case "t":
+      case "b":
+      case "a":
+        loopThroughSelection(resizeObject, commandType, value, operator);
+        break switchStatement;
+      case "w":
+      case "h":
+        loopThroughSelection(setWidthHeightObject, commandType, value, operator);
+        break switchStatement;
+      case "x":
+      case "y":
+        loopThroughSelection(moveObject, commandType, value, operator);
+        break switchStatement;
+      case "fs":
+        loopThroughSelection(textActions.setSize, value, operator);
+        break switchStatement;
+      case "ttl":
+        loopThroughSelection(textActions.convertLowerCase);
+        break switchStatement;
+      case "ttu":
+        loopThroughSelection(textActions.convertUpperCase);
+        break switchStatement;
+      case "lh":
+        loopThroughSelection(textActions.setLineheight, value, operator);
+        break switchStatement;
+      case "v":
+        loopThroughSelection(textActions.setValue, value, operator);
+        break switchStatement;
+      case "n":
+        loopThroughSelection(layerActions.rename, value, operator);
+        break switchStatement;
+      case "bdc":
+        loopThroughSelection(borderActions.setColor, value, operator);
+        break switchStatement;
+      case "bdr":
+        loopThroughSelection(borderActions.radius, value, operator);
+        break switchStatement;
+      case "bdw":
+        loopThroughSelection(borderActions.thickness, value, operator);
+        break switchStatement;
+      case "bd":
+        loopThroughSelection(borderActions.checkOperator, value, operator);
+        break switchStatement;
+      case "f":
+        loopThroughSelection(fillActions.setColor, value, operator);
+        break switchStatement;
+      case "o":
+        loopThroughSelection(fillActions.setOpacity, value, operator);
+        break switchStatement;
     }
 }
 
-//////////////////////////////////////////////////////////////////
-//  FILL ACTIONS                                               //
-//////////////////////////////////////////////////////////////////
 
-var fillActions = {
-    setColor : function(layer, color) {
-        
-        if (layer.className() == "MSTextLayer") {
-            color = makeColor(color);
-            layer.setTextColor(color);
-    	} 
-        if (layer instanceof MSShapeGroup) {
-            var style = new sketch.Style();
-            var fills = layer.style().fills();
-
-            // create fill if there are none
-            if (fills.count() <= 0){
-                fills.addStylePartOfType(0);
-            }
-            var fill = fills.firstObject();
-            color = color.replace("#", "");
-
-            //set color to first fill layer style
-            fill.color = style.colorFromString("#" + color);
-        }
-    },
-    // ,
-    // copyColor : function() {
-    //     
-    // },
-    setOpacity : function(layer, opacity) {
-        opacity = opacity/100;
-        layer.style().contextSettings().setOpacity(opacity);
-    }
-}
-
-//////////////////////////////////////////////////////////////////
-//  GENERIC FUNCTIONS                                           //
-//////////////////////////////////////////////////////////////////
-
-// simple math operations for - + * / %
-function mathOps(input, value, operator) {
-    input = Number(input);
-    value = Number(value);
-    
-    if (operator == "+")
-        return input + value;
-    else if (operator == "-")
-        return input - value;
-    else if (operator == "*")
-        return input * value;
-    else if (operator == "/")
-        return input / value;
-    else if (operator == "%")
-        return input * (value / 100);
-    else
-        return value;
-}
-
-// makeColor function to convert hex values to MSColor (from http://sketchplugins.com/d/8-global-colors-gradients/2)
-function makeColor(SVGString) {
-    return MSImmutableColor.colorWithSVGString(SVGString).newMutableCounterpart();
+// loop through layer selection
+function loopThroughSelection(callback) {
+  if (callback && typeof callback === 'function') {    
+    selection.forEach(layer => {
+      // make a copy of the passed in arguments
+      var args = Array.prototype.slice.call(arguments);
+      // overwrite the passed in function name with the layer
+      args[0] = layer;
+      // run the callback function with the function name and use the arguments
+      callback.apply(callback[0], args);
+    });
+  }
 }

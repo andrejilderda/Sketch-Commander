@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="styles.css">
+
+  <title>Sketch Commander</title>
+</head>
+
+<body>
+  <div class="c-flex">
+    <div class="c-flex__fixed">
+      <!-- 
+        BEWARE! Don't try to format the code below nicely, because the added spaces
+        will be added to the calculation that determines the caret position.
+      -->
+      <div contenteditable="true" class="c-commander" id="c-commander" placeholder="Enter a command..."></div>
+    </div>
+    <div class="c-flex__scroll">
+      <div data-list='layers'>
+        This is where the layers should be rendered.
+      </div>
+      <div data-list='commands'>
+        This is where the commands should be rendered.
+      </div>
+    </div>
+  </div>
+  
+  
+  <script src="webview.js"></script>
+</body>
+</html>
