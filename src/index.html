@@ -12,14 +12,20 @@
 
 <body>
   <div class="c-flex">
+    <ul class="c-context-tabs">
+        This is where the context tabs should be rendered.
+    </ul>
     <div class="c-flex__fixed">
-      <!-- 
+      <!--
         BEWARE! Don't try to format the code below nicely, because the added spaces
         will be added to the calculation that determines the caret position.
       -->
       <div contenteditable="true" class="c-commander" id="c-commander" placeholder="Enter a command..."></div>
     </div>
     <div class="c-flex__scroll">
+      <div class='is-active' data-list='submit'>
+        This is where the submit-button should be rendered.
+      </div>
       <div data-list='layers'>
         This is where the layers should be rendered.
       </div>
@@ -28,8 +34,8 @@
       </div>
     </div>
   </div>
-  
-  
+
+
   <script src="webview.js"></script>
 </body>
 </html>
