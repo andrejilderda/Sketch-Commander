@@ -35,9 +35,9 @@
     "url": "git+https://github.com/ajilderda/Sketch-Commander.git"
   },
   "devDependencies": {
-    "@skpm/builder": "^0.5.2",
-    "@skpm/test-runner": "^0.3.9",
-    "browser-sync": "*",
+    "@skpm/builder": "^0.7.0",
+    "@skpm/test-runner": "^0.4.0",
+    "browser-sync": "^2.26.7",
     "del": "*",
     "gulp": "^4.0.0",
     "gulp-autoprefixer": "*",
